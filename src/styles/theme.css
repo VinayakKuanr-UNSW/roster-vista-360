@@ -1,0 +1,433 @@
+/* Light theme - Default */
+.light {
+  --background-image: radial-gradient(circle at 15% 50%, rgba(101, 0, 255, 0.03) 0%, transparent 40%),
+                      radial-gradient(circle at 85% 30%, rgba(0, 102, 255, 0.03) 0%, transparent 40%);
+  --background-color: #f5f5f7;
+  
+  /* Light theme variables */
+  --primary: 250 95% 64%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 250 95% 64%;
+  --radius: 0.75rem;
+  
+  /* Sidebar variables */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 10% 3.9%;
+  --sidebar-primary: 250 95% 64%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 240 5.9% 90%;
+  --sidebar-ring: 250 95% 64%;
+  
+  /* Card and UI element variables */
+  --card-bg: 0 0% 100%;
+  --card-border: 240 5.9% 90%;
+  --card-foreground: 240 10% 3.9%;
+  
+  /* Button variables */
+  --button-primary-bg: 250 95% 64%;
+  --button-primary-hover: 250 95% 55%;
+  --button-secondary-bg: 240 4.8% 95.9%;
+  --button-secondary-hover: 240 4.8% 90%;
+}
+
+/* Dark theme */
+.dark {
+  --background-image: radial-gradient(circle at 15% 50%, rgba(101, 0, 255, 0.05) 0%, transparent 40%),
+                      radial-gradient(circle at 85% 30%, rgba(0, 102, 255, 0.05) 0%, transparent 40%);
+  --background-color: #050507;
+  
+  /* Dark theme variables */
+  --primary: 250 95% 64%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 250 95% 64%;
+  
+  /* Sidebar specific variables */
+  --sidebar-background: 240 10% 3.9%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 250 95% 64%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 250 95% 64%;
+  
+  /* Card and UI element variables */
+  --card-bg: 240 10% 3.9%;
+  --card-border: 240 3.7% 15.9%;
+  --card-foreground: 0 0% 98%;
+  
+  /* Button variables */
+  --button-primary-bg: 250 95% 64%;
+  --button-primary-hover: 250 95% 55%;
+  --button-secondary-bg: 240 3.7% 15.9%;
+  --button-secondary-hover: 240 3.7% 20%;
+}
+
+/* Glass theme */
+.theme-glass {
+  --background-image: radial-gradient(circle at 15% 50%, rgba(101, 0, 255, 0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 85% 30%, rgba(0, 102, 255, 0.15) 0%, transparent 50%);
+  --background-color: #0a0a0f;
+  
+  /* Glass theme variables */
+  --primary: 250 95% 64%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 10% 3.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 84.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 250 95% 64%;
+  
+  /* Sidebar specific variables */
+  --sidebar-background: rgba(13, 13, 18, 0.7);
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 250 95% 64%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: rgba(30, 30, 40, 0.7);
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: 250 95% 64%;
+  
+  /* Card and UI element variables */
+  --card-bg: rgba(30, 30, 40, 0.7);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-foreground: rgba(255, 255, 255, 0.95);
+  
+  /* Button variables */
+  --button-primary-bg: rgba(124, 58, 237, 0.8);
+  --button-primary-hover: rgba(124, 58, 237, 0.9);
+  --button-secondary-bg: rgba(30, 30, 40, 0.7);
+  --button-secondary-hover: rgba(40, 40, 50, 0.8);
+  
+  /* Improved contrast for glass theme text */
+  --text-contrast: rgba(255, 255, 255, 0.95);
+  --border-contrast: rgba(255, 255, 255, 0.3);
+}
+
+body {
+  background-color: var(--background-color);
+  background-image: var(--background-image);
+  min-height: 100vh;
+}
+
+/* Glass theme specific styles */
+.theme-glass .card,
+.theme-glass .popover-content,
+.theme-glass .dropdown-menu-content,
+.theme-glass .dialog-content,
+.theme-glass .sheet-content {
+  background-color: rgba(30, 30, 40, 0.7) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-contrast);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.theme-glass .card *,
+.theme-glass .popover-content *,
+.theme-glass .dropdown-menu-content *,
+.theme-glass .dialog-content *,
+.theme-glass .sheet-content * {
+  color: var(--text-contrast);
+}
+
+/* Fix for buttons in glass theme */
+.theme-glass button:not(.bg-primary):not(.bg-destructive):not(.bg-secondary) {
+  background-color: rgba(60, 60, 70, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.theme-glass button:hover:not(.bg-primary):not(.bg-destructive):not(.bg-secondary) {
+  background-color: rgba(80, 80, 90, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Fix for inputs in glass theme */
+.theme-glass input,
+.theme-glass textarea,
+.theme-glass select {
+  background-color: rgba(40, 40, 50, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.theme-glass input:focus,
+.theme-glass textarea:focus,
+.theme-glass select:focus {
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+}
+
+/* Ensure calendar visibility in glass theme */
+.theme-glass .react-calendar {
+  background-color: rgba(30, 30, 40, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.theme-glass .calendar-day {
+  color: white;
+}
+
+/* Ensure dropdown menus are visible in glass theme */
+.theme-glass .command-dialog {
+  background-color: rgba(30, 30, 40, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Fix for text in glass theme */
+.theme-glass .text-foreground {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-glass .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Fix for calendar elements */
+.theme-glass .react-calendar__tile {
+  color: white;
+}
+
+/* Fix for calendar navigation */
+.theme-glass .react-calendar__navigation button {
+  color: white;
+}
+
+/* Make sure calendar headers are visible */
+.theme-glass .react-calendar__month-view__weekdays {
+  color: white;
+}
+
+/* Fix for command component in glass theme */
+.theme-glass .command {
+  background-color: rgba(30, 30, 40, 0.8);
+}
+
+.theme-glass .command-input {
+  background-color: transparent;
+  color: white;
+}
+
+.theme-glass .command-list {
+  background-color: transparent;
+}
+
+.theme-glass .command-item {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.theme-glass .command-item[data-selected="true"] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fix for popover component in glass theme */
+.theme-glass [data-radix-popper-content-wrapper] {
+  backdrop-filter: blur(8px);
+}
+
+/* Fix for availability calendar cells */
+.theme-glass .grid-cols-7 > div {
+  min-height: 80px;
+}
+
+/* Improve text visibility in various components */
+.theme-glass .dialog-content .text-muted-foreground,
+.theme-glass .popover-content .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Ensure availability cells have good contrast */
+.theme-glass .bg-green-500 {
+  background-color: rgba(52, 211, 153, 0.9);
+}
+
+.theme-glass .bg-red-500 {
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
+.theme-glass .bg-yellow-500 {
+  background-color: rgba(245, 158, 11, 0.9);
+}
+
+/* Make the availability page fill the whole screen */
+.theme-glass #root,
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Gaming-inspired UI elements */
+.glass-panel {
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.45);
+}
+
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+}
+
+/* Department color classes with gaming aesthetic */
+.group-card-blue {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(30, 58, 138, 0.3) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.group-card-green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 95, 70, 0.3) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.group-card-red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(153, 27, 27, 0.3) 100%);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.group-card-purple {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(88, 28, 135, 0.3) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* Animation classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-slide-up {
+  animation: fadeSlideUp 0.6s ease-out;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glass panel hover effect */
+.glass-panel-hover {
+  transition: all 0.3s ease;
+  background-color: rgba(30, 30, 40, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-hover:hover {
+  background-color: rgba(40, 40, 50, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Button styles for the gaming theme */
+.button-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.button-blue:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.button-outline {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.button-outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover scale effect for cards and panels */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}

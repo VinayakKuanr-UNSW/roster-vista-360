@@ -1,0 +1,77 @@
+[
+  {
+    "id": "1",
+    "name": "Morning Shift Template",
+    "description": "Covers all morning duties",
+    "start_date": "2025-01-01",
+    "end_date": "2025-01-31",
+    "createdAt": "2025-01-01T08:00:00Z",
+    "updatedAt": "2025-01-01T08:00:00Z",
+    "status": "draft",
+    "shifts": [],
+    "groups": [
+      {
+        "id": 101,
+        "name": "Convention Centre",
+        "color": "blue",
+        "subGroups": [
+          { "id": 1001, "name": "AM Base", "shifts": [] },
+          { "id": 1002, "name": "PM Base", "shifts": [] },
+          { "id": 1003, "name": "AM Assist", "shifts": [] },
+          { "id": 1004, "name": "PM Assist", "shifts": [] },
+          { "id": 1005, "name": "Late", "shifts": [] },
+          { "id": 1006, "name": "Refresh", "shifts": [] }
+        ]
+      },
+      {
+        "id": 102,
+        "name": "Exhibition Centre",
+        "color": "green",
+        "subGroups": [
+          { "id": 1007, "name": "Bump-In", "shifts": [] },
+          { "id": 1008, "name": "Bump-Out", "shifts": [] }
+        ]
+      },
+      {
+        "id": 103,
+        "name": "Theatre",
+        "color": "red",
+        "subGroups": [
+          { "id": 1009, "name": "Setup", "shifts": [] },
+          { "id": 1010, "name": "Packdown", "shifts": [] }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Evening Shift Template",
+    "description": "Covers all evening duties",
+    "start_date": "2025-02-01",
+    "end_date": "2025-02-28",
+    "createdAt": "2025-02-01T08:00:00Z",
+    "updatedAt": "2025-02-01T08:00:00Z",
+    "status": "published",
+    "shifts": [],
+    "groups": [
+      {
+        "id": 201,
+        "name": "Catering",
+        "color": "green",
+        "subGroups": [
+          { "id": 2001, "name": "Evening Catering A", "shifts": [] },
+          { "id": 2002, "name": "Evening Catering B", "shifts": [] }
+        ]
+      },
+      {
+        "id": 202,
+        "name": "Housekeeping",
+        "color": "sky",
+        "subGroups": [
+          { "id": 2003, "name": "Evening Housekeeping", "shifts": [] },
+          { "id": 2004, "name": "Room Service", "shifts": [] }
+        ]
+      }
+    ]
+  }
+]
