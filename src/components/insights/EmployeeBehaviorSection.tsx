@@ -16,18 +16,21 @@ const EmployeeBehaviorSection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="top-performers"
           title="Top Performers"
           metric={topPerformers.length ? topPerformers.join(", ") : "—"}
           description="Based on attendance & reliability"
           icon={<User size={18} className="text-green-400" />}
         />
         <InsightMetricCard
+          metricId="shift-swaps"
           title="Most Swapped/Declined Shifts"
           metric={mostSwappedSlots}
           description="Unpopular time slots/venues"
           icon={<Calendar size={18} className="text-blue-400" />}
         />
         <InsightMetricCard
+          metricId="fatigue-risk"
           title="Fatigue Risk Indicators"
           metric={fatigueCount}
           description="Long shifts, short rests"

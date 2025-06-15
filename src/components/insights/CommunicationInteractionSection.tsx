@@ -16,18 +16,21 @@ const CommunicationInteractionSection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="swap-requests"
           title="Swap Requests & Approvals"
           metric={swapRequestVolume}
           description="Requests & approval rate"
           icon={<User size={18} className="text-purple-400" />}
         />
         <InsightMetricCard
+          metricId="broadcast-engagement"
           title="Broadcast Engagement"
           metric={broadcastEngagement}
           description="Message views & replies"
           icon={<MessageSquare size={18} className="text-green-400" />}
         />
         <InsightMetricCard
+          metricId="staff-feedback"
           title="Staff Feedback"
           metric={feedbackMetrics}
           description="Event survey results"

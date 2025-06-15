@@ -16,18 +16,21 @@ const ForecastingPlanningSection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="demand-forecasting"
           title="Demand Forecasting"
           metric={seasonalDemand}
           description="By month/type/location"
           icon={<Calendar size={18} className="text-cyan-400" />}
         />
         <InsightMetricCard
+          metricId="historical-trends"
           title="Historical Shift Trends"
           metric={shiftTrends}
           description="Staff demand patterns"
           icon={<ChartBar size={18} className="text-green-400" />}
         />
         <InsightMetricCard
+          metricId="ai-recommendations"
           title="AI-based Recommendations"
           metric={aiRecommendation}
           description="Staffing suggestions"

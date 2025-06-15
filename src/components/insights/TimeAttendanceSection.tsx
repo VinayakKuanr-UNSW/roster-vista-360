@@ -16,18 +16,21 @@ const TimeAttendanceSection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="actual-vs-scheduled-hours"
           title="Actual vs. Scheduled Hours"
           metric={actualScheduledHours}
           description="Real vs. planned shift hours"
           icon={<Clock size={18} className="text-indigo-400" />}
         />
         <InsightMetricCard
+          metricId="clock-discrepancies"
           title="Clock Discrepancies"
           metric={clockDiscrepancies}
           description="Clock-in/out mismatches"
           icon={<User size={18} className="text-amber-400" />}
         />
         <InsightMetricCard
+          metricId="overtime-analysis"
           title="Overtime Analysis"
           metric={overtimeEvents}
           description="Trends & cost"

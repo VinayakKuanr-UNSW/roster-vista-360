@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AppLayout from './AppLayout';
@@ -22,6 +21,7 @@ import AvailabilitiesPage from '../pages/AvailabilitiesPage';
 import BroadcastPage from '../pages/BroadcastPage';
 import ConfigurationsPage from '../pages/ConfigurationsPage';
 import SearchPage from '../pages/SearchPage';
+import AnalysisPage from '../pages/AnalysisPage';
 
 const AppRouter: React.FC = () => {
   return (
@@ -173,6 +173,16 @@ const AppRouter: React.FC = () => {
           <ProtectedRoute requiredFeature="insights">
             <AppLayout>
               <InsightsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/insights/:metricId"
+        element={
+          <ProtectedRoute requiredFeature="insights">
+            <AppLayout>
+              <AnalysisPage />
             </AppLayout>
           </ProtectedRoute>
         }

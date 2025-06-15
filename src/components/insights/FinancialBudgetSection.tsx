@@ -17,24 +17,28 @@ const FinancialBudgetSection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="labor-cost-per-event"
           title="Labor Cost per Event"
           metric={laborCostPerEvent}
           description="Wages, overtime, etc."
           icon={<DollarSign size={18} className="text-lime-400" />}
         />
         <InsightMetricCard
+          metricId="cost-per-role"
           title="Cost per Role/Dept."
           metric={costPerRole}
           description="High/low cost roles"
           icon={<User size={18} className="text-blue-400" />}
         />
         <InsightMetricCard
+          metricId="budget-variance"
           title="Budget Variance"
           metric={budgetVariance}
           description="Actual vs forecasted"
           icon={<ChartBar size={18} className="text-red-400" />}
         />
         <InsightMetricCard
+          metricId="high-cost-staff"
           title="High Cost Staff Patterns"
           metric={highCostStaff}
           description="Most expensive assignments"

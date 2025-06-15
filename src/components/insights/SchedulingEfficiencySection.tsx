@@ -16,18 +16,21 @@ const SchedulingEfficiencySection: React.FC = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <InsightMetricCard
+          metricId="roster-approval-time"
           title="Roster Approval Time"
           metric={rosterApprovalTime}
           description="Draft → published (avg.)"
           icon={<Clock size={18} className="text-lime-400" />}
         />
         <InsightMetricCard
+          metricId="shift-edit-frequency"
           title="Shift Edit Frequency"
           metric={shiftEditFrequency}
           description="Edits post-publish"
           icon={<Calendar size={18} className="text-orange-400" />}
         />
         <InsightMetricCard
+          metricId="roster-stability"
           title="Roster Stability Index"
           metric={stabilityIndex}
           description="Week-to-week stability"

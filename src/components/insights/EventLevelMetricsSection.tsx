@@ -24,18 +24,21 @@ const EventLevelMetricsSection: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <InsightMetricCard
+          metricId="shift-demand-supply"
           title="Shift Demand vs. Supply"
           metric={`${shiftDemand} / ${shiftSupply}`}
           description="Required vs. staff available"
           icon={<Calendar size={18} className="text-cyan-400" />}
         />
         <InsightMetricCard
+          metricId="role-coverage"
           title="Role Coverage"
           metric={roleCoveragePercent}
           description="All critical roles filled"
           icon={<User size={18} className="text-purple-300" />}
         />
         <InsightMetricCard
+          metricId="conflict-analysis"
           title="Conflict Analysis"
           metric={eventConflicts ? `${eventConflicts} conflict` : "None"}
           description="Overlapping event conflicts"
