@@ -46,7 +46,7 @@ const TemplatesPage: React.FC = () => {
         const convertedTemplates: Template[] = mockData.map((item) => ({
           ...item,
           id: parseInt(item.id), // Convert string id to number
-          status: item.status as 'draft' | 'published',
+          status: item.status as 'draft' | 'published', // Ensure proper type
         }));
         setTemplates(convertedTemplates);
         setCurrentTemplate(convertedTemplates[0]);
@@ -167,6 +167,16 @@ const TemplatesPage: React.FC = () => {
 
   const handlePublish = async (dateRange: { start: Date; end: Date }, override: boolean) => {
     if (!currentTemplate) return;
+    
+    // Create the template header meta object with proper typing
+    const templateMeta = {
+      id: currentTemplate.id,
+      name: currentTemplate.name,
+      status: 'published' as const,
+      updatedAt: new Date().toISOString(),
+      groups: currentTemplate.groups,
+    };
+    
     setTemplates((prev) =>
       prev.map((t) =>
         t.id === currentTemplate.id
@@ -180,6 +190,13 @@ const TemplatesPage: React.FC = () => {
           : t
       )
     );
+    
+    setCurrentTemplate((prev) => prev ? {
+      ...prev,
+      status: 'published' as const,
+      updatedAt: new Date().toISOString(),
+    } : null);
+    
     toast({
       title: 'Published',
       description: `${dateRange.start.toLocaleDateString()} → ${dateRange.end.toLocaleDateString()}`,
@@ -245,7 +262,13 @@ const TemplatesPage: React.FC = () => {
           {currentTemplate && (
             <>
               <TemplateHeader
-                currentTemplate={currentTemplate}
+                currentTemplate={{
+                  id: currentTemplate.id,
+                  name: currentTemplate.name,
+                  status: currentTemplate.status,
+                  updatedAt: currentTemplate.updatedAt,
+                  groups: currentTemplate.groups,
+                }}
                 onSaveAsDraft={handleSaveAsDraft}
                 onPublish={handlePublish}
                 onExportToPdf={handleExportToPdf}

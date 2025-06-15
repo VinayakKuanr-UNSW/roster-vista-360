@@ -5,8 +5,34 @@ import OpenBidsPage from '@/components/management/OpenBidsPage';
 import { SwapRequestsContent } from '@/components/management/SwapRequestsContent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+// Define the swap request type
+interface SwapRequest {
+  id: string;
+  requestor: {
+    id: string;
+    name: string;
+    avatar: string;
+    department: string;
+    role: string;
+  };
+  recipient: {
+    id: string;
+    name: string;
+    avatar: string;
+    department: string;
+    role: string;
+  };
+  department: string;
+  fromDate: string;
+  toDate: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedOn: string;
+  reason: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 // Mock swap requests data
-const mockSwapRequests = [
+const mockSwapRequests: SwapRequest[] = [
   {
     id: '1',
     requestor: {
@@ -26,10 +52,10 @@ const mockSwapRequests = [
     department: 'Operations',
     fromDate: '2024-01-15',
     toDate: '2024-01-16',
-    status: 'pending' as const,
+    status: 'pending',
     submittedOn: '2024-01-10',
     reason: 'Family emergency',
-    priority: 'high' as const
+    priority: 'high'
   },
   {
     id: '2',
@@ -50,17 +76,17 @@ const mockSwapRequests = [
     department: 'Customer Service',
     fromDate: '2024-01-20',
     toDate: '2024-01-21',
-    status: 'approved' as const,
+    status: 'approved',
     submittedOn: '2024-01-12',
     reason: 'Vacation request',
-    priority: 'medium' as const
+    priority: 'medium'
   }
 ];
 
 const ManagementPage: React.FC = () => {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
-  const [swapRequests, setSwapRequests] = useState(mockSwapRequests);
+  const [swapRequests, setSwapRequests] = useState<SwapRequest[]>(mockSwapRequests);
 
   // If no type is specified, redirect to the default "bids" page.
   if (!type) {

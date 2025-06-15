@@ -126,7 +126,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 
   /* ───────────────── publish flow ───────────────── */
   const [pubOpen, setPubOpen] = useState(false);
-  const [range, setRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
+  const [range, setRange] = useState<{ from?: Date; to?: Date } | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [conflict, setConflict] = useState(false);
 
@@ -316,7 +316,11 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               mode="range"
               numberOfMonths={isWide ? 2 : 1}
               selected={range}
-              onSelect={setRange}
+              onSelect={(dateRange) => {
+                if (dateRange) {
+                  setRange(dateRange);
+                }
+              }}
               initialFocus
               className="mx-auto"
             />
