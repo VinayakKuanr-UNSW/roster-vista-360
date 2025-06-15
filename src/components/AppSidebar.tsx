@@ -69,7 +69,7 @@ const AppSidebar = () => {
       
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <span className="text-xl font-semibold text-center">
+          <span className="font-semibold text-center text-base">
             {label}
           </span>
           {badge && <Badge variant="secondary" className="ml-2 text-xs">
