@@ -211,8 +211,7 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
               <div>
                 <p className="text-white/50">Submitted</p>
                 <p className="font-medium mt-0.5">
-                  {format(new Date(swapRequest.submittedOn), "d MMM yyyy, HH:mm")} ({" ""}
-                  {formatDistanceToNow(new Date(swapRequest.submittedOn))} ago)
+                  {format(new Date(swapRequest.submittedOn), "d MMM yyyy, HH:mm")} ({formatDistanceToNow(new Date(swapRequest.submittedOn))} ago)
                 </p>
               </div>
             </div>
