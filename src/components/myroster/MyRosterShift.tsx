@@ -2,7 +2,6 @@
 import React from 'react';
 import { Shift } from '@/api/models/types';
 import { formatTime } from '@/lib/utils';
-import { Clock, Sun, Moon } from 'lucide-react';
 
 interface MyRosterShiftProps {
   shift: Shift;
@@ -41,35 +40,16 @@ const MyRosterShift: React.FC<MyRosterShiftProps> = ({
         return 'bg-purple-500/90 hover:bg-purple-500 border-purple-400/30';
     }
   };
-
-  const getTimeIcon = () => {
-    const hour = parseInt(shift.startTime.split(':')[0]);
-    if (hour < 12) {
-      return <Sun size={10} className="opacity-80" />;
-    } else {
-      return <Moon size={10} className="opacity-80" />;
-    }
-  };
-
-  const isAMShift = () => {
-    const hour = parseInt(shift.startTime.split(':')[0]);
-    return hour < 12;
-  };
   
   // For month view - now fills available space
   if (compact) {
     return (
       <div 
-        className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex flex-col justify-center px-2 py-1 ${getColorClass()} ${
-          isAMShift() ? 'opacity-95' : 'opacity-85'
-        }`}
+        className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex flex-col justify-center px-2 py-1 ${getColorClass()}`}
         onClick={(e) => onClick && onClick(e)}
         style={style}
       >
-        <div className="font-medium truncate text-center leading-tight flex items-center justify-center gap-1">
-          {getTimeIcon()}
-          {shift.role}
-        </div>
+        <div className="font-medium truncate text-center leading-tight">{shift.role}</div>
         <div className="opacity-90 text-[10px] truncate text-center leading-tight mt-0.5">
           {formatTime(shift.startTime)}
         </div>
@@ -84,10 +64,7 @@ const MyRosterShift: React.FC<MyRosterShiftProps> = ({
       onClick={() => onClick && onClick()}
       style={style}
     >
-      <div className="font-medium text-sm mb-1 leading-tight flex items-center gap-2">
-        {getTimeIcon()}
-        {shift.role}
-      </div>
+      <div className="font-medium text-sm mb-1 leading-tight">{shift.role}</div>
       <div className="text-xs mb-2 opacity-90 leading-tight">{subGroupName}</div>
       <div className="text-xs opacity-90 leading-tight">
         {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
