@@ -94,7 +94,7 @@ const AppSidebar = () => {
   }) => <div className="flex items-center gap-3 mb-2 px-[80px] py-[8px] bg-gray-950 rounded-full">
       {/* Enlarged section icon with matching color */}
       <Icon className={cn("h-6 w-6", color)} />
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="uppercase tracking-wider text-muted-foreground text-xl font-semibold mx-0">
         {title}
       </span>
     </div>;
