@@ -64,24 +64,21 @@ export default function AuditTrailModal({
                 <Loader2 className="animate-spin" />
                 <p>Loading audit history…</p>
               </div>
-
-            {/* Error State */}
             ) : error ? (
+              /* Error State */
               <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
                 <p className="mb-4">Couldn't load audit history.</p>
                 <Button onClick={refresh} className="w-full">
                   Retry
                 </Button>
               </div>
-
-            {/* Empty State */}
             ) : data && data.length === 0 ? (
+              /* Empty State */
               <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
                 <p>No history for this entry.</p>
               </div>
-
-            {/* Success State */}
             ) : (
+              /* Success State */
               data && (
                 <AuditTrail
                   events={data}
