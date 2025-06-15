@@ -1,8 +1,9 @@
+
 /* ------------------------------------------------------------------
    TimesheetRow.tsx   (single‑file drop‑in: hook + modal + row)
 ------------------------------------------------------------------- */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Clock,
   Pencil,
@@ -11,11 +12,9 @@ import {
   AlertTriangle,
   MoreHorizontal,
   Save,
-  Loader2,
 } from "lucide-react";
-import * as Dialog from "@radix-ui/react-dialog";
 import { ShiftStatusBadge } from "./ShiftStatusBadge";
-import AuditTrail from "@/components/AuditTrail"; // your earlier component
+import AuditTrailModal from "@/components/AuditTrailModal";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,107 +24,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AuditStatus } from "@/components/auditTrailMeta";
 
 /* ╭──────────────────────────────────────────────╮
-   │ 1 ▸ useTimesheetAudit (inline reusable hook) │
-   ╰──────────────────────────────────────────────╯ */
-export interface AuditEvent {
-  id: string;
-  status: AuditStatus;
-  at: string | Date;
-}
-
-function useTimesheetAudit(timesheetId?: number) {
-  const [data, setData] = useState<AuditEvent[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchAudit = () => {
-    if (!timesheetId) return;
-    setLoading(true);
-    setError(null);
-
-    fetch(`/api/timesheets/${timesheetId}/audit`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((json) => setData(json))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(fetchAudit, [timesheetId]);
-
-  return { data, loading, error, refresh: fetchAudit };
-}
-
-/* ╭──────────────────────────────────────────────╮
-   │ 2 ▸ AuditTrailModal (Radix Dialog wrapper)   │
-   ╰──────────────────────────────────────────────╯ */
-function AuditTrailModal({
-  timesheetId,
-  open,
-  onOpenChange,
-}: {
-  timesheetId: number;
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-}) {
-  const { data, loading, error, refresh } = useTimesheetAudit(timesheetId);
-
-  return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
-        <Dialog.Content
-          className="fixed inset-0 z-50 flex items-center justify-center outline-none"
-          aria-describedby="audit-trail-desc"
-        >
-          <div className="relative">
-            {/* close btn */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="absolute -top-10 right-0 text-slate-300 hover:text-white"
-            >
-              <X size={20} />
-              <span className="sr-only">Close</span>
-            </Button>
-
-            {/* states */}
-            {loading ? (
-              <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80 flex flex-col items-center gap-4">
-                <Loader2 className="animate-spin" />
-                <p id="audit-trail-desc">Loading audit history…</p>
-              </div>
-            ) : error ? (
-              <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
-                <p className="mb-4">Couldn’t load audit history.</p>
-                <Button className="w-full" onClick={refresh}>
-                  Retry
-                </Button>
-              </div>
-            ) : data && data.length === 0 ? (
-              <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
-                <p id="audit-trail-desc">No history for this entry.</p>
-              </div>
-            ) : (
-              data && (
-                <AuditTrail events={data} onClose={() => onOpenChange(false)} />
-              )
-            )}
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
-}
-
-/* ╭──────────────────────────────────────────────╮
-   │ 3 ▸ TimesheetRow component (full)            │
+   │ TimesheetRow component (full)                │
    ╰──────────────────────────────────────────────╯ */
 
 interface TimesheetEntry {
@@ -180,7 +81,7 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
     clockOutTime: entry.clockOutTime || "",
   });
 
-  /* ‑‑ helpers / handlers (same as your original) ------------- */
+  /* ‑‑ helpers / handlers ------------------------------------ */
   const handleStatusUpdate = (
     newStatus: "Completed" | "Cancelled" | "No-Show",
   ) => {
@@ -202,7 +103,6 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
   };
 
   const handleSaveChanges = () => {
-    /* (your existing calculation logic) */
     const [sh, sm] = editedValues.startTime.split(":").map(Number);
     const [eh, em] = editedValues.endTime.split(":").map(Number);
     let mins = (eh - sh) * 60 + (em - sm);
@@ -294,10 +194,9 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
           )}
         </td>
 
-        {/* --- editable or static blocks (unchanged) --- */}
+        {/* --- editable or static blocks --- */}
         {isEditing ? (
           <>
-            {/* inputs … */}
             <td className="p-3 text-sm">
               <input
                 type="time"
@@ -308,7 +207,6 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
                 className="bg-white/10 border border-white/20 rounded p-1 w-20"
               />
             </td>
-            {/* repeat for endTime, clockIn, clockOut, break, etc. */}
             <td className="p-3 text-sm">
               <input
                 type="time"
@@ -389,7 +287,6 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
           </>
         ) : (
           <>
-            {/* static cells … */}
             <td className="p-3 text-sm">{entry.startTime}</td>
             <td className="p-3 text-sm">{entry.endTime}</td>
             <td className="p-3 text-sm">
@@ -471,5 +368,3 @@ export const TimesheetRow: React.FC<TimesheetRowProps> = ({
     </>
   );
 };
-
-/* ------------------------------------------------------------------ */

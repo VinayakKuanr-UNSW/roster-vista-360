@@ -1,5 +1,6 @@
+
 import { EVENT_META } from "./auditTrailMeta";
-import type { AuditEvent } from "./AuditTrail";
+import type { AuditEvent } from "@/api/models/types";
 import { cn } from "@/lib/cn";
 import { formatDistanceToNowStrict } from "date-fns";
 

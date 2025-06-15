@@ -1,8 +1,9 @@
+
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X, Loader2 } from "lucide-react";
 import AuditTrail from "@/components/AuditTrail";
-import { useTimesheetAudit } from "@/hooks/useTimesheetAudit";
+import { useTimesheetAudit } from "@/api/hooks/useTimesheetAudit";
 import { Button } from "@/components/ui/button";
 
 export default function AuditTrailModal({
@@ -26,8 +27,14 @@ export default function AuditTrailModal({
         >
           {/* MUST be direct child of Dialog.Content */}
           <Dialog.Title asChild>
-            <VisuallyHidden>Audit Trail</VisuallyHidden>
+            <VisuallyHidden>Audit Trail for Timesheet {timesheetId}</VisuallyHidden>
           </Dialog.Title>
+
+          <Dialog.Description asChild>
+            <VisuallyHidden>
+              View the complete history of changes and actions for this timesheet entry.
+            </VisuallyHidden>
+          </Dialog.Description>
 
           <div className="relative">
             {/* Close button */}
@@ -48,13 +55,13 @@ export default function AuditTrailModal({
                            flex flex-col items-center gap-4 w-80"
               >
                 <Loader2 className="animate-spin" />
-                <p id="audit-trail-desc">Loading audit history…</p>
+                <p>Loading audit history…</p>
               </div>
 
             {/* Error State */}
             ) : error ? (
               <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
-                <p className="mb-4">Couldn’t load audit history.</p>
+                <p className="mb-4">Couldn't load audit history.</p>
                 <Button onClick={refresh} className="w-full">
                   Retry
                 </Button>
@@ -63,7 +70,7 @@ export default function AuditTrailModal({
             {/* Empty State */}
             ) : data && data.length === 0 ? (
               <div className="bg-[#131516] text-slate-100 rounded-2xl p-8 w-80">
-                <p id="audit-trail-desc">No history for this entry.</p>
+                <p>No history for this entry.</p>
               </div>
 
             {/* Success State */}

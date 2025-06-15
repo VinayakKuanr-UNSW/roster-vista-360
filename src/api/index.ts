@@ -12,3 +12,6 @@ export * from './models/types';
 
 // Also export mock data for development
 export * from './data/mockData';
+
+// Export timesheet audit hook directly
+export * from '../hooks/useTimesheetAudit';
