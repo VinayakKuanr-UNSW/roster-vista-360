@@ -2,6 +2,9 @@
 /* Import Inter font for modern typography */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Import enhanced component styles */
+@import './styles/enhanced-components.css';
+
 /* index.css */
 html,
 body,
@@ -73,35 +76,23 @@ body,
     @apply transition-[margin] duration-300 ease-in-out;
   }
 
-  /* Modern card styles */
+  /* Modern card styles - Enhanced */
   .modern-card {
-    @apply bg-card/95 border border-border/50 rounded-xl shadow-sm backdrop-blur-sm transition-all duration-200;
-  }
-  
-  .modern-card:hover {
-    @apply shadow-md border-border/80 translate-y-[-1px];
+    @apply bg-card/95 border border-border/40 rounded-xl shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-lg hover:border-border/60 hover:translate-y-[-2px];
   }
   
   /* Enhanced button styles */
   .lovable-button {
-    @apply bg-primary text-primary-foreground rounded-lg px-4 py-2 font-medium text-sm transition-all duration-200 shadow-sm;
-  }
-  
-  .lovable-button:hover {
-    @apply bg-primary/90 shadow-md translate-y-[-1px];
+    @apply bg-primary text-primary-foreground rounded-lg px-4 py-2.5 font-medium text-sm transition-all duration-200 shadow-sm hover:bg-primary/90 hover:shadow-md hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20;
   }
   
   .lovable-button-secondary {
-    @apply bg-secondary text-secondary-foreground border border-border rounded-lg px-4 py-2 font-medium text-sm transition-all duration-200;
+    @apply bg-secondary text-secondary-foreground border border-border rounded-lg px-4 py-2.5 font-medium text-sm transition-all duration-200 hover:bg-secondary/80 hover:border-border/80 hover:translate-y-[-1px];
   }
   
-  .lovable-button-secondary:hover {
-    @apply bg-secondary/80 border-border/80 translate-y-[-1px];
-  }
-  
-  /* Modern input styles */
+  /* Modern input styles - Enhanced */
   .lovable-input {
-    @apply bg-card border border-border rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+    @apply bg-card/50 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 hover:border-border/70;
   }
   
   /* Enhanced sidebar styles */
@@ -111,7 +102,7 @@ body,
   
   /* Calendar specific enhancements */
   .calendar-day {
-    @apply rounded-lg p-2 transition-all duration-150 hover:bg-accent/10 cursor-pointer;
+    @apply rounded-lg p-2 transition-all duration-150 hover:bg-accent/20 cursor-pointer;
   }
   
   .calendar-day-selected {
@@ -119,24 +110,41 @@ body,
   }
   
   .calendar-day-today {
-    @apply ring-2 ring-primary/30 bg-primary/5;
+    @apply ring-2 ring-primary/30 bg-primary/10;
   }
   
-  /* Status badges */
+  /* Enhanced status badges */
   .status-badge-open {
-    @apply bg-blue-500/10 text-blue-600 border-blue-500/20;
+    @apply bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/30;
   }
   
   .status-badge-offered {
-    @apply bg-amber-500/10 text-amber-600 border-amber-500/20;
+    @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/30;
   }
   
   .status-badge-filled {
-    @apply bg-green-500/10 text-green-600 border-green-500/20;
+    @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30;
   }
   
   .status-badge-draft {
-    @apply bg-gray-500/10 text-gray-600 border-gray-500/20;
+    @apply bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800/30;
+  }
+
+  /* Enhanced management page styles */
+  .management-header {
+    @apply bg-gradient-to-r from-primary/5 to-transparent border-b border-border/20 p-6 rounded-t-xl;
+  }
+
+  .management-card {
+    @apply bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl p-6 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-lg;
+  }
+
+  .bid-card {
+    @apply bg-card/50 border border-border/30 rounded-lg transition-all duration-200 hover:bg-card/70 hover:border-border/50 hover:shadow-md;
+  }
+
+  .swap-request-card {
+    @apply bg-card/60 border border-border/30 rounded-lg p-4 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
   }
 }
 
@@ -147,6 +155,15 @@ body,
   /* util class for all audit‑icons */
   .audit-trail-icon {
     @apply shrink-0 mt-0.5;
+  }
+
+  /* Enhanced gradients */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary/10 to-primary/5;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-r from-accent/10 to-accent/5;
   }
 }
 
@@ -160,12 +177,14 @@ body,
   background: hsl(var(--popover)) !important;
   color: hsl(var(--popover-foreground)) !important;
   border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Each option row */
 [data-radix-select-item] {
   background: transparent !important;
   color: inherit !important;
+  transition: all 0.2s ease !important;
 }
 
 /* Hovered / highlighted / checked option */
@@ -194,6 +213,37 @@ body,
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.6);
+}
+
+/* Enhanced animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
 }
 
 /* End of file */

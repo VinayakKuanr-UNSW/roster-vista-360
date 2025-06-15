@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useEmployees } from '@/api/hooks/useEmployees';
 import { useBids } from '@/api/hooks/useBids';
 import { useShifts } from '@/api/hooks/useShifts';
 import { processBidsWithDetails } from './utils/bidUtils';
 import { BidWithEmployee } from './types/bid-types';
-import BidItem from './BidItem';
+import EnhancedBidCard from './EnhancedBidCard';
+import EnhancedManagementHeader from './EnhancedManagementHeader';
 import BidFilterPopover from './BidFilterPopover';
 import BidSortDropdown from './BidSortDropdown';
 import BidCalendarView from './BidCalendarView';
-import { Button } from '@/components/ui/button';
-import { Calendar, LayoutGrid, List } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const OpenBidsPage: React.FC = () => {
   // State for all bids with employee data
@@ -38,6 +37,9 @@ const OpenBidsPage: React.FC = () => {
   
   // State for calendar selected date
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  
+  // State for search query
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Get employees and bids from our hooks
   const { useAllEmployees } = useEmployees();
@@ -117,12 +119,25 @@ const OpenBidsPage: React.FC = () => {
     localStorage.setItem('bidViewMode', viewMode);
   }, [viewMode]);
   
-  // Filter bids
+  // Enhanced filtering with search
   const filteredBids = processedBids.filter(bid => {
     const { 
       startDate, endDate, department, subDepartment, role, 
       status, isAssigned, isDraft, minHours, maxHours, remunerationLevel 
     } = filterOptions;
+    
+    // Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = (
+        bid.shiftDetails?.id.toLowerCase().includes(searchLower) ||
+        bid.shiftDetails?.department.toLowerCase().includes(searchLower) ||
+        bid.shiftDetails?.subDepartment?.toLowerCase().includes(searchLower) ||
+        bid.shiftDetails?.role.toLowerCase().includes(searchLower) ||
+        bid.employee?.name?.toLowerCase().includes(searchLower)
+      );
+      if (!matchesSearch) return false;
+    }
     
     // Date filter
     if (startDate && bid.shiftDetails?.date && new Date(bid.shiftDetails.date) < startDate) {
@@ -224,7 +239,7 @@ const OpenBidsPage: React.FC = () => {
   // Count active filters
   const activeFilterCount = Object.values(filterOptions).filter(value => 
     value !== undefined && value !== null && value !== ''
-  ).length + (selectedDate ? 1 : 0);
+  ).length + (selectedDate ? 1 : 0) + (searchQuery ? 1 : 0);
   
   // Handle offer shift
   const handleOfferShift = async (bid: BidWithEmployee) => {
@@ -289,81 +304,79 @@ const OpenBidsPage: React.FC = () => {
   // Loading state
   if (bidsLoading) {
     return (
-      <div className="p-6">
-        <h2 className="text-2xl mb-4">Open Bids</h2>
-        <div className="flex justify-center p-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="p-6 space-y-6">
+        <div className="lovable-skeleton h-8 w-64" />
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="lovable-skeleton h-32 w-full rounded-xl" />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold mb-2 sm:mb-0">Open Bids</h2>
-        
-        <div className="flex items-center space-x-2">
-          <div className="flex border rounded-md overflow-hidden">
-            <Button
-              variant={viewMode === 'list' ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="h-4 w-4 mr-1" />
-              List
-            </Button>
-            <Button
-              variant={viewMode === 'calendar' ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none"
-              onClick={() => setViewMode('calendar')}
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Calendar
-            </Button>
-          </div>
-          
-          <BidSortDropdown currentSort={sortOption} onSortChange={setSortOption} />
-          <BidFilterPopover 
-            filters={filterOptions} 
-            onFilterChange={setFilterOptions} 
-            activeFilterCount={activeFilterCount}
-          />
-        </div>
+    <div className="p-6 space-y-6">
+      <EnhancedManagementHeader
+        title="Open Bids"
+        subtitle="Manage and review shift applications"
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onFilterClick={() => {}} // BidFilterPopover handles this
+        onSortClick={() => {}} // BidSortDropdown handles this
+        activeFilterCount={activeFilterCount}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        totalItems={processedBids.length}
+        filteredItems={filteredBids.length}
+      />
+      
+      <div className="flex items-center gap-3">
+        <BidSortDropdown currentSort={sortOption} onSortChange={setSortOption} />
+        <BidFilterPopover 
+          filters={filterOptions} 
+          onFilterChange={setFilterOptions} 
+          activeFilterCount={activeFilterCount}
+        />
       </div>
       
       {filteredBids.length === 0 ? (
-        <div className="bg-gray-800 rounded-lg p-10 text-center">
+        <div className="lovable-empty-state">
+          <div className="lovable-empty-state-icon">
+            📋
+          </div>
           <h3 className="text-xl font-medium mb-2">No matching shifts found</h3>
-          <p className="text-white/70">
+          <p className="text-muted-foreground">
             {processedBids.length === 0 
               ? "No bids have been created yet." 
-              : "Try adjusting your filters to see more results."}
+              : "Try adjusting your filters or search terms to see more results."}
           </p>
         </div>
       ) : viewMode === 'list' ? (
-        <div>
-          <p className="mb-4 text-white/70">
-            Showing {filteredBids.length} of {processedBids.length} total shifts
-          </p>
-          
-          <div className="space-y-2">
-            {shiftBids.map((bid) => (
-              <BidItem
+        <div className="lovable-stack">
+          <motion.div 
+            className="lovable-stack"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {shiftBids.map((bid, index) => (
+              <motion.div
                 key={bid.shiftId}
-                bid={bid}
-                isExpanded={!!expandedItems[bid.shiftId]}
-                toggleExpand={() => toggleExpand(bid.shiftId)}
-                isSelected={!!selectedItems[bid.id]}
-                toggleSelect={() => toggleSelect(bid.id)}
-                applicants={bidsByShift[bid.shiftId] || []}
-                handleOfferShift={handleOfferShift}
-                sortByScore={sortOption.value === 'suitabilityScore'}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+              >
+                <EnhancedBidCard
+                  bid={bid}
+                  isExpanded={!!expandedItems[bid.shiftId]}
+                  onToggleExpand={() => toggleExpand(bid.shiftId)}
+                  applicants={bidsByShift[bid.shiftId] || []}
+                  onOfferShift={handleOfferShift}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       ) : (
         <BidCalendarView 

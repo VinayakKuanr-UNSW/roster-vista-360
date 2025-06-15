@@ -1,0 +1,160 @@
+
+/* Enhanced component styles for Lovable theme */
+
+/* Enhanced Card Styles */
+.lovable-card {
+  @apply bg-card/95 backdrop-blur-sm border border-border/30 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md hover:border-border/60 hover:translate-y-[-1px];
+}
+
+.lovable-card-header {
+  @apply p-4 border-b border-border/20 bg-gradient-to-r from-primary/5 to-transparent;
+}
+
+.lovable-card-content {
+  @apply p-4 space-y-3;
+}
+
+/* Enhanced Status Badges */
+.status-badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-200;
+}
+
+.status-open {
+  @apply bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/30;
+}
+
+.status-pending {
+  @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/30;
+}
+
+.status-approved {
+  @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30;
+}
+
+.status-rejected {
+  @apply bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/30;
+}
+
+.status-filled {
+  @apply bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/30;
+}
+
+/* Enhanced Button Styles */
+.lovable-btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20;
+}
+
+.lovable-btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 hover:translate-y-[-1px];
+}
+
+.lovable-btn-ghost {
+  @apply text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-1.5 rounded-md font-medium text-sm transition-all duration-200;
+}
+
+/* Enhanced Form Elements */
+.lovable-input {
+  @apply bg-background border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+}
+
+.lovable-select {
+  @apply bg-background border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+}
+
+/* Enhanced Layout Components */
+.lovable-section {
+  @apply bg-card/50 backdrop-blur-sm rounded-xl border border-border/30 p-6 space-y-4;
+}
+
+.lovable-header {
+  @apply bg-gradient-to-r from-primary/10 to-transparent border-b border-border/20 p-4 rounded-t-xl;
+}
+
+/* Enhanced List Items */
+.lovable-list-item {
+  @apply bg-card/60 border border-border/30 rounded-lg p-4 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
+}
+
+/* Enhanced Typography */
+.lovable-title {
+  @apply text-xl font-semibold text-foreground;
+}
+
+.lovable-subtitle {
+  @apply text-sm font-medium text-muted-foreground;
+}
+
+.lovable-body {
+  @apply text-sm text-foreground;
+}
+
+/* Enhanced Spacing */
+.lovable-stack {
+  @apply space-y-4;
+}
+
+.lovable-stack-sm {
+  @apply space-y-2;
+}
+
+.lovable-stack-lg {
+  @apply space-y-6;
+}
+
+/* Enhanced Animations */
+.lovable-fade-in {
+  @apply animate-fade-in-up;
+}
+
+.lovable-hover-lift {
+  @apply transition-transform duration-200 hover:translate-y-[-2px];
+}
+
+/* Enhanced Grid Layouts */
+.lovable-grid {
+  @apply grid gap-4;
+}
+
+.lovable-grid-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.lovable-grid-3 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+/* Enhanced Priority Indicators */
+.priority-high {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.priority-medium {
+  @apply text-amber-600 dark:text-amber-400;
+}
+
+.priority-low {
+  @apply text-green-600 dark:text-green-400;
+}
+
+/* Enhanced Interactive Elements */
+.lovable-interactive {
+  @apply cursor-pointer transition-all duration-200 hover:bg-accent/50 rounded-md p-2;
+}
+
+.lovable-tooltip {
+  @apply bg-popover text-popover-foreground border border-border rounded-md px-2 py-1 text-xs shadow-md;
+}
+
+/* Enhanced Loading States */
+.lovable-skeleton {
+  @apply animate-pulse bg-muted/50 rounded;
+}
+
+/* Enhanced Empty States */
+.lovable-empty-state {
+  @apply text-center py-12 text-muted-foreground;
+}
+
+.lovable-empty-state-icon {
+  @apply mx-auto h-12 w-12 text-muted-foreground/50 mb-4;
+}
