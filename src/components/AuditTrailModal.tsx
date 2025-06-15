@@ -1,10 +1,17 @@
 
-import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X, Loader2 } from "lucide-react";
 import AuditTrail from "@/components/AuditTrail";
 import { useTimesheetAudit } from "@/api/hooks/useTimesheetAudit";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function AuditTrailModal({
   timesheetId,
@@ -18,23 +25,23 @@ export default function AuditTrailModal({
   const { data, loading, error, refresh } = useTimesheetAudit(timesheetId);
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
-        <Dialog.Content
-          className="fixed inset-0 z-50 flex items-center justify-center outline-none"
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPortal>
+        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
+        <DialogContent
+          className="fixed inset-0 z-50 flex items-center justify-center outline-none border-0 bg-transparent p-0 shadow-none"
           aria-describedby="audit-trail-desc"
         >
-          {/* MUST be direct child of Dialog.Content */}
-          <Dialog.Title asChild>
+          {/* MUST be direct child of DialogContent */}
+          <DialogTitle asChild>
             <VisuallyHidden>Audit Trail for Timesheet {timesheetId}</VisuallyHidden>
-          </Dialog.Title>
+          </DialogTitle>
 
-          <Dialog.Description asChild>
+          <DialogDescription asChild>
             <VisuallyHidden>
               View the complete history of changes and actions for this timesheet entry.
             </VisuallyHidden>
-          </Dialog.Description>
+          </DialogDescription>
 
           <div className="relative">
             {/* Close button */}
@@ -83,8 +90,8 @@ export default function AuditTrailModal({
               )
             )}
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 }
