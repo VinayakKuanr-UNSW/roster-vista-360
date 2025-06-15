@@ -1,34 +1,33 @@
 
 import React, { useState } from 'react';
-import { format, addMonths, subMonths, eachDayOfInterval } from 'date-fns';
+import { format, addMonths, subMonths } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
   Calendar as CalendarIcon,
   List,
   Lock,
   Unlock,
   RefreshCw,
+  Zap,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useAvailabilities } from '@/hooks/useAvailabilities';
-import { AvailabilityStatus } from '@/api/models/types';
+import { AvailabilityStatus, DayAvailability } from '@/api/models/types';
 
-import { AvailabilityCalendar } from '@/components/availability/AvailabilityCalendar';
-import { PresetSelector } from '@/components/availability/PresetSelector';
+import { ImprovedAvailabilityCalendar } from '@/components/availability/ImprovedAvailabilityCalendar';
 import { MonthListView } from '@/components/availability/MonthListView';
-import { AvailabilityForm } from '@/components/availability/AvailabilityForm';
-import { BatchAvailabilityForm } from '@/components/availability/BatchAvailabilityForm';
+import { DayInteractionModal } from '@/components/availability/DayInteractionModal';
+import { BatchApplyModal } from '@/components/availability/BatchApplyModal';
 
 const AvailabilitiesPage = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false);
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [isCalendarLocked, setIsCalendarLocked] = useState(false);
@@ -41,11 +40,12 @@ const AvailabilitiesPage = () => {
     monthlyAvailabilities,
     isLoading,
     setAvailability,
-    applyPreset,
+    deleteAvailability,
     goToPreviousMonth,
     goToNextMonth,
     setSelectedMonth: updateSelectedMonth,
     getDayAvailability,
+    availabilityPresets,
   } = useAvailabilities();
 
   // Switch forward/back one month
@@ -75,7 +75,6 @@ const AvailabilitiesPage = () => {
 
   // Force refresh data
   const handleRefresh = () => {
-    // Trigger a re-fetch by updating the selected month
     updateSelectedMonth(new Date(selectedMonth));
     toast({
       title: 'Refreshed',
@@ -83,8 +82,8 @@ const AvailabilitiesPage = () => {
     });
   };
 
-  // Single-day form submission
-  const handleSaveAvailability = async (data: any) => {
+  // Day interaction modal handlers
+  const handleDateClick = (date: Date) => {
     if (isCalendarLocked) {
       toast({
         title: 'Calendar Locked',
@@ -94,6 +93,14 @@ const AvailabilitiesPage = () => {
       return;
     }
 
+    setSelectedDate(date);
+    setIsDayModalOpen(true);
+  };
+
+  const handleDayModalSave = async (data: {
+    timeSlots: Array<{ startTime: string; endTime: string; status: AvailabilityStatus }>;
+    notes?: string;
+  }) => {
     if (!selectedDate) return;
 
     const success = await setAvailability({
@@ -106,46 +113,38 @@ const AvailabilitiesPage = () => {
     if (success) {
       toast({
         title: 'Availability Saved',
-        description: `Your availability for ${format(
-          selectedDate,
-          'dd MMM yyyy'
-        )} has been saved successfully.`,
+        description: `Your availability for ${format(selectedDate, 'dd MMM yyyy')} has been saved successfully.`,
       });
-
-      setIsFormOpen(false);
+      setIsDayModalOpen(false);
       setSelectedDate(null);
     }
   };
 
-  // Batch form submission
-  const handleSaveBatchAvailability = async (data: {
+  const handleDayModalDelete = async () => {
+    if (!selectedDate) return;
+
+    const success = await deleteAvailability(selectedDate);
+    if (success) {
+      toast({
+        title: 'Availability Deleted',
+        description: `Availability for ${format(selectedDate, 'dd MMM yyyy')} has been deleted.`,
+      });
+      setIsDayModalOpen(false);
+      setSelectedDate(null);
+    }
+  };
+
+  // Batch apply modal handlers
+  const handleBatchApply = async (data: {
     startDate: Date;
     endDate: Date;
-    timeSlots: Array<{ startTime: string; endTime: string; status?: AvailabilityStatus }>;
+    timeSlots: Array<{ startTime: string; endTime: string; status: AvailabilityStatus }>;
     notes?: string;
   }) => {
     if (isCalendarLocked) {
       toast({
         title: 'Calendar Locked',
         description: 'No changes allowed while locked.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!data.startDate || !data.endDate) {
-      toast({
-        title: 'Missing Dates',
-        description: 'Please select both start and end dates',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (data.endDate < data.startDate) {
-      toast({
-        title: 'Invalid Date Range',
-        description: 'End date cannot be before start date',
         variant: 'destructive',
       });
       return;
@@ -160,48 +159,14 @@ const AvailabilitiesPage = () => {
 
     if (success) {
       toast({
-        title: 'Batch Availability Saved',
-        description: `Availability set for ${format(
-          data.startDate,
-          'dd MMM'
-        )} to ${format(data.endDate, 'dd MMM yyyy')}`,
+        title: 'Batch Availability Applied',
+        description: `Availability set for ${format(data.startDate, 'dd MMM')} to ${format(data.endDate, 'dd MMM yyyy')}`,
       });
-
-      setIsBatchFormOpen(false);
+      setIsBatchModalOpen(false);
     }
   };
 
-  // Apply a preset
-  const handleApplyPreset = async (
-    presetId: string,
-    startDate: Date,
-    endDate: Date
-  ) => {
-    if (isCalendarLocked) {
-      toast({
-        title: 'Calendar Locked',
-        description: 'No bulk changes allowed while locked.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const success = await applyPreset({
-      presetId,
-      startDate,
-      endDate,
-    });
-
-    if (success) {
-      toast({
-        title: 'Preset Applied Successfully',
-        description: `Applied preset from ${format(startDate, 'MMM dd')} to ${format(endDate, 'MMM dd')}`,
-      });
-    }
-  };
-
-  // Clicking a day in the calendar or list
-  const handleDateClick = (date: Date) => {
+  const openBatchModal = () => {
     if (isCalendarLocked) {
       toast({
         title: 'Calendar Locked',
@@ -210,43 +175,28 @@ const AvailabilitiesPage = () => {
       });
       return;
     }
-
-    setSelectedDate(date);
-    setIsFormOpen(true);
+    setIsBatchModalOpen(true);
   };
 
-  const openBatchForm = () => {
-    if (isCalendarLocked) {
-      toast({
-        title: 'Calendar Locked',
-        description: 'No changes allowed while locked.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsBatchFormOpen(true);
-  };
-
-  const openSingleDayForm = () => {
-    if (isCalendarLocked) {
-      toast({
-        title: 'Calendar Locked',
-        description: 'No changes allowed while locked.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setSelectedDate(new Date());
-    setIsFormOpen(true);
-  };
-
-  // Get existing availability for the form
-  const existingAvailability = selectedDate ? getDayAvailability(selectedDate) : undefined;
+  // Get existing availability for the modal - fix type conversion
+  const existingAvailability: DayAvailability | undefined = selectedDate ? (() => {
+    const dayAvail = getDayAvailability(selectedDate);
+    if (!dayAvail) return undefined;
+    
+    // Ensure timeSlots have required id property
+    return {
+      ...dayAvail,
+      timeSlots: dayAvail.timeSlots.map(slot => ({
+        ...slot,
+        id: slot.id || Math.random().toString(36).substring(2, 11)
+      }))
+    };
+  })() : undefined;
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
       {/* PAGE HEADER */}
-      <div className="flex-shrink-0 p-4 md:p-6 space-y-4 border-b">
+      <div className="flex-shrink-0 p-4 md:p-6 space-y-4 border-b bg-white">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-2xl font-bold tracking-tight">
             Availability Management
@@ -263,7 +213,7 @@ const AvailabilitiesPage = () => {
               <RefreshCw className="h-4 w-4" />
             </Button>
 
-            {/* Switch between Calendar or List */}
+            {/* View Mode Toggle */}
             <div className="hidden sm:flex gap-2">
               <Button
                 variant={viewMode === 'calendar' ? 'default' : 'outline'}
@@ -283,31 +233,21 @@ const AvailabilitiesPage = () => {
               </Button>
             </div>
 
-            {/* Single Day */}
-            <Button
-              variant="outline"
-              onClick={openSingleDayForm}
-              disabled={isCalendarLocked}
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Single Day
-            </Button>
-
-            {/* Multiple Days */}
+            {/* Batch Apply Button */}
             <Button
               variant="default"
-              onClick={openBatchForm}
+              onClick={openBatchModal}
               disabled={isCalendarLocked}
               size="sm"
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Multiple Days
+              <Zap className="h-4 w-4 mr-2" />
+              Batch Apply
             </Button>
           </div>
         </div>
 
-        {/* MONTH SWITCH + LOCK BUTTON + PRESET SELECTOR */}
+        {/* MONTH NAVIGATION + LOCK BUTTON */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center">
             <Button variant="outline" size="icon" onClick={handlePrevMonth}>
@@ -321,33 +261,26 @@ const AvailabilitiesPage = () => {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2">
-            {isManager && (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={handleToggleLock}
-                size="sm"
-              >
-                {isCalendarLocked ? (
-                  <>
-                    <Unlock className="h-4 w-4" />
-                    Unlock
-                  </>
-                ) : (
-                  <>
-                    <Lock className="h-4 w-4" />
-                    Lock
-                  </>
-                )}
-              </Button>
-            )}
-
-            <PresetSelector
-              onApplyPreset={handleApplyPreset}
-              disabled={isCalendarLocked}
-            />
-          </div>
+          {isManager && (
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={handleToggleLock}
+              size="sm"
+            >
+              {isCalendarLocked ? (
+                <>
+                  <Unlock className="h-4 w-4" />
+                  Unlock Calendar
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4" />
+                  Lock Calendar
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -357,9 +290,9 @@ const AvailabilitiesPage = () => {
           <Skeleton className="h-[600px] w-full" />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto h-[calc(100vh-180px)]">
+        <div className="flex-grow overflow-auto h-[calc(100vh-200px)] bg-gray-50">
           {viewMode === 'calendar' ? (
-            <AvailabilityCalendar
+            <ImprovedAvailabilityCalendar
               onSelectDate={handleDateClick}
               selectedMonth={selectedMonth}
               isLocked={isCalendarLocked}
@@ -375,26 +308,28 @@ const AvailabilitiesPage = () => {
         </div>
       )}
 
-      {/* SINGLE-DAY FORM MODAL */}
-      {isFormOpen && selectedDate && (
-        <AvailabilityForm
-          selectedDate={selectedDate}
-          existingAvailability={existingAvailability}
-          onSubmit={handleSaveAvailability}
-          onCancel={() => {
-            setIsFormOpen(false);
-            setSelectedDate(null);
-          }}
-        />
-      )}
+      {/* DAY INTERACTION MODAL */}
+      <DayInteractionModal
+        open={isDayModalOpen}
+        onClose={() => {
+          setIsDayModalOpen(false);
+          setSelectedDate(null);
+        }}
+        selectedDate={selectedDate}
+        existingAvailability={existingAvailability}
+        onSave={handleDayModalSave}
+        onDelete={handleDayModalDelete}
+        isLocked={isCalendarLocked}
+      />
 
-      {/* BATCH FORM MODAL */}
-      {isBatchFormOpen && (
-        <BatchAvailabilityForm
-          onSubmit={handleSaveBatchAvailability}
-          onCancel={() => setIsBatchFormOpen(false)}
-        />
-      )}
+      {/* BATCH APPLY MODAL */}
+      <BatchApplyModal
+        open={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        onApply={handleBatchApply}
+        availabilityPresets={availabilityPresets}
+        isLocked={isCalendarLocked}
+      />
     </div>
   );
 };
