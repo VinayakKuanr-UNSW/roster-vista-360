@@ -99,12 +99,12 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
           )}
         </div>
         
-        {/* Shifts container - fills remaining space */}
+        {/* Shifts container - smaller height and better spacing */}
         <div className="h-[calc(100%-2.5rem)] p-1 overflow-hidden">
           {shifts.length > 0 ? (
             <div className="space-y-1 h-full">
-              {shifts.slice(0, 3).map((shiftData, index) => (
-                <div key={index} className="h-[calc(33.33%-0.25rem)]">
+              {shifts.slice(0, 2).map((shiftData, index) => (
+                <div key={index} className="h-8">
                   <MyRosterShift
                     shift={shiftData.shift}
                     groupName={shiftData.groupName}
@@ -120,10 +120,10 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
                 </div>
               ))}
               
-              {shifts.length > 3 && (
-                <div className="h-[calc(33.33%-0.25rem)] flex items-center justify-center">
+              {shifts.length > 2 && (
+                <div className="h-6 flex items-center justify-center">
                   <div className="text-xs text-white/70 bg-gray-700/50 px-2 py-1 rounded-full border border-white/20">
-                    +{shifts.length - 3} more
+                    +{shifts.length - 2} more
                   </div>
                 </div>
               )}

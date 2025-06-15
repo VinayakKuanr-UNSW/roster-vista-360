@@ -45,12 +45,13 @@ const MyRosterShift: React.FC<MyRosterShiftProps> = ({
   if (compact) {
     return (
       <div 
-        className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex flex-col justify-center px-2 py-1 ${getColorClass()}`}
+        className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex items-center justify-center px-1 py-0.5 ${getColorClass()}`}
         onClick={(e) => onClick && onClick(e)}
         style={style}
       >
-        <div className="font-medium truncate leading-tight">{shift.role}</div>
-        <div className="opacity-90 text-[10px] truncate leading-tight">{formatTime(shift.startTime)}</div>
+        <div className="font-medium truncate text-center leading-tight">
+          {shift.role}
+        </div>
       </div>
     );
   }
