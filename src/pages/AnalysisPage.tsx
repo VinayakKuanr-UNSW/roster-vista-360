@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,8 +32,18 @@ const chartData = {
   ],
 };
 
+// Type definition for analysis data structure
+interface AnalysisDataItem {
+  title: string;
+  summary: string;
+  details: string;
+  recommendations: string[];
+  metrics: Record<string, any>;
+  chartType?: 'line' | 'bar';
+}
+
 // Comprehensive analysis data for all metrics
-const analysisData: { [key: string]: any } = {
+const analysisData: { [key: string]: AnalysisDataItem } = {
   // Workforce Utilization & Productivity
   'shift-fill-rate': {
     title: 'Shift Fill Rate Analysis',
