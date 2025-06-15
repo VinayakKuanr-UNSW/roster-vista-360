@@ -49,7 +49,6 @@ export function DayInteractionModal({
 }: DayInteractionModalProps) {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [notes, setNotes] = useState('');
-  const [quickAction, setQuickAction] = useState<'available' | 'unavailable' | 'custom'>('custom');
 
   useEffect(() => {
     if (existingAvailability) {
@@ -85,22 +84,16 @@ export function DayInteractionModal({
   };
 
   const handleQuickAction = (action: 'available' | 'unavailable') => {
-    if (action === 'available') {
-      setTimeSlots([{
-        id: Math.random().toString(36).substring(2, 11),
-        startTime: '09:00',
-        endTime: '17:00',
-        status: 'Available'
-      }]);
-    } else {
-      setTimeSlots([{
-        id: Math.random().toString(36).substring(2, 11),
-        startTime: '00:00',
-        endTime: '23:59',
-        status: 'Unavailable'
-      }]);
-    }
-    setQuickAction(action);
+    if (isLocked) return;
+    
+    const newTimeSlots = action === 'available'
+        ? [{ startTime: '09:00', endTime: '17:00', status: 'Available' as AvailabilityStatus }]
+        : [{ startTime: '00:00', endTime: '23:59', status: 'Unavailable' as AvailabilityStatus }];
+
+    onSave({
+      timeSlots: newTimeSlots,
+      notes: undefined
+    });
   };
 
   const handleSave = () => {
@@ -140,7 +133,7 @@ export function DayInteractionModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button
                 type="button"
-                variant={quickAction === 'available' ? 'default' : 'outline'}
+                variant='outline'
                 onClick={() => handleQuickAction('available')}
                 disabled={isLocked}
                 className="justify-start"
@@ -150,7 +143,7 @@ export function DayInteractionModal({
               </Button>
               <Button
                 type="button"
-                variant={quickAction === 'unavailable' ? 'default' : 'outline'}
+                variant='outline'
                 onClick={() => handleQuickAction('unavailable')}
                 disabled={isLocked}
                 className="justify-start"
@@ -221,7 +214,7 @@ export function DayInteractionModal({
               ))}
               {timeSlots.length === 0 && (
                  <div className="text-center text-sm text-muted-foreground py-4">
-                    No custom time slots added.
+                    No custom time slots added. Use Quick Actions or Add a Slot.
                  </div>
               )}
             </div>

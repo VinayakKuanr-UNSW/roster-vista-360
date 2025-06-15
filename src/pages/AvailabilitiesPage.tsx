@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -291,7 +290,7 @@ const AvailabilitiesPage = () => {
           <Skeleton className="h-[600px] w-full" />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto h-[calc(100vh-200px)] bg-gray-50">
+        <div className="flex-grow overflow-auto h-[calc(100vh-200px)] bg-background">
           {viewMode === 'calendar' ? (
             <ImprovedAvailabilityCalendar
               onSelectDate={handleDateClick}

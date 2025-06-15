@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
-import { format, addDays, eachDayOfInterval } from 'date-fns';
+import { format } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, Zap } from 'lucide-react';
 import {
   Dialog,
@@ -35,7 +36,7 @@ interface BatchApplyModalProps {
   availabilityPresets: Array<{
     id: string;
     name: string;
-    timeSlots: Array<{ startTime: string; endTime: string }>;
+    timeSlots: Array<{ startTime:string; endTime: string }>;
   }>;
   isLocked?: boolean;
 }
@@ -47,15 +48,11 @@ export function BatchApplyModal({
   availabilityPresets,
   isLocked = false
 }: BatchApplyModalProps) {
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [notes, setNotes] = useState('');
   const [activeTab, setActiveTab] = useState<'preset' | 'custom'>('preset');
   const [selectedPreset, setSelectedPreset] = useState<string>('');
-
-  const handleDateSelect = (dates: Date[] | undefined) => {
-    setSelectedDates(dates || []);
-  };
 
   const handlePresetSelect = (presetId: string) => {
     setSelectedPreset(presetId);
@@ -87,29 +84,27 @@ export function BatchApplyModal({
   };
 
   const handleApply = () => {
-    if (selectedDates.length === 0 || timeSlots.length === 0) return;
+    if (!dateRange?.from || !dateRange?.to || timeSlots.length === 0) return;
 
-    // Sort dates to get start and end
-    const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
-    
     onApply({
-      startDate: sortedDates[0],
-      endDate: sortedDates[sortedDates.length - 1],
+      startDate: dateRange.from,
+      endDate: dateRange.to,
       timeSlots,
       notes: notes.trim() || undefined
     });
 
     // Reset form
-    setSelectedDates([]);
+    setDateRange(undefined);
     setTimeSlots([]);
     setNotes('');
     setSelectedPreset('');
+    onClose();
   };
 
-  const isValid = selectedDates.length > 0 && timeSlots.length > 0;
+  const isValid = !!(dateRange?.from && dateRange?.to && timeSlots.length > 0);
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -131,25 +126,16 @@ export function BatchApplyModal({
           <div className="space-y-3">
             <Label className="text-sm font-medium flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
-              Select Dates ({selectedDates.length} selected)
+              Select Date Range
             </Label>
-            <div className="border rounded-lg p-3">
+            <div className="border rounded-lg p-3 flex justify-center">
               <Calendar
-                mode="multiple"
-                selected={selectedDates}
-                onSelect={handleDateSelect}
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
                 className="rounded-md"
               />
             </div>
-            {selectedDates.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {selectedDates.map((date, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {format(date, 'MMM d')}
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Time Configuration */}
@@ -255,7 +241,10 @@ export function BatchApplyModal({
             Cancel
           </Button>
           <Button onClick={handleApply} disabled={!isValid}>
-            Apply to {selectedDates.length} Date{selectedDates.length !== 1 ? 's' : ''}
+            {isValid && dateRange?.from && dateRange.to
+              ? `Apply to ${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}`
+              : 'Apply to Range'
+            }
           </Button>
         </DialogFooter>
       </DialogContent>
