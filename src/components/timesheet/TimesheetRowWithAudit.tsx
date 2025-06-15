@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShiftStatusBadge } from './ShiftStatusBadge';
-import AuditTrailModal from '@/components/AuditTrailModal';
 import { Button } from '@/components/ui/button';
 import { History } from 'lucide-react';
 
@@ -18,9 +18,13 @@ interface TimesheetRowWithAuditProps {
 }
 
 export const TimesheetRowWithAudit: React.FC<TimesheetRowWithAuditProps> = ({ shift, date }) => {
-  const [auditOpen, setAuditOpen] = useState(false);
+  const navigate = useNavigate();
 
   const timesheetId = parseInt(shift.id.replace(/\D/g, '')) || 1;
+
+  const handleViewAudit = () => {
+    navigate(`/timesheet/audit/${timesheetId}`);
+  };
 
   return (
     <tr className="border-b border-gray-700 hover:bg-gray-800/50">
@@ -36,18 +40,13 @@ export const TimesheetRowWithAudit: React.FC<TimesheetRowWithAuditProps> = ({ sh
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setAuditOpen(true)}
+          onClick={handleViewAudit}
           className="text-gray-400 hover:text-white"
+          title="View audit trail"
         >
           <History className="h-4 w-4" />
         </Button>
       </td>
-
-      <AuditTrailModal
-        timesheetId={timesheetId}
-        open={auditOpen}
-        onOpenChange={setAuditOpen}
-      />
     </tr>
   );
 };

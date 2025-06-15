@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import RostersPage from './pages/RostersPage';
 import BirdsViewPage from './pages/BirdsViewPage';
 import TimesheetPage from './pages/TimesheetPage';
+import AuditTrailPage from './pages/AuditTrailPage';
 import TemplatesPage from './pages/TemplatesPage';
 import ManagementPage from './pages/ManagementPage';
 import EmployeeBidsPage from './pages/EmployeeBidsPage';
@@ -165,6 +166,16 @@ const App = () => (
                         <ProtectedRoute requiredFeature="timesheet-view">
                           <AppLayout>
                             <TimesheetPage />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/timesheet/audit/:timesheetId"
+                      element={
+                        <ProtectedRoute requiredFeature="timesheet-view">
+                          <AppLayout>
+                            <AuditTrailPage />
                           </AppLayout>
                         </ProtectedRoute>
                       }

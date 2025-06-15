@@ -2,13 +2,16 @@
 import { AuditEvent } from '@/api/models/types';
 import AuditTrailItem from './AuditTrailItem';
 import { X } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function AuditTrail({
   events,
   onClose,
+  showAsPage = false,
 }: {
   events: AuditEvent[];
   onClose: () => void;
+  showAsPage?: boolean;
 }) {
   if (!events?.length) return null;
 
@@ -16,6 +19,22 @@ export default function AuditTrail({
     (a, b) => +new Date(b.at) - +new Date(a.at),
   );
 
+  if (showAsPage) {
+    // Full page layout
+    return (
+      <div className="w-full">
+        <ScrollArea className="h-[calc(100vh-400px)] pr-4">
+          <ul className="space-y-6">
+            {sorted.map((event) => (
+              <AuditTrailItem key={event.id} event={event} />
+            ))}
+          </ul>
+        </ScrollArea>
+      </div>
+    );
+  }
+
+  // Modal layout (legacy)
   return (
     <div className="bg-[#131516] text-slate-100 rounded-2xl shadow-xl w-80 max-h-[80vh] p-6">
       <header className="flex items-center justify-between mb-6">
