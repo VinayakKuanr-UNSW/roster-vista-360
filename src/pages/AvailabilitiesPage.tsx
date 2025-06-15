@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, Lock, Unlock, RefreshCw, Zap } from 'lucide-react';
@@ -39,11 +38,23 @@ const AvailabilitiesPage = () => {
 
   // Switch forward/back one month - use the hook's navigation functions
   const handleNextMonth = () => {
+    console.log('Next month clicked');
     goToNextMonth();
   };
   
   const handlePrevMonth = () => {
+    console.log('Previous month clicked');
     goToPreviousMonth();
+  };
+
+  // Force refresh data
+  const handleRefresh = () => {
+    // Force a re-fetch by creating a new date instance
+    setSelectedMonth(new Date(selectedMonth.getTime()));
+    toast({
+      title: 'Refreshed',
+      description: 'Availability data has been refreshed.'
+    });
   };
 
   // Toggle the locked state
@@ -53,16 +64,6 @@ const AvailabilitiesPage = () => {
     toast({
       title: newLockState ? 'Calendar Locked' : 'Calendar Unlocked',
       description: newLockState ? 'All changes are now disabled.' : 'Changes are now allowed.'
-    });
-  };
-
-  // Force refresh data
-  const handleRefresh = () => {
-    // Force a re-fetch by setting the selected month to itself
-    setSelectedMonth(new Date(selectedMonth));
-    toast({
-      title: 'Refreshed',
-      description: 'Availability data has been refreshed.'
     });
   };
 

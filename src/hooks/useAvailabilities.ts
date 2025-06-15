@@ -168,14 +168,20 @@ export function useAvailabilities() {
   
   // Navigation functions that properly update the selected month
   const goToPreviousMonth = useCallback(() => {
-    const prevMonth = subMonths(selectedMonth, 1);
-    setSelectedMonth(prevMonth);
-  }, [selectedMonth]);
+    setSelectedMonth(prev => {
+      const prevMonth = subMonths(prev, 1);
+      console.log(`Navigating to previous month: ${format(prevMonth, 'yyyy-MM')}`);
+      return prevMonth;
+    });
+  }, []);
   
   const goToNextMonth = useCallback(() => {
-    const nextMonth = addMonths(selectedMonth, 1);
-    setSelectedMonth(nextMonth);
-  }, [selectedMonth]);
+    setSelectedMonth(prev => {
+      const nextMonth = addMonths(prev, 1);
+      console.log(`Navigating to next month: ${format(nextMonth, 'yyyy-MM')}`);
+      return nextMonth;
+    });
+  }, []);
   
   // Get availability for a specific date
   const getDayAvailability = useCallback((date: Date) => {
@@ -448,7 +454,7 @@ export function useAvailabilities() {
 
   return {
     selectedMonth,
-    setSelectedMonth, // Fixed: now properly updates and triggers data fetch
+    setSelectedMonth,
     startOfMonth: startOfSelectedMonth,
     endOfMonth: endOfSelectedMonth,
     monthlyAvailabilities,
