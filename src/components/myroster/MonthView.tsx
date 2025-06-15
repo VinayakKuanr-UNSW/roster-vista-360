@@ -66,7 +66,7 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
     
     return (
       <div className={`
-        h-32 md:h-36 border transition-colors duration-200 ${
+        h-32 md:h-36 border transition-colors duration-200 flex flex-col ${
           isToday(day) 
             ? 'border-blue-500/70 bg-blue-500/10' 
             : isCurrentMonth 
@@ -79,7 +79,7 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
         }
       `}>
         {/* Date header */}
-        <div className="flex justify-between items-center p-2 border-b border-white/10">
+        <div className="flex justify-between items-center p-2 border-b border-white/10 flex-shrink-0">
           <span className={`
             text-sm font-medium px-2 py-1 rounded-full ${
               isToday(day) 
@@ -99,12 +99,12 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
           )}
         </div>
         
-        {/* Shifts container - smaller height and better spacing */}
-        <div className="h-[calc(100%-2.5rem)] p-1 overflow-hidden">
+        {/* Shifts container - now consumes full remaining space */}
+        <div className="flex-1 p-1 overflow-hidden flex flex-col">
           {shifts.length > 0 ? (
-            <div className="space-y-1 h-full">
-              {shifts.slice(0, 2).map((shiftData, index) => (
-                <div key={index} className="h-8">
+            <div className="flex-1 flex flex-col gap-1">
+              {shifts.slice(0, 3).map((shiftData, index) => (
+                <div key={index} className="flex-1 min-h-0">
                   <MyRosterShift
                     shift={shiftData.shift}
                     groupName={shiftData.groupName}
@@ -120,16 +120,16 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
                 </div>
               ))}
               
-              {shifts.length > 2 && (
-                <div className="h-6 flex items-center justify-center">
+              {shifts.length > 3 && (
+                <div className="h-5 flex items-center justify-center">
                   <div className="text-xs text-white/70 bg-gray-700/50 px-2 py-1 rounded-full border border-white/20">
-                    +{shifts.length - 2} more
+                    +{shifts.length - 3} more
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center">
               <span className="text-xs text-white/30">No shifts</span>
             </div>
           )}
@@ -160,9 +160,9 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
         
         {/* Calendar weeks */}
         <div className="min-h-[600px]">
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-cols-7 border-b border-gray-800 last:border-b-0">
-              {week.map((day, dayIndex) => (
+          {weeks.map((weekIndex, index) => (
+            <div key={index} className="grid grid-cols-7 border-b border-gray-800 last:border-b-0">
+              {weekIndex.map((day, dayIndex) => (
                 <div key={dayIndex} className="border-r border-gray-800 last:border-r-0">
                   {getDayContent(day)}
                 </div>
