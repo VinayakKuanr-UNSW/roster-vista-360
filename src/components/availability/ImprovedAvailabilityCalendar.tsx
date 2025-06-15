@@ -25,14 +25,27 @@ export function ImprovedAvailabilityCalendar({
 
   const getDayColor = (date: Date) => {
     const availability = getDayAvailability(date);
-    if (!availability || !availability.timeSlots.length) return 'bg-gray-100 dark:bg-gray-800';
+    
+    // No availability set - transparent/default background
+    if (!availability || !availability.timeSlots.length) {
+      return 'bg-transparent border-gray-200 dark:border-gray-700';
+    }
     
     const hasAvailable = availability.timeSlots.some(slot => slot.status === 'Available');
     const hasUnavailable = availability.timeSlots.some(slot => slot.status === 'Unavailable');
     
-    if (hasAvailable && hasUnavailable) return 'bg-yellow-200 dark:bg-yellow-800/30';
-    if (hasAvailable) return 'bg-green-200 dark:bg-green-800/30';
-    return 'bg-red-200 dark:bg-red-800/30';
+    // Mixed availability - yellow
+    if (hasAvailable && hasUnavailable) {
+      return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700';
+    }
+    
+    // Fully available - green
+    if (hasAvailable) {
+      return 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700';
+    }
+    
+    // Fully unavailable - red
+    return 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700';
   };
 
   const getDayStatus = (date: Date) => {
@@ -75,7 +88,7 @@ export function ImprovedAvailabilityCalendar({
             <div
               key={date.toISOString()}
               className={cn(
-                "relative border border-gray-200 dark:border-gray-700 rounded-lg p-2 cursor-pointer transition-all duration-200 flex flex-col",
+                "relative border rounded-lg p-2 cursor-pointer transition-all duration-200 flex flex-col min-h-[100px]",
                 dayColor,
                 isCurrentMonth ? "opacity-100" : "opacity-30",
                 isToday(date) && "ring-2 ring-blue-500",
@@ -93,7 +106,7 @@ export function ImprovedAvailabilityCalendar({
               
               {/* Date Number */}
               <div className={cn(
-                "text-sm font-medium",
+                "text-sm font-medium mb-1",
                 isToday(date) ? "text-blue-700 dark:text-blue-400" : "text-gray-900 dark:text-gray-100"
               )}>
                 {format(date, 'd')}
@@ -101,7 +114,7 @@ export function ImprovedAvailabilityCalendar({
               
               {/* Time Slots Preview */}
               {availability?.timeSlots.length > 0 && (
-                 <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate flex-grow overflow-y-auto pr-1">
+                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate flex-grow overflow-y-auto pr-1">
                   {availability.timeSlots.slice(0, 2).map((slot, i) => (
                     <div key={i} className="truncate">
                       {slot.startTime}-{slot.endTime}
@@ -121,9 +134,9 @@ export function ImprovedAvailabilityCalendar({
                   variant="secondary" 
                   className={cn(
                     "text-xs text-center mt-auto w-full justify-center",
-                    dayStatus === 'Available' && "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-                    dayStatus === 'Unavailable' && "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-                    dayStatus === 'Partial' && "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"
+                    dayStatus === 'Available' && "bg-green-200 text-green-900 dark:bg-green-800/50 dark:text-green-200",
+                    dayStatus === 'Unavailable' && "bg-red-200 text-red-900 dark:bg-red-800/50 dark:text-red-200",
+                    dayStatus === 'Partial' && "bg-yellow-200 text-yellow-900 dark:bg-yellow-800/50 dark:text-yellow-200"
                   )}
                 >
                   {dayStatus}
@@ -137,19 +150,19 @@ export function ImprovedAvailabilityCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center gap-4 text-sm flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-200 rounded"></div>
+          <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
           <span>Available</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-200 rounded"></div>
+          <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
           <span>Unavailable</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-yellow-200 rounded"></div>
+          <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
           <span>Partial</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-100 rounded"></div>
+          <div className="w-4 h-4 bg-transparent border border-gray-300 rounded"></div>
           <span>No availability</span>
         </div>
       </div>
