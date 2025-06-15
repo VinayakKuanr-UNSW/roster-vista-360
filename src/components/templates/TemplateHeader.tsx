@@ -383,7 +383,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               Continue &amp; Override
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </TooltipProvider>
   );
