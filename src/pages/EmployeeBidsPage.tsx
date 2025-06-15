@@ -302,7 +302,7 @@ const EmployeeBidsPage: React.FC = () => {
   // --------------------------------------------------------------------------
   // 1) Manage Selection State
   //    We'll use a single "selectedBidIds" array to store the IDs of whatever
-  //    we’ve currently selected—shifts in Available tab or bids in My Bids tab.
+  //    we've currently selected—shifts in Available tab or bids in My Bids tab.
   // --------------------------------------------------------------------------
   const handleSelectAllAvailable = (isChecked: boolean) => {
     // We only select the shifts that are currently filtered + eligible
@@ -384,7 +384,7 @@ const EmployeeBidsPage: React.FC = () => {
       if (rejected.length > 0) {
         toast({
           title: 'Rejected Bids',
-          description: 'You can’t withdraw from already rejected bids.',
+          description: 'You can\'t withdraw from already rejected bids.',
           variant: 'destructive',
         });
         return false;
@@ -846,10 +846,6 @@ const EmployeeBidsPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredAvailableShifts.map((shift, index) => {
-                    const coveragePct = getShiftCoveragePercent(
-                      shift.startTime,
-                      shift.endTime
-                    );
                     const day = new Date(shift.date).toLocaleString('en-US', {
                       weekday: 'long',
                     });
@@ -893,19 +889,29 @@ const EmployeeBidsPage: React.FC = () => {
                         <td className="p-4">
                           {shift.startTime} - {shift.endTime}
                         </td>
-                        {/* Coverage */}
+                        <td className="p-4">{shift.duration}h</td>
                         <td className="p-4">
                           <div className="w-full h-2 bg-white/10 rounded relative">
                             <div
                               className="absolute top-0 left-0 h-2 bg-purple-500 rounded"
-                              style={{ width: `${coveragePct}%` }}
+                              style={{ width: `${shift.coverage}%` }}
                             />
                             <div className="absolute right-1 top-0 text-[10px] text-white/80 h-full flex items-center">
-                              {Math.round(coveragePct)}%
+                              {Math.round(shift.coverage)}%
                             </div>
                           </div>
                         </td>
-                        {/* Action */}
+                        <td className="p-4">
+                          {shift.isEligible ? (
+                            <span className="text-green-400 text-xs font-medium">
+                              Eligible
+                            </span>
+                          ) : (
+                            <span className="text-red-400 text-xs font-medium">
+                              Not Eligible
+                            </span>
+                          )}
+                        </td>
                         <td className="p-4">
                           {shift.isEligible ? (
                             <Button
@@ -916,7 +922,7 @@ const EmployeeBidsPage: React.FC = () => {
                             </Button>
                           ) : (
                             <span className="text-red-400 text-xs font-medium">
-                              Not Eligible
+                              -
                             </span>
                           )}
                         </td>
@@ -1177,10 +1183,6 @@ const EmployeeBidsPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredMyBids.map((bid, index) => {
-                    const coveragePct = getShiftCoveragePercent(
-                      bid.startTime,
-                      bid.endTime
-                    );
                     const day = new Date(bid.date).toLocaleString('en-US', {
                       weekday: 'long',
                     });
@@ -1222,19 +1224,18 @@ const EmployeeBidsPage: React.FC = () => {
                         <td className="p-4">
                           {bid.startTime} - {bid.endTime}
                         </td>
-                        {/* Coverage */}
+                        <td className="p-4">{bid.duration}h</td>
                         <td className="p-4">
                           <div className="w-full h-2 bg-white/10 rounded relative">
                             <div
                               className="absolute top-0 left-0 h-2 bg-purple-500 rounded"
-                              style={{ width: `${coveragePct}%` }}
+                              style={{ width: `${bid.coverage}%` }}
                             />
                             <div className="absolute right-1 top-0 text-[10px] text-white/80 h-full flex items-center">
-                              {Math.round(coveragePct)}%
+                              {Math.round(bid.coverage)}%
                             </div>
                           </div>
                         </td>
-                        {/* Status */}
                         <td className="p-4">
                           <BidStatusBadge status={bid.status} />
                           {bid.notes && (
@@ -1243,7 +1244,7 @@ const EmployeeBidsPage: React.FC = () => {
                             </div>
                           )}
                         </td>
-                        {/* Action */}
+                        <td className="p-4">{bid.bidTime}</td>
                         <td className="p-4">
                           {bid.status !== 'rejected' && (
                             <Button
