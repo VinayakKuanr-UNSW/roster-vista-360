@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -55,7 +56,7 @@ const UnifiedSidebar: React.FC = () => {
     navigate('/login');
   }, [logout, navigate]);
   
-  const handleThemeChange = useCallback((newTheme: 'dark' | 'light' | 'glass') => {
+  const handleThemeChange = useCallback((newTheme: 'dark' | 'light' | 'glass' | 'lovable') => {
     setTheme(newTheme);
   }, [setTheme]);
 

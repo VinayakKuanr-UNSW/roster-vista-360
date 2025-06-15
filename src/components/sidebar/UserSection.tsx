@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, HelpCircle } from 'lucide-react';
@@ -18,8 +19,8 @@ import UserProfile from './UserProfile';
 interface UserSectionProps {
   user: any;
   isCollapsed: boolean;
-  theme: 'dark' | 'light' | 'glass';
-  handleThemeChange: (theme: 'dark' | 'light' | 'glass') => void;
+  theme: 'dark' | 'light' | 'glass' | 'lovable';
+  handleThemeChange: (theme: 'dark' | 'light' | 'glass' | 'lovable') => void;
   handleLogout: () => void;
 }
 
