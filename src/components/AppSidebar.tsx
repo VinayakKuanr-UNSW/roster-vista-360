@@ -76,7 +76,7 @@ const AppSidebar = () => {
               {badge}
             </Badge>}
         </div>
-        {description && <p className="text-xs text-muted-foreground mt-0.5 truncate">
+        {description && <p className="text-muted-foreground mt-0.5 truncate text-sm">
             {description}
           </p>}
       </div>
