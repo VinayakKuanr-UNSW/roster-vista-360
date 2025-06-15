@@ -1,39 +1,17 @@
+
 import {
   Plus, Check, FileClock, Users2, UserPlus, Loader2, RotateCcw, Clock,
   Pause, Pencil, Repeat, RotateCw, XCircle, AlertTriangle, Trash2,
   ShieldCheck,
 } from "lucide-react";
 import type { FC } from "react";
+import type { AuditStatus } from "@/api/models/types";
 
 /*───────────────────────────────────────────────────────────*\
  ░█▀▄░█░█░█▀▄░█▀█░█▄█░▀█▀░█░░
  ░█▀▄░█░█░█▀▄░█░█░█░█░░█░░█░░
  ░▀▀░░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀   All audit‑trail states
 \*───────────────────────────────────────────────────────────*/
-
-export type AuditStatus =
-  // 1⃣ Creation
-  | "created_draft" | "created_final" | "generated_auto"
-  // 2⃣ Assignment & bidding
-  | "unassigned" | "assigned"
-  | "offered_for_bidding" | "bid_pending" | "bid_confirmed"
-  // 3⃣ Employee response
-  | "accepted" | "declined" | "no_response"
-  // 4⃣ Live / in‑shift
-  | "confirmed" | "in_progress" | "on_break" | "completed"
-  // 5⃣ Edits & reassign
-  | "edited_time" | "edited_details" | "reassigned"
-  // 6⃣ Swap flow
-  | "swap_requested" | "swap_pending" | "swap_approved"
-  | "swap_rejected" | "swap_cancelled"
-  // 7⃣ Cancellation & no‑show
-  | "cancelled_by_employee" | "cancelled_by_admin" | "late_cancellation"
-  | "no_show"
-  // 8⃣ Deletion
-  | "deleted"
-  // 9⃣ Post‑shift audit
-  | "under_review" | "disputed"
-  | "approved_timesheet" | "rejected_timesheet";
 
 /* A11Y colours – AA contrast checked on #131516 background */
 const blue400  = "text-sky-400";

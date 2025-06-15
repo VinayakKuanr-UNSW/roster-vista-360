@@ -29,15 +29,12 @@ const generateMockAuditEvents = (
     count = 6,
     maxGapMins = 15,
     statuses = [
-      'Create',
-      'Publish',
-      'Assign',
-      'Accept',
-      'ClockIn',
-      'ClockOut',
-      'Edit',
-      'Complete',
-      'Cancel',
+      'created_draft',
+      'assigned',
+      'accepted',
+      'in_progress',
+      'completed',
+      'approved_timesheet',
     ],
   } = opts;
 

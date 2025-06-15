@@ -5,4 +5,4 @@ export * from './useTimesheets';
 export * from './useEmployees';
 export * from './useBids';
 export * from '../../hooks/useAvailabilities';
-export * from '../../hooks/useTimesheetAudit';
+export * from './useTimesheetAudit';

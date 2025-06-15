@@ -1,19 +1,32 @@
+
 /* ------------------------------------------------------------------ */
 /*                          GLOBAL ENUMS & TYPES                      */
 /* ------------------------------------------------------------------ */
 
-/** All statuses we log in the audit trail */
-/** Audit‑trail status values (PascalCase for consistency) */
+/** All statuses we log in the audit trail - standardized to snake_case */
 export type AuditStatus =
-  | 'Create'
-  | 'Publish'
-  | 'Assign'
-  | 'Accept'
-  | 'ClockIn'
-  | 'ClockOut'
-  | 'Edit'
-  | 'Complete'
-  | 'Cancel';
+  // 1⃣ Creation
+  | "created_draft" | "created_final" | "generated_auto"
+  // 2⃣ Assignment & bidding
+  | "unassigned" | "assigned"
+  | "offered_for_bidding" | "bid_pending" | "bid_confirmed"
+  // 3⃣ Employee response
+  | "accepted" | "declined" | "no_response"
+  // 4⃣ Live / in‑shift
+  | "confirmed" | "in_progress" | "on_break" | "completed"
+  // 5⃣ Edits & reassign
+  | "edited_time" | "edited_details" | "reassigned"
+  // 6⃣ Swap flow
+  | "swap_requested" | "swap_pending" | "swap_approved"
+  | "swap_rejected" | "swap_cancelled"
+  // 7⃣ Cancellation & no‑show
+  | "cancelled_by_employee" | "cancelled_by_admin" | "late_cancellation"
+  | "no_show"
+  // 8⃣ Deletion
+  | "deleted"
+  // 9⃣ Post‑shift audit
+  | "under_review" | "disputed"
+  | "approved_timesheet" | "rejected_timesheet";
 
 /** A single audit‑trail record */
 export interface AuditEvent {
@@ -38,7 +51,7 @@ export interface Template {
   sub_department_id?: number;
   start_date?: string;
   end_date?: string;
-  status?: string;
+  status: 'draft' | 'published';
 }
 
 export interface DBTemplate {

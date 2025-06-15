@@ -49,7 +49,7 @@ const TemplatesPage: React.FC = () => {
         const convertedTemplates: Template[] = mockData.map((item) => ({
           ...item,
           id: parseInt(item.id), // Convert string id to number
-          status: item.status as 'draft' | 'published', // Ensure proper type casting
+          status: (item.status === 'published' ? 'published' : 'draft') as 'draft' | 'published', // Ensure proper type casting
         }));
         setTemplates(convertedTemplates);
         setCurrentTemplate(convertedTemplates[0]);
