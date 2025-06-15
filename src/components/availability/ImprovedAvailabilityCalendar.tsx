@@ -18,14 +18,23 @@ const timeToMinutes = (timeStr: string): number => {
   return hours * 60 + minutes;
 };
 
-// Helper function to segment a full day based on time slots
-const segmentDay = (timeSlots: Array<{ startTime: string; endTime: string; status: string }>) => {
+// Helper function to segment a full day based on time slots - fixed type signature
+const segmentDay = (timeSlots: Array<{ startTime: string; endTime: string; status?: string }>) => {
   const segments: Array<{ start: number; end: number; status: 'Available' | 'Unavailable' | 'Unset' }> = [];
   const dayStart = 0; // 00:00
   const dayEnd = 1439; // 23:59 (1439 minutes)
   
+  // Filter out slots without valid status and ensure proper type
+  const validSlots = timeSlots
+    .filter(slot => slot.status)
+    .map(slot => ({
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      status: slot.status || 'Available'
+    }));
+  
   // Sort time slots by start time
-  const sortedSlots = [...timeSlots].sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+  const sortedSlots = [...validSlots].sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   
   let currentTime = dayStart;
   
@@ -90,7 +99,7 @@ export function ImprovedAvailabilityCalendar({
       return 'bg-transparent border-gray-200 dark:border-gray-700';
     }
     
-    // Segment the day based on time slots
+    // Segment the day based on time slots - now with proper type handling
     const segments = segmentDay(availability.timeSlots);
     
     const hasAvailable = segments.some(seg => seg.status === 'Available');
