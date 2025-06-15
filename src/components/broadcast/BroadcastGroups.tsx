@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit, Trash2, UserPlus, ShieldAlert, UserMinus, Shield, Users, MessageSquare } from 'lucide-react';
+import { PlusCircle, edit, trash2, UserPlus, ShieldAlert, UserMinus, Shield, Users, MessageSquare } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +24,6 @@ const BroadcastGroups = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 
-  // Fetch broadcast groups
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
@@ -45,7 +43,6 @@ const BroadcastGroups = () => {
     }
   };
 
-  // Fetch members of a group
   const fetchGroupMembers = async (groupId: string) => {
     try {
       console.log('Fetching members for group:', groupId);
@@ -88,8 +85,11 @@ const BroadcastGroups = () => {
       setNewGroupName('');
       setIsAddDialogOpen(false);
       
-      // Refresh the groups list
+      // Refresh the groups list and trigger refresh event
       await fetchGroups();
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('groupsUpdated'));
     } catch (error: any) {
       console.error('Error creating group:', error);
       toast({
@@ -123,7 +123,10 @@ const BroadcastGroups = () => {
       });
       
       setIsEditDialogOpen(false);
-      fetchGroups();
+      await fetchGroups();
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('groupsUpdated'));
     } catch (error: any) {
       toast({
         title: "Error",
@@ -152,7 +155,10 @@ const BroadcastGroups = () => {
         setGroupMembers([]);
       }
       
-      fetchGroups();
+      await fetchGroups();
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('groupsUpdated'));
     } catch (error: any) {
       toast({
         title: "Error",
@@ -162,7 +168,6 @@ const BroadcastGroups = () => {
     }
   };
 
-  // Add a member to a group
   const addMemberToGroup = async (userId: string, isAdmin: boolean = false) => {
     if (!selectedGroup) return;
 
@@ -185,7 +190,6 @@ const BroadcastGroups = () => {
     }
   };
 
-  // Remove a member from a group
   const removeMember = async (memberId: string) => {
     if (!confirm('Are you sure you want to remove this member from the group?')) {
       return;
@@ -211,7 +215,6 @@ const BroadcastGroups = () => {
     }
   };
 
-  // Toggle admin status for a member
   const toggleAdminStatus = async (memberId: string, currentStatus: boolean) => {
     try {
       await BroadcastDbClient.updateMemberAdminStatus(memberId, !currentStatus);
@@ -233,13 +236,11 @@ const BroadcastGroups = () => {
     }
   };
 
-  // Select a group to view its members
   const handleSelectGroup = (group: BroadcastGroup) => {
     setSelectedGroup(group);
     fetchGroupMembers(group.id);
   };
 
-  // Prepare to edit a group
   const handleEditGroup = (group: BroadcastGroup) => {
     setSelectedGroup(group);
     setEditGroupName(group.name);
@@ -328,22 +329,24 @@ const BroadcastGroups = () => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="h-8 w-8"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEditGroup(group);
                       }}
                     >
-                      <Edit className="h-4 w-4" />
+                      <edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="h-8 w-8"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteGroup(group.id);
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 </div>

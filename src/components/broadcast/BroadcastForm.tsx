@@ -26,51 +26,71 @@ const BroadcastForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Fetch broadcast groups where the current user is an admin
-  useEffect(() => {
-    const fetchGroups = async () => {
-      if (!user?.id) {
-        console.log('No user ID available');
-        setIsLoading(false);
-        return;
+  const fetchGroups = async () => {
+    if (!user?.id) {
+      console.log('No user ID available');
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      console.log('Fetching groups for user:', user.id);
+      setIsLoading(true);
+      setError(null);
+      
+      const userGroups = await BroadcastDbClient.fetchUserGroups(user.id);
+      console.log('Fetched user groups:', userGroups);
+      
+      // Filter to only include groups where the user is an admin
+      const adminGroups = userGroups.filter(group => group.is_admin);
+      console.log('Admin groups:', adminGroups);
+      
+      setGroups(adminGroups);
+      
+      // If selectedGroupId is not in the updated list, reset it
+      if (selectedGroupId && !adminGroups.find(g => g.id === selectedGroupId)) {
+        setSelectedGroupId(adminGroups.length > 0 ? adminGroups[0].id : '');
+      } else if (!selectedGroupId && adminGroups.length > 0) {
+        setSelectedGroupId(adminGroups[0].id);
+      }
+    } catch (error: any) {
+      console.error('Error fetching groups:', error);
+      setError(error.message);
+      
+      // Set fallback groups on error
+      const fallbackGroups = [
+        { id: '1', name: 'General Announcements', is_admin: true }
+      ];
+      setGroups(fallbackGroups);
+      if (!selectedGroupId) {
+        setSelectedGroupId(fallbackGroups[0].id);
       }
       
-      try {
-        console.log('Fetching groups for user:', user.id);
-        setIsLoading(true);
-        setError(null);
-        
-        const userGroups = await BroadcastDbClient.fetchUserGroups(user.id);
-        console.log('Fetched user groups:', userGroups);
-        
-        // Filter to only include groups where the user is an admin
-        const adminGroups = userGroups.filter(group => group.is_admin);
-        console.log('Admin groups:', adminGroups);
-        
-        setGroups(adminGroups);
-        if (adminGroups.length > 0) {
-          setSelectedGroupId(adminGroups[0].id);
-        }
-      } catch (error: any) {
-        console.error('Error fetching groups:', error);
-        setError(error.message);
-        
-        // Set fallback groups on error
-        const fallbackGroups = [
-          { id: '1', name: 'General Announcements', is_admin: true }
-        ];
-        setGroups(fallbackGroups);
-        setSelectedGroupId(fallbackGroups[0].id);
-        
-        toast({
-          title: "Warning",
-          description: "Using demo data - Supabase connection failed",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
+      toast({
+        title: "Warning",
+        description: "Using demo data - Supabase connection failed",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Listen for group updates from other components
+  useEffect(() => {
+    const handleGroupsUpdated = () => {
+      console.log('Groups updated event received, refreshing...');
+      fetchGroups();
     };
 
+    window.addEventListener('groupsUpdated', handleGroupsUpdated);
+    
+    return () => {
+      window.removeEventListener('groupsUpdated', handleGroupsUpdated);
+    };
+  }, [user?.id, selectedGroupId]);
+
+  useEffect(() => {
     fetchGroups();
   }, [user?.id]);
 
