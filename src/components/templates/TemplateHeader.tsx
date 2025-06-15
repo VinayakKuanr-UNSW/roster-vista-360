@@ -1,9 +1,8 @@
 
-
-// TemplateHeader.tsx • 2025‑04‑21 (responsive range‑picker)
+// TemplateHeader.tsx • 2025‑04‑21 (enhanced range‑picker with modern UI)
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, CheckCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +32,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
-import { Calendar as CalendarPicker } from '@/components/ui/calendar';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -64,7 +63,7 @@ interface TemplateMeta {
   name: string;
   status: 'draft' | 'published';
   updatedAt?: string;
-  groups?: unknown[]; // replace with Shift[] if desired
+  groups?: unknown[];
 }
 
 interface TemplateHeaderProps {
@@ -116,7 +115,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
     setSaving(true);
     try {
       await onSaveAsDraft();
-      toast({ title: 'Draft saved' });
+      toast({ title: 'Draft saved successfully', description: 'Your changes have been saved.' });
       onSavedDraft?.();
     } catch {
       toast({ title: 'Failed to save draft', variant: 'destructive' });
@@ -144,8 +143,12 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
         return;
       }
       await onPublish(dateRange, override);
-      toast({ title: 'Template published' });
+      toast({ 
+        title: 'Template published successfully', 
+        description: `Published for ${format(range.from, 'MMM d')} - ${format(range.to, 'MMM d, yyyy')}` 
+      });
       setPubOpen(false);
+      setRange(undefined);
     } catch {
       toast({ title: 'Publish failed', variant: 'destructive' });
     } finally {
@@ -168,7 +171,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
         const html2pdf = (await import('html2pdf.js')).default;
         await html2pdf().from(el).save(`${currentTemplate!.name}.pdf`);
       }
-      toast({ title: 'PDF exported' });
+      toast({ title: 'PDF exported successfully' });
     } catch (e) {
       console.error(e);
       toast({ title: 'Export failed', variant: 'destructive' });
@@ -300,55 +303,64 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
         </div>
       </div>
 
-      {/* ───────────────── Publish Dialog ───────────────── */}
+      {/* ───────────────── Enhanced Publish Dialog ───────────────── */}
       <Dialog open={pubOpen} onOpenChange={setPubOpen}>
-        {/* wider card on ≥ sm screens */}
-        <DialogContent className="sm:max-w-[640px]">
-          <DialogHeader>
-            <DialogTitle>Publish template</DialogTitle>
-            <DialogDescription>
-              Select the date range this template should apply to.
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="text-center pb-2">
+            <DialogTitle className="text-xl">Publish Template</DialogTitle>
+            <DialogDescription className="text-base">
+              Select the date range this template should apply to. The template will be active during this period.
             </DialogDescription>
           </DialogHeader>
 
-          {/* overflow wrapper to prevent burst on tiny screens */}
-          <div className="py-4 overflow-x-auto">
-            <CalendarPicker
-              mode="range"
-              numberOfMonths={isWide ? 2 : 1}
-              selected={range}
-              onSelect={(dateRange) => {
-                if (dateRange && dateRange.from && dateRange.to) {
-                  setRange({ from: dateRange.from, to: dateRange.to });
-                } else if (dateRange && dateRange.from) {
-                  setRange({ from: dateRange.from, to: dateRange.from });
-                } else {
-                  setRange(undefined);
-                }
-              }}
-              initialFocus
-              className="mx-auto"
-            />
+          <div className="py-6 space-y-6">
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground">Date Range</label>
+              <DateRangePicker
+                value={range}
+                onChange={setRange}
+                placeholder="Select start and end dates"
+                className="w-full"
+              />
+            </div>
+
             {range?.from && range?.to && (
-              <p className="mt-3 text-sm text-muted-foreground text-center">
-                {range.from.toLocaleDateString()} &rarr;{' '}
-                {range.to.toLocaleDateString()}
-              </p>
+              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium">Selected Period</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Template will be active from <strong>{format(range.from, 'MMMM d, yyyy')}</strong> to{' '}
+                  <strong>{format(range.to, 'MMMM d, yyyy')}</strong>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Duration: {Math.ceil((range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24))} days
+                </p>
+              </div>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPubOpen(false)}>
+          <DialogFooter className="gap-2 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setPubOpen(false);
+                setRange(undefined);
+              }}
+              className="flex-1 sm:flex-none"
+            >
               Cancel
             </Button>
             <Button
               disabled={!range?.from || !range?.to || checking}
               onClick={() => doPublish(false)}
+              className="flex-1 sm:flex-none"
             >
               {checking && (
                 <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
               )}
-              Continue
+              Publish Template
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -377,4 +389,3 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 };
 
 export default TemplateHeader;
-
