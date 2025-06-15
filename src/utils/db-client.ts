@@ -1,6 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { BroadcastGroup, GroupMember, Broadcast, Notification, Employee } from '@/types/broadcast';
+import { MockStorage } from './mock-storage';
 
 // Helper class to provide typed methods for accessing broadcast tables
 export class BroadcastDbClient {
@@ -21,10 +21,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, returning mock data');
-        return [
-          { id: '1', name: 'General Announcements', created_at: new Date().toISOString() },
-          { id: '2', name: 'Team Updates', created_at: new Date().toISOString() }
-        ] as BroadcastGroup[];
+        return MockStorage.getGroups() as BroadcastGroup[];
       }
 
       const { data, error } = await supabase
@@ -36,11 +33,7 @@ export class BroadcastDbClient {
       return data as BroadcastGroup[];
     } catch (error) {
       console.error('Error fetching broadcast groups:', error);
-      // Return mock data as fallback
-      return [
-        { id: '1', name: 'General Announcements', created_at: new Date().toISOString() },
-        { id: '2', name: 'Team Updates', created_at: new Date().toISOString() }
-      ] as BroadcastGroup[];
+      return MockStorage.getGroups() as BroadcastGroup[];
     }
   }
 
@@ -49,7 +42,8 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating group creation');
-        return [{ id: Date.now().toString(), name, created_at: new Date().toISOString() }] as BroadcastGroup[];
+        const newGroup = { id: Date.now().toString(), name, created_at: new Date().toISOString() };
+        return MockStorage.addGroup(newGroup) as BroadcastGroup[];
       }
 
       const { data, error } = await supabase
@@ -70,6 +64,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating group update');
+        MockStorage.updateGroup(id, name);
         return;
       }
 
@@ -90,6 +85,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating group deletion');
+        MockStorage.deleteGroup(id);
         return;
       }
 
@@ -111,34 +107,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, returning mock members');
-        return [
-          {
-            id: '1',
-            group_id: groupId,
-            user_id: '1',
-            is_admin: true,
-            user: {
-              id: '1',
-              name: 'John Doe',
-              email: 'john@example.com',
-              role: 'admin',
-              department: 'IT'
-            }
-          },
-          {
-            id: '2',
-            group_id: groupId,
-            user_id: '2',
-            is_admin: false,
-            user: {
-              id: '2',
-              name: 'Jane Smith',
-              email: 'jane@example.com',
-              role: 'member',
-              department: 'HR'
-            }
-          }
-        ] as GroupMember[];
+        return MockStorage.getGroupMembers(groupId) as GroupMember[];
       }
 
       // First get the basic member data
@@ -183,6 +152,20 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating member addition');
+        const newMember = {
+          id: Date.now().toString(),
+          group_id: groupId,
+          user_id: userId,
+          is_admin: isAdmin,
+          user: {
+            id: userId,
+            name: 'New User',
+            email: 'newuser@example.com',
+            role: 'member',
+            department: 'General'
+          }
+        };
+        MockStorage.addMember(newMember);
         return;
       }
 
@@ -206,6 +189,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating member removal');
+        MockStorage.removeMember(memberId);
         return;
       }
 
@@ -226,6 +210,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating admin status update');
+        MockStorage.updateMemberAdminStatus(memberId, isAdmin);
         return;
       }
 
@@ -249,10 +234,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, returning mock user groups');
-        return [
-          { id: '1', name: 'General Announcements', is_admin: true },
-          { id: '2', name: 'Team Updates', is_admin: false }
-        ];
+        return MockStorage.getUserGroups(userId);
       }
 
       // Get group memberships
@@ -301,10 +283,7 @@ export class BroadcastDbClient {
     } catch (error) {
       console.error('Error in fetchUserGroups:', error);
       // Return mock data as fallback
-      return [
-        { id: '1', name: 'General Announcements', is_admin: true },
-        { id: '2', name: 'Team Updates', is_admin: false }
-      ];
+      return MockStorage.getUserGroups(userId);
     }
   }
 
@@ -316,13 +295,16 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, simulating broadcast creation');
-        return {
+        const newBroadcast = {
           id: Date.now().toString(),
           group_id: groupId,
           sender_id: senderId,
           message: message,
-          created_at: new Date().toISOString()
-        } as Broadcast;
+          created_at: new Date().toISOString(),
+          sender: { id: senderId, name: 'Demo User' },
+          group: { id: groupId, name: 'Demo Group' }
+        };
+        return MockStorage.addBroadcast(newBroadcast) as Broadcast;
       }
 
       const { data, error } = await supabase
@@ -355,17 +337,7 @@ export class BroadcastDbClient {
       const isConnected = await this.testConnection();
       if (!isConnected) {
         console.warn('Supabase not connected, returning mock broadcasts');
-        return [
-          {
-            id: '1',
-            group_id: groupId,
-            sender_id: '1',
-            message: 'Welcome to the broadcast system! This is a test message.',
-            created_at: new Date().toISOString(),
-            sender: { id: '1', name: 'John Doe' },
-            group: { id: groupId, name: 'General Announcements' }
-          }
-        ] as Broadcast[];
+        return MockStorage.getGroupBroadcasts(groupId) as Broadcast[];
       }
 
       // First get the broadcasts

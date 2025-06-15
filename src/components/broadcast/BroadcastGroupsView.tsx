@@ -17,76 +17,95 @@ export const BroadcastGroupsView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUserGroups = async () => {
-      if (!user?.id) {
-        console.log('No user ID available');
-        setIsLoading(false);
-        return;
-      }
+  const fetchUserGroupsAndBroadcasts = async () => {
+    if (!user?.id) {
+      console.log('No user ID available');
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      console.log('Fetching user groups and broadcasts for user:', user.id);
+      setIsLoading(true);
+      setError(null);
       
-      try {
-        console.log('Fetching user groups and broadcasts for user:', user.id);
-        setIsLoading(true);
-        setError(null);
-        
-        // Fetch groups where the user is a member
-        const groups = await BroadcastDbClient.fetchUserGroups(user.id);
-        console.log('Fetched user groups:', groups);
-        setUserGroups(groups);
-        
-        // For each group, fetch the broadcast messages
-        const broadcastsData: {[key: string]: Broadcast[]} = {};
-        for (const group of groups) {
-          try {
-            console.log('Fetching broadcasts for group:', group.id);
-            const groupBroadcasts = await BroadcastDbClient.fetchGroupBroadcasts(group.id);
-            broadcastsData[group.id] = groupBroadcasts;
-            console.log(`Found ${groupBroadcasts.length} broadcasts for group ${group.name}`);
-          } catch (groupError: any) {
-            console.error(`Error fetching broadcasts for group ${group.id}:`, groupError);
-            broadcastsData[group.id] = [];
-          }
+      // Fetch groups where the user is a member
+      const groups = await BroadcastDbClient.fetchUserGroups(user.id);
+      console.log('Fetched user groups:', groups);
+      setUserGroups(groups);
+      
+      // For each group, fetch the broadcast messages
+      const broadcastsData: {[key: string]: Broadcast[]} = {};
+      for (const group of groups) {
+        try {
+          console.log('Fetching broadcasts for group:', group.id);
+          const groupBroadcasts = await BroadcastDbClient.fetchGroupBroadcasts(group.id);
+          broadcastsData[group.id] = groupBroadcasts;
+          console.log(`Found ${groupBroadcasts.length} broadcasts for group ${group.name}`);
+        } catch (groupError: any) {
+          console.error(`Error fetching broadcasts for group ${group.id}:`, groupError);
+          broadcastsData[group.id] = [];
         }
-        setBroadcasts(broadcastsData);
-      } catch (error: any) {
-        console.error('Error fetching broadcast data:', error);
-        setError(error.message);
-        
-        // Set fallback data on error
-        const fallbackGroups = [
-          { id: '1', name: 'General Announcements', is_admin: true },
-          { id: '2', name: 'Team Updates', is_admin: false }
-        ];
-        setUserGroups(fallbackGroups);
-        
-        const fallbackBroadcasts: {[key: string]: Broadcast[]} = {};
-        fallbackGroups.forEach(group => {
-          fallbackBroadcasts[group.id] = [
-            {
-              id: `${group.id}-1`,
-              group_id: group.id,
-              sender_id: '1',
-              message: `Welcome to ${group.name}! This is a demo message showing how broadcasts will appear.`,
-              created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-              sender: { id: '1', name: 'Demo Admin' },
-              group: { id: group.id, name: group.name }
-            }
-          ];
-        });
-        setBroadcasts(fallbackBroadcasts);
-        
-        toast({
-          title: "Warning",
-          description: "Using demo data - Supabase connection failed",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
       }
+      setBroadcasts(broadcastsData);
+    } catch (error: any) {
+      console.error('Error fetching broadcast data:', error);
+      setError(error.message);
+      
+      // Set fallback data on error
+      const fallbackGroups = [
+        { id: '1', name: 'General Announcements', is_admin: true },
+        { id: '2', name: 'Team Updates', is_admin: false }
+      ];
+      setUserGroups(fallbackGroups);
+      
+      const fallbackBroadcasts: {[key: string]: Broadcast[]} = {};
+      fallbackGroups.forEach(group => {
+        fallbackBroadcasts[group.id] = [
+          {
+            id: `${group.id}-1`,
+            group_id: group.id,
+            sender_id: '1',
+            message: `Welcome to ${group.name}! This is a demo message showing how broadcasts will appear.`,
+            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            sender: { id: '1', name: 'Demo Admin' },
+            group: { id: group.id, name: group.name }
+          }
+        ];
+      });
+      setBroadcasts(fallbackBroadcasts);
+      
+      toast({
+        title: "Warning",
+        description: "Using demo data - Supabase connection failed",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserGroupsAndBroadcasts();
+
+    // Listen for group updates and broadcast updates
+    const handleGroupsUpdated = () => {
+      console.log('Groups updated, refreshing groups view...');
+      fetchUserGroupsAndBroadcasts();
     };
 
-    fetchUserGroups();
+    const handleBroadcastSent = (event: CustomEvent) => {
+      console.log('New broadcast sent, refreshing groups view...', event.detail);
+      fetchUserGroupsAndBroadcasts();
+    };
+
+    window.addEventListener('groupsUpdated', handleGroupsUpdated);
+    window.addEventListener('broadcastSent', handleBroadcastSent as EventListener);
+
+    return () => {
+      window.removeEventListener('groupsUpdated', handleGroupsUpdated);
+      window.removeEventListener('broadcastSent', handleBroadcastSent as EventListener);
+    };
   }, [user?.id]);
 
   if (isLoading) {
