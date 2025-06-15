@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Calendar, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -167,7 +168,7 @@ export const BirdsViewHeader: React.FC<BirdsViewHeaderProps> = ({
 
           <div className="flex items-center gap-2">
             <Button
-              variant="solid"
+              variant="default"
               size="sm"
               onClick={() => {
                 const today = new Date();
@@ -179,7 +180,7 @@ export const BirdsViewHeader: React.FC<BirdsViewHeaderProps> = ({
               This Week
             </Button>
             <Button
-              variant="solid"
+              variant="default"
               size="sm"
               onClick={() => {
                 const next = addWeeks(new Date(), 1);

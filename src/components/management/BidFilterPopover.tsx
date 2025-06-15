@@ -1,3 +1,4 @@
+
 /* BidFilterPopover.tsx */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -74,6 +75,13 @@ const BidFilterPopover: React.FC<BidFilterPopoverProps> = ({
     end.setDate(now.getDate() + days - 1);
     updateLocal('startDate', now);
     updateLocal('endDate', end);
+  };
+
+  const setThisMonth = () => {
+    const d = new Date();
+    d.setDate(1);
+    updateLocal('startDate', d);
+    updateLocal('endDate', undefined);
   };
 
   return (
@@ -157,16 +165,7 @@ const BidFilterPopover: React.FC<BidFilterPopoverProps> = ({
                 <Button
                   variant="link"
                   size="xs"
-                  onClick={() =>
-                    updateLocal(
-                      'startDate',
-                      (() => {
-                        const d = new Date();
-                        d.setDate(1);
-                        return d;
-                      })()
-                    ) & updateLocal('endDate', undefined)
-                  }
+                  onClick={setThisMonth}
                   className="p-0 h-auto"
                 >
                   This month
