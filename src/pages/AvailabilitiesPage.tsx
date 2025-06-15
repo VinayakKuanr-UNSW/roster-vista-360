@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, addMonths, subMonths, eachDayOfInterval } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import {
   List,
   Lock,
   Unlock,
+  RefreshCw,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +22,6 @@ import { AvailabilityStatus } from '@/api/models/types';
 import { AvailabilityCalendar } from '@/components/availability/AvailabilityCalendar';
 import { PresetSelector } from '@/components/availability/PresetSelector';
 import { MonthListView } from '@/components/availability/MonthListView';
-// If you have these forms in your components folder:
 import { AvailabilityForm } from '@/components/availability/AvailabilityForm';
 import { BatchAvailabilityForm } from '@/components/availability/BatchAvailabilityForm';
 
@@ -30,8 +31,6 @@ const AvailabilitiesPage = () => {
   const [isBatchFormOpen, setIsBatchFormOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
-
-  // Lock/unlock state
   const [isCalendarLocked, setIsCalendarLocked] = useState(false);
 
   const { user, hasPermission } = useAuth();
@@ -46,6 +45,7 @@ const AvailabilitiesPage = () => {
     goToPreviousMonth,
     goToNextMonth,
     setSelectedMonth: updateSelectedMonth,
+    getDayAvailability,
   } = useAvailabilities();
 
   // Switch forward/back one month
@@ -63,12 +63,28 @@ const AvailabilitiesPage = () => {
 
   // Toggle the locked state
   const handleToggleLock = () => {
-    setIsCalendarLocked((prev) => !prev);
+    const newLockState = !isCalendarLocked;
+    setIsCalendarLocked(newLockState);
+    toast({
+      title: newLockState ? 'Calendar Locked' : 'Calendar Unlocked',
+      description: newLockState 
+        ? 'All changes are now disabled.' 
+        : 'Changes are now allowed.',
+    });
+  };
+
+  // Force refresh data
+  const handleRefresh = () => {
+    // Trigger a re-fetch by updating the selected month
+    updateSelectedMonth(new Date(selectedMonth));
+    toast({
+      title: 'Refreshed',
+      description: 'Availability data has been refreshed.',
+    });
   };
 
   // Single-day form submission
   const handleSaveAvailability = async (data: any) => {
-    // If locked, block
     if (isCalendarLocked) {
       toast({
         title: 'Calendar Locked',
@@ -80,23 +96,25 @@ const AvailabilitiesPage = () => {
 
     if (!selectedDate) return;
 
-    await setAvailability({
+    const success = await setAvailability({
       startDate: selectedDate,
       endDate: selectedDate,
       timeSlots: data.timeSlots,
       notes: data.notes,
     });
 
-    toast({
-      title: 'Availability Saved',
-      description: `Your availability for ${format(
-        selectedDate,
-        'dd MMM yyyy'
-      )} has been saved successfully.`,
-    });
+    if (success) {
+      toast({
+        title: 'Availability Saved',
+        description: `Your availability for ${format(
+          selectedDate,
+          'dd MMM yyyy'
+        )} has been saved successfully.`,
+      });
 
-    setIsFormOpen(false);
-    setSelectedDate(null);
+      setIsFormOpen(false);
+      setSelectedDate(null);
+    }
   };
 
   // Batch form submission
@@ -133,40 +151,24 @@ const AvailabilitiesPage = () => {
       return;
     }
 
-    // Check if any dates in the range already have availability
-    const daysInRange = eachDayOfInterval({
-      start: data.startDate,
-      end: data.endDate,
-    });
-    const existingDays = daysInRange.filter((date) =>
-      monthlyAvailabilities.some((a) => a.date === format(date, 'yyyy-MM-dd'))
-    );
-
-    if (existingDays.length > 0) {
-      toast({
-        title: 'Existing Availabilities',
-        description: `${existingDays.length} dates in your selection already have availability set. Please edit those individually.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    await setAvailability({
+    const success = await setAvailability({
       startDate: data.startDate,
       endDate: data.endDate,
       timeSlots: data.timeSlots,
       notes: data.notes,
     });
 
-    toast({
-      title: 'Batch Availability Saved',
-      description: `Availability set for ${format(
-        data.startDate,
-        'dd MMM'
-      )} to ${format(data.endDate, 'dd MMM yyyy')}`,
-    });
+    if (success) {
+      toast({
+        title: 'Batch Availability Saved',
+        description: `Availability set for ${format(
+          data.startDate,
+          'dd MMM'
+        )} to ${format(data.endDate, 'dd MMM yyyy')}`,
+      });
 
-    setIsBatchFormOpen(false);
+      setIsBatchFormOpen(false);
+    }
   };
 
   // Apply a preset
@@ -184,30 +186,22 @@ const AvailabilitiesPage = () => {
       return;
     }
 
-    // Check if any dates in the range already have availability
-    const daysInRange = eachDayOfInterval({ start: startDate, end: endDate });
-    const existingDays = daysInRange.filter((date) =>
-      monthlyAvailabilities.some((a) => a.date === format(date, 'yyyy-MM-dd'))
-    );
-
-    if (existingDays.length > 0) {
-      toast({
-        title: 'Conflicting Availability',
-        description: `${existingDays.length} dates already have availability set and will be overwritten.`,
-        variant: 'destructive',
-      });
-    }
-
-    await applyPreset({
+    const success = await applyPreset({
       presetId,
       startDate,
       endDate,
     });
+
+    if (success) {
+      toast({
+        title: 'Preset Applied Successfully',
+        description: `Applied preset from ${format(startDate, 'MMM dd')} to ${format(endDate, 'MMM dd')}`,
+      });
+    }
   };
 
-  // Clicking a day in the calendar
+  // Clicking a day in the calendar or list
   const handleDateClick = (date: Date) => {
-    // If locked, block
     if (isCalendarLocked) {
       toast({
         title: 'Calendar Locked',
@@ -233,6 +227,22 @@ const AvailabilitiesPage = () => {
     setIsBatchFormOpen(true);
   };
 
+  const openSingleDayForm = () => {
+    if (isCalendarLocked) {
+      toast({
+        title: 'Calendar Locked',
+        description: 'No changes allowed while locked.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedDate(new Date());
+    setIsFormOpen(true);
+  };
+
+  // Get existing availability for the form
+  const existingAvailability = selectedDate ? getDayAvailability(selectedDate) : undefined;
+
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
       {/* PAGE HEADER */}
@@ -243,11 +253,22 @@ const AvailabilitiesPage = () => {
           </h1>
 
           <div className="flex items-center gap-2">
+            {/* Refresh Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              className="hidden sm:flex"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+
             {/* Switch between Calendar or List */}
             <div className="hidden sm:flex gap-2">
               <Button
                 variant={viewMode === 'calendar' ? 'default' : 'outline'}
                 onClick={() => setViewMode('calendar')}
+                size="sm"
               >
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 Calendar
@@ -255,6 +276,7 @@ const AvailabilitiesPage = () => {
               <Button
                 variant={viewMode === 'list' ? 'default' : 'outline'}
                 onClick={() => setViewMode('list')}
+                size="sm"
               >
                 <List className="h-4 w-4 mr-2" />
                 List
@@ -264,19 +286,9 @@ const AvailabilitiesPage = () => {
             {/* Single Day */}
             <Button
               variant="outline"
-              onClick={() => {
-                if (isCalendarLocked) {
-                  toast({
-                    title: 'Calendar Locked',
-                    description: 'No changes allowed while locked.',
-                    variant: 'destructive',
-                  });
-                  return;
-                }
-                setSelectedDate(new Date());
-                setIsFormOpen(true);
-              }}
+              onClick={openSingleDayForm}
               disabled={isCalendarLocked}
+              size="sm"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Single Day
@@ -287,6 +299,7 @@ const AvailabilitiesPage = () => {
               variant="default"
               onClick={openBatchForm}
               disabled={isCalendarLocked}
+              size="sm"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Multiple Days
@@ -314,6 +327,7 @@ const AvailabilitiesPage = () => {
                 variant="outline"
                 className="flex items-center gap-2"
                 onClick={handleToggleLock}
+                size="sm"
               >
                 {isCalendarLocked ? (
                   <>
@@ -354,6 +368,7 @@ const AvailabilitiesPage = () => {
             <div className="p-4 md:p-6">
               <MonthListView
                 onSelectDate={handleDateClick}
+                isLocked={isCalendarLocked}
               />
             </div>
           )}
@@ -364,6 +379,7 @@ const AvailabilitiesPage = () => {
       {isFormOpen && selectedDate && (
         <AvailabilityForm
           selectedDate={selectedDate}
+          existingAvailability={existingAvailability}
           onSubmit={handleSaveAvailability}
           onCancel={() => {
             setIsFormOpen(false);
