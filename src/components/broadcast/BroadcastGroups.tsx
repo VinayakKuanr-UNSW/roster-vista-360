@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit, Trash2, UserPlus, ShieldAlert, UserMinus, Shield } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, UserPlus, ShieldAlert, UserMinus, Shield, Users, MessageSquare } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ const BroadcastGroups = () => {
   const [newGroupName, setNewGroupName] = useState('');
   const [editGroupName, setEditGroupName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
@@ -27,9 +29,12 @@ const BroadcastGroups = () => {
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching broadcast groups...');
       const data = await BroadcastDbClient.fetchBroadcastGroups();
+      console.log('Fetched groups:', data);
       setGroups(data);
     } catch (error: any) {
+      console.error('Error fetching groups:', error);
       toast({
         title: "Error",
         description: `Failed to load broadcast groups: ${error.message}`,
@@ -43,9 +48,12 @@ const BroadcastGroups = () => {
   // Fetch members of a group
   const fetchGroupMembers = async (groupId: string) => {
     try {
+      console.log('Fetching members for group:', groupId);
       const data = await BroadcastDbClient.fetchGroupMembers(groupId);
+      console.log('Fetched members:', data);
       setGroupMembers(data);
     } catch (error: any) {
+      console.error('Error fetching group members:', error);
       toast({
         title: "Error",
         description: `Failed to load group members: ${error.message}`,
@@ -66,7 +74,11 @@ const BroadcastGroups = () => {
     }
 
     try {
-      await BroadcastDbClient.createBroadcastGroup(newGroupName.trim());
+      setIsCreating(true);
+      console.log('Creating new group:', newGroupName.trim());
+      
+      const newGroups = await BroadcastDbClient.createBroadcastGroup(newGroupName.trim());
+      console.log('Created group:', newGroups);
       
       toast({
         title: "Success",
@@ -75,13 +87,18 @@ const BroadcastGroups = () => {
       
       setNewGroupName('');
       setIsAddDialogOpen(false);
-      fetchGroups();
+      
+      // Refresh the groups list
+      await fetchGroups();
     } catch (error: any) {
+      console.error('Error creating group:', error);
       toast({
         title: "Error",
         description: `Failed to create group: ${error.message}`,
         variant: "destructive"
       });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -238,7 +255,10 @@ const BroadcastGroups = () => {
       {/* Group List */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>Broadcast Groups</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Broadcast Groups
+          </CardTitle>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="px-2">
@@ -258,12 +278,21 @@ const BroadcastGroups = () => {
                     placeholder="Enter group name"
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !isCreating) {
+                        createGroup();
+                      }
+                    }}
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                <Button onClick={createGroup}>Create Group</Button>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isCreating}>
+                  Cancel
+                </Button>
+                <Button onClick={createGroup} disabled={isCreating}>
+                  {isCreating ? "Creating..." : "Create Group"}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -276,8 +305,10 @@ const BroadcastGroups = () => {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : groups.length === 0 ? (
-            <div className="text-center py-4 text-muted-foreground">
-              No broadcast groups found. Create one to get started.
+            <div className="text-center py-8">
+              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No broadcast groups found.</p>
+              <p className="text-sm text-muted-foreground">Create one to get started.</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -289,7 +320,10 @@ const BroadcastGroups = () => {
                   }`}
                   onClick={() => handleSelectGroup(group)}
                 >
-                  <span className="font-medium">{group.name}</span>
+                  <div className="flex items-center gap-3">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="font-medium">{group.name}</span>
+                  </div>
                   <div className="flex space-x-1">
                     <Button
                       variant="ghost"
@@ -322,7 +356,8 @@ const BroadcastGroups = () => {
       {/* Group Members */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
             {selectedGroup ? `${selectedGroup.name} - Members` : 'Group Members'}
           </CardTitle>
           {selectedGroup && (
@@ -346,12 +381,15 @@ const BroadcastGroups = () => {
         </CardHeader>
         <CardContent>
           {!selectedGroup ? (
-            <div className="text-center py-4 text-muted-foreground">
-              Select a group to view its members
+            <div className="text-center py-8">
+              <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Select a group to view its members</p>
             </div>
           ) : groupMembers.length === 0 ? (
-            <div className="text-center py-4 text-muted-foreground">
-              No members in this group. Add members to get started.
+            <div className="text-center py-8">
+              <UserPlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No members in this group.</p>
+              <p className="text-sm text-muted-foreground">Add members to get started.</p>
             </div>
           ) : (
             <Table>
@@ -423,6 +461,11 @@ const BroadcastGroups = () => {
                 id="edit-name"
                 value={editGroupName}
                 onChange={(e) => setEditGroupName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    updateGroup();
+                  }
+                }}
               />
             </div>
           </div>
