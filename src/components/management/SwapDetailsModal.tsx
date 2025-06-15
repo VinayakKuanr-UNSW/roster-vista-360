@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -50,9 +49,9 @@ const StatusBadge: React.FC<{ status: "pending" | "approved" | "rejected" }> = (
   status,
 }) => {
   const colorMap = {
-    pending: "bg-amber-600/20 text-amber-400",
-    approved: "bg-green-600/20 text-green-400",
-    rejected: "bg-red-600/20 text-red-400",
+    pending: "bg-amber-500/10 text-yellow-700",
+    approved: "bg-green-500/10 text-green-700",
+    rejected: "bg-red-500/10 text-red-700",
   } as const;
   return (
     <span
@@ -156,39 +155,37 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="bg-slate-900 text-white border-white/10 focus:outline-none"
+        className="bg-white text-gray-900 border-gray-300 focus:outline-none max-w-lg rounded-2xl shadow-xl anim-scale-in"
         aria-labelledby="swap-dialog-title"
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
+          exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.15 }}
         >
           <DialogHeader>
-            <DialogTitle id="swap-dialog-title" className="text-lg font-bold">
+            <DialogTitle id="swap-dialog-title" className="text-xl font-bold text-gray-900">
               Swap Request Details
             </DialogTitle>
-            <DialogDescription className="text-white/60">
-              Review the swap request details before making a decision.
+            <DialogDescription className="text-gray-600">
+              Review details before approving or rejecting.
             </DialogDescription>
           </DialogHeader>
 
           {/* Body */}
           <div className="space-y-6 my-4">
             {/* Users section */}
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col gap-4">
               <SwapUserCard
                 user={swapRequest.requestor}
                 label="Requesting swap from"
                 date={swapRequest.fromDate}
                 color="from"
               />
-
               <div className="flex justify-center" aria-hidden>
-                <ArrowLeftRight className="h-5 w-5 text-white/40" />
+                <ArrowLeftRight className="h-5 w-5 text-gray-400" />
               </div>
-
               <SwapUserCard
                 user={swapRequest.recipient}
                 label="Swap to"
@@ -197,18 +194,17 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
               />
             </div>
 
-            {/* Meta info grid */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-white/50">Department</p>
+                <p className="text-gray-500">Department</p>
                 <p className="font-medium mt-0.5">{swapRequest.department}</p>
               </div>
               <div>
-                <p className="text-white/50">Status</p>
+                <p className="text-gray-500">Status</p>
                 <StatusBadge status={swapRequest.status} />
               </div>
               <div>
-                <p className="text-white/50">Submitted</p>
+                <p className="text-gray-500">Submitted</p>
                 <p className="font-medium mt-0.5">
                   {format(new Date(swapRequest.submittedOn), "d MMM yyyy, HH:mm")} ({formatDistanceToNow(new Date(swapRequest.submittedOn))} ago)
                 </p>
@@ -218,8 +214,8 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
             {/* Reason */}
             {swapRequest.reason && (
               <div>
-                <p className="text-white/50 text-sm">Reason</p>
-                <p className="p-3 bg-white/5 rounded mt-1 text-sm whitespace-pre-line max-h-40 overflow-y-auto">
+                <p className="text-gray-500 text-sm">Reason</p>
+                <p className="p-3 bg-gray-100 rounded mt-1 text-sm whitespace-pre-line max-h-40 overflow-y-auto">
                   {swapRequest.reason}
                 </p>
               </div>
@@ -231,7 +227,7 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
             <DialogFooter className="gap-2">
               <Button
                 variant="outline"
-                className="border-white/10 hover:bg-white/10"
+                className="border-gray-300 hover:bg-gray-200"
                 onClick={() => handleUpdateStatus("rejected")}
                 disabled={isLoading !== null}
               >
@@ -243,7 +239,7 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
                 Reject
               </Button>
               <Button
-                className="bg-gradient-to-r from-green-600 to-green-700"
+                className="bg-green-600 text-white hover:bg-green-700"
                 onClick={() => handleUpdateStatus("approved")}
                 disabled={isLoading !== null}
               >
