@@ -13,11 +13,18 @@ const WorkforceUtilizationSection: React.FC = () => {
   const underutilizedStaff = ["Jamie Smith", "Taylor Brown"];
 
   return (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-        <Brain size={20} className="text-blue-300" /> Workforce Utilization & Productivity
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <section className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-500/30">
+          <Brain size={24} className="text-blue-300" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-white">Workforce Utilization & Productivity</h2>
+          <p className="text-white/60 text-sm">Monitor staff efficiency and attendance patterns</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         <InsightMetricCard
           title="Shift Fill Rate"
           metric={shiftFillRate}
@@ -49,7 +56,7 @@ const WorkforceUtilizationSection: React.FC = () => {
           icon={<User size={18} className="text-yellow-400" />}
         />
       </div>
-    </div>
+    </section>
   );
 };
 

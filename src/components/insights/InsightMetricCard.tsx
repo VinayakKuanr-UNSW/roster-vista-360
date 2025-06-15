@@ -22,20 +22,28 @@ const InsightMetricCard: React.FC<InsightMetricCardProps> = ({
 }) => (
   <Card
     className={cn(
-      "bg-white/5 border border-white/10 shadow-sm flex flex-col justify-between min-h-[120px]",
+      "group relative overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg rounded-xl transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:shadow-xl hover:-translate-y-1 min-h-[140px] flex flex-col justify-between",
       highlightColor
     )}
   >
-    <CardHeader className="pb-2 flex flex-row items-center justify-between">
-      <CardTitle className="text-base flex items-center gap-2 font-semibold">
-        {icon && <span>{icon}</span>}
-        {title}
+    {/* Subtle gradient overlay */}
+    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    
+    <CardHeader className="pb-3 relative z-10">
+      <CardTitle className="text-sm font-medium flex items-center gap-2 text-white/80 group-hover:text-white transition-colors duration-200">
+        {icon && <span className="flex-shrink-0">{icon}</span>}
+        <span className="line-clamp-2 leading-tight">{title}</span>
       </CardTitle>
     </CardHeader>
-    <CardContent className="flex flex-col gap-2 pt-0 ">
-      <div className="text-2xl font-bold">{metric}</div>
+    
+    <CardContent className="flex flex-col gap-2 pt-0 relative z-10">
+      <div className="text-2xl font-bold text-white group-hover:text-white transition-colors duration-200">
+        {metric}
+      </div>
       {description && (
-        <div className="text-xs text-muted-foreground">{description}</div>
+        <div className="text-xs text-white/60 group-hover:text-white/70 transition-colors duration-200 leading-relaxed">
+          {description}
+        </div>
       )}
       {children}
     </CardContent>

@@ -11,11 +11,18 @@ const EventLevelMetricsSection: React.FC = () => {
   const eventConflicts = 1;
 
   return (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-        <ChartBar size={20} className="text-emerald-400" /> Event-Level Metrics
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <section className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
+          <ChartBar size={24} className="text-emerald-400" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-white">Event-Level Metrics</h2>
+          <p className="text-white/60 text-sm">Real-time event staffing and coverage analysis</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <InsightMetricCard
           title="Shift Demand vs. Supply"
           metric={`${shiftDemand} / ${shiftSupply}`}
@@ -35,7 +42,7 @@ const EventLevelMetricsSection: React.FC = () => {
           icon={<Clock size={18} className="text-orange-300" />}
         />
       </div>
-    </div>
+    </section>
   );
 };
 
