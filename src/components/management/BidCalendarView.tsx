@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isEqual, isToday, parseISO } from 'date-fns';
 import { 
@@ -419,7 +420,7 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                 <SelectContent className="modern-card">
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map(dept => (
-                    <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    <SelectItem key={dept} value={dept as string}>{dept}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -599,8 +600,9 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                             </DropdownMenu>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
