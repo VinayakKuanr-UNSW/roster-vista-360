@@ -51,7 +51,7 @@ export default function TemplateContent({
 
   // inside TemplateContent.tsx, just below the other useEffect
   useEffect(() => {
-    // keeps the “Collapse All / Expand All” button label accurate
+    // keeps the "Collapse All / Expand All" button label accurate
     const everyCollapsed = template.groups.every((g) => collapsed[g.id]);
     setAllCollapsed(everyCollapsed);
   }, [collapsed, template.groups]);
@@ -104,7 +104,7 @@ export default function TemplateContent({
       <CardContent>
         {template.groups.length === 0 ? (
           <div className="border-2 border-dashed rounded-md p-6 text-center text-muted-foreground">
-            No groups yet. Click “Add Group” to get started.
+            No groups yet. Click "Add Group" to get started.
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -129,8 +129,7 @@ export default function TemplateContent({
                         >
                           <RosterGroup
                             group={group}
-                            templateId={template.id}
-                            collapsed={collapsed[group.id]}
+                            templateId={String(template.id)}
                             toggleCollapse={() => toggleGroup(group.id)}
                             onUpdateGroup={onUpdateGroup}
                             onDeleteGroup={onDeleteGroup}

@@ -1,3 +1,4 @@
+
 // TemplatesLibrary.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
@@ -293,14 +294,14 @@ const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   const handleCheckboxChange = (template: Template, checked: boolean) => {
     selectList(template.status as 'published' | 'draft');
     setSelectedIds((prev) =>
-      checked ? [...prev, template.id] : prev.filter((id) => id !== template.id)
+      checked ? [...prev, String(template.id)] : prev.filter((id) => id !== String(template.id))
     );
   };
 
   const handleSelectAll = (listType: 'published' | 'draft') => {
     selectList(listType);
     const ids = (listType === 'published' ? published : drafts).map(
-      (t) => t.id
+      (t) => String(t.id)
     );
     const isAllSelected = ids.every((id) => selectedIds.includes(id));
     setSelectedIds(isAllSelected ? [] : ids);
@@ -309,17 +310,17 @@ const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   /* bulk actions */
   const bulkDelete = async () => {
     await Promise.all(selectedIds.map((id) => onDelete(id)));
-    setTemplates((prev) => prev.filter((t) => !selectedIds.includes(t.id)));
+    setTemplates((prev) => prev.filter((t) => !selectedIds.includes(String(t.id))));
     setSelectedIds([]);
     toast({ title: 'Templates deleted' });
   };
 
   const bulkClone = async () => {
-    const originals = templates.filter((t) => selectedIds.includes(t.id));
-    for (const t of originals) await onDuplicate(t.id);
-    const clones = originals.map((o) => ({
+    const originals = templates.filter((t) => selectedIds.includes(String(t.id)));
+    for (const t of originals) await onDuplicate(String(t.id));
+    const clones: Template[] = originals.map((o) => ({
       ...o,
-      id: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: Date.now() + Math.random(),
       name: `${o.name} (COPY)`,
       status: 'draft',
       createdAt: new Date().toISOString(),
@@ -331,18 +332,20 @@ const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   };
 
   /* card actions */
-  const cardAction = (action: string, id: string) => {
+  const cardAction = (action: string, id: string | number) => {
+    const idStr = String(id);
     switch (action) {
       case 'rename':
-        setRenameTarget(id);
-        setRenameVal(templates.find((t) => t.id === id)?.name ?? '');
+        setRenameTarget(idStr);
+        setRenameVal(templates.find((t) => String(t.id) === idStr)?.name ?? '');
         setIsRenameOpen(true);
         break;
       case 'clone':
-        bulkClone(); // reuse bulk clone for a single id
+        setSelectedIds([idStr]);
+        bulkClone();
         break;
       case 'delete':
-        setDeleteTarget(id);
+        setDeleteTarget(idStr);
         setIsDeleteOpen(true);
         break;
       default:
@@ -353,7 +356,7 @@ const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   const confirmRename = () => {
     if (!renameTarget) return;
     setTemplates((prev) =>
-      prev.map((t) => (t.id === renameTarget ? { ...t, name: renameVal } : t))
+      prev.map((t) => (String(t.id) === renameTarget ? { ...t, name: renameVal } : t))
     );
     toast({ title: 'Template renamed' });
     setIsRenameOpen(false);
@@ -363,7 +366,7 @@ const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     await onDelete(deleteTarget);
-    setTemplates((prev) => prev.filter((t) => t.id !== deleteTarget));
+    setTemplates((prev) => prev.filter((t) => String(t.id) !== deleteTarget));
     toast({ title: 'Template deleted' });
     setIsDeleteOpen(false);
     setDeleteTarget(null);
@@ -545,7 +548,7 @@ const Section = ({
   onAction,
   onSelectAll,
 }: any) => {
-  const allIds = templates.map((t: Template) => t.id);
+  const allIds = templates.map((t: Template) => String(t.id));
   const isAllSelected =
     allIds.length > 0 && allIds.every((id: string) => selectedIds.includes(id));
 
@@ -587,7 +590,7 @@ const Section = ({
                 template={t}
                 index={idx + startIndex}
                 moveTemplate={moveTemplate}
-                selected={selectedIds.includes(t.id)}
+                selected={selectedIds.includes(String(t.id))}
                 onCardSelect={onCardSelect}
                 onCheckboxChange={onCheckboxChange}
                 onAction={onAction}

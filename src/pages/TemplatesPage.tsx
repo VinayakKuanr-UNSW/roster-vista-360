@@ -1,3 +1,4 @@
+
 // src/pages/TemplatesPage.tsx
 import React, { useState, useEffect, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,8 +41,15 @@ const TemplatesPage: React.FC = () => {
     // simulate fetch delay
     const timeout = setTimeout(() => {
       import('./mockTemplates.json').then((m) => {
-        setTemplates(m.default as Template[]);
-        setCurrentTemplate(m.default[0]);
+        const mockData = m.default as any[];
+        // Convert mock data to proper Template format
+        const convertedTemplates: Template[] = mockData.map((item) => ({
+          ...item,
+          id: parseInt(item.id), // Convert string id to number
+          status: item.status as 'draft' | 'published',
+        }));
+        setTemplates(convertedTemplates);
+        setCurrentTemplate(convertedTemplates[0]);
       });
     }, 300);
     return () => clearTimeout(timeout);
@@ -81,7 +89,7 @@ const TemplatesPage: React.FC = () => {
       updatedAt: new Date().toISOString(),
       groups: [...tpl.groups, group],
     }));
-    toast({ title: 'Success', description: `Added group “${newGroup.name}”` });
+    toast({ title: 'Success', description: `Added group "${newGroup.name}"` });
     setIsAddGroupDialogOpen(false);
     setNewGroup({ name: '', color: 'blue' });
   };
@@ -161,12 +169,13 @@ const TemplatesPage: React.FC = () => {
     dateRange: { start: Date; end: Date },
     _apply: boolean
   ) => {
+    const numericId = parseInt(id);
     setTemplates((prev) =>
       prev.map((t) =>
-        t.id === id
+        t.id === numericId
           ? {
               ...t,
-              status: 'published',
+              status: 'published' as const,
               start_date: dateRange.start.toISOString(),
               end_date: dateRange.end.toISOString(),
               updatedAt: new Date().toISOString(),
@@ -185,18 +194,20 @@ const TemplatesPage: React.FC = () => {
 
   /* ---------- TemplatesLibrary handlers ---------- */
 
-  const handleDeleteTemplate = (id: string) => {
-    setTemplates((prev) => prev.filter((t) => t.id !== id));
-    if (currentTemplate?.id === id) setCurrentTemplate(null);
+  const handleDeleteTemplate = async (id: string) => {
+    const numericId = parseInt(id);
+    setTemplates((prev) => prev.filter((t) => t.id !== numericId));
+    if (currentTemplate?.id === numericId) setCurrentTemplate(null);
     toast({ title: 'Template deleted' });
   };
 
-  const handleDuplicateTemplate = (id: string) => {
-    const tpl = templates.find((t) => t.id === id);
+  const handleDuplicateTemplate = async (id: string) => {
+    const numericId = parseInt(id);
+    const tpl = templates.find((t) => t.id === numericId);
     if (!tpl) return;
     const copy: Template = {
       ...tpl,
-      id: `${Date.now()}`,
+      id: Date.now(),
       name: `${tpl.name} (Copy)`,
       status: 'draft',
       createdAt: new Date().toISOString(),
@@ -207,11 +218,12 @@ const TemplatesPage: React.FC = () => {
     toast({ title: 'Duplicated draft created' });
   };
 
-  const handleBulkShiftUpdate = (ids: string[]) =>
+  const handleBulkShiftUpdate = async (ids: string[], updates: Partial<Shift>) => {
     toast({
       title: 'Bulk shift update (mock)',
       description: `${ids.length} shift ids`,
     });
+  };
 
   /* -------------------------------------------------- */
   /* Render                                             */
@@ -224,9 +236,10 @@ const TemplatesPage: React.FC = () => {
         onPublish={handlePublish}
         onDuplicate={handleDuplicateTemplate}
         onBulkShiftUpdate={handleBulkShiftUpdate}
-        /* optional — implement in TemplatesLibrary if you like */
+        /* optional — implement in TemplatesLibrary if you like */
         onSelectTemplate={(id) => {
-          const tpl = templates.find((t) => t.id === id);
+          const numericId = typeof id === 'string' ? parseInt(id) : id;
+          const tpl = templates.find((t) => t.id === numericId);
           if (tpl) setCurrentTemplate(tpl);
         }}
       />
@@ -255,7 +268,7 @@ const TemplatesPage: React.FC = () => {
             </>
           )}
 
-          {/* Floating “Add Group” button */}
+          {/* Floating "Add Group" button */}
           {currentTemplate && (
             <button
               onClick={() => setIsAddGroupDialogOpen(true)}

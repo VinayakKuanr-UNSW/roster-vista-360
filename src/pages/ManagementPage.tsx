@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import OpenBidsPage from '@/components/management/OpenBidsPage';
-import SwapRequestsContent from '@/components/management/SwapRequestsContent';
+import { SwapRequestsContent } from '@/components/management/SwapRequestsContent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ManagementPage: React.FC = () => {

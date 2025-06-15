@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { SwapDetailsModal } from './SwapDetailsModal';
+import SwapDetailsModal from './SwapDetailsModal';
 import { useToast } from '@/hooks/use-toast';
 import { format, addMonths, subMonths, isToday, isFuture, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
