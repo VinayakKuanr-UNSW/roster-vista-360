@@ -26,8 +26,8 @@ export function ImprovedAvailabilityCalendar({
   const getDayColor = (date: Date) => {
     const availability = getDayAvailability(date);
     
-    // No availability set - transparent/default background
-    if (!availability || !availability.timeSlots.length) {
+    // No availability set or empty time slots - transparent/default background
+    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) {
       return 'bg-transparent border-gray-200 dark:border-gray-700';
     }
     
@@ -40,24 +40,30 @@ export function ImprovedAvailabilityCalendar({
     }
     
     // Fully available - green
-    if (hasAvailable) {
+    if (hasAvailable && !hasUnavailable) {
       return 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700';
     }
     
     // Fully unavailable - red
-    return 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700';
+    if (hasUnavailable && !hasAvailable) {
+      return 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700';
+    }
+    
+    // Fallback for edge cases
+    return 'bg-transparent border-gray-200 dark:border-gray-700';
   };
 
   const getDayStatus = (date: Date) => {
     const availability = getDayAvailability(date);
-    if (!availability || !availability.timeSlots.length) return null;
+    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) return null;
     
     const hasAvailable = availability.timeSlots.some(slot => slot.status === 'Available');
     const hasUnavailable = availability.timeSlots.some(slot => slot.status === 'Unavailable');
     
     if (hasAvailable && hasUnavailable) return 'Partial';
-    if (hasAvailable) return 'Available';
-    return 'Unavailable';
+    if (hasAvailable && !hasUnavailable) return 'Available';
+    if (hasUnavailable && !hasAvailable) return 'Unavailable';
+    return null;
   };
 
   const handleDayClick = (date: Date) => {
@@ -113,7 +119,7 @@ export function ImprovedAvailabilityCalendar({
               </div>
               
               {/* Time Slots Preview */}
-              {availability?.timeSlots.length > 0 && (
+              {availability?.timeSlots && availability.timeSlots.length > 0 && (
                 <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate flex-grow overflow-y-auto pr-1">
                   {availability.timeSlots.slice(0, 2).map((slot, i) => (
                     <div key={i} className="truncate">

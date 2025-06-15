@@ -87,7 +87,7 @@ export function DayInteractionModal({
     if (isLocked) return;
     
     const newTimeSlots = action === 'available'
-        ? [{ startTime: '09:00', endTime: '17:00', status: 'Available' as AvailabilityStatus }]
+        ? [{ startTime: '00:00', endTime: '23:59', status: 'Available' as AvailabilityStatus }]
         : [{ startTime: '00:00', endTime: '23:59', status: 'Unavailable' as AvailabilityStatus }];
 
     onSave({

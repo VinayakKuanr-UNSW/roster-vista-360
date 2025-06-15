@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { ImprovedAvailabilityCalendar } from '@/components/availability/Improved
 import { MonthListView } from '@/components/availability/MonthListView';
 import { DayInteractionModal } from '@/components/availability/DayInteractionModal';
 import { BatchApplyModal } from '@/components/availability/BatchApplyModal';
+
 const AvailabilitiesPage = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
@@ -18,14 +20,11 @@ const AvailabilitiesPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [isCalendarLocked, setIsCalendarLocked] = useState(false);
-  const {
-    user,
-    hasPermission
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  
+  const { user, hasPermission } = useAuth();
+  const { toast } = useToast();
   const isManager = hasPermission?.('manage_availability') || false;
+  
   const {
     monthlyAvailabilities,
     isLoading,
@@ -44,6 +43,7 @@ const AvailabilitiesPage = () => {
     setSelectedMonth(nextMonth);
     updateSelectedMonth(nextMonth);
   };
+  
   const handlePrevMonth = () => {
     const prevMonth = subMonths(selectedMonth, 1);
     setSelectedMonth(prevMonth);
@@ -82,6 +82,7 @@ const AvailabilitiesPage = () => {
     setSelectedDate(date);
     setIsDayModalOpen(true);
   };
+
   const handleDayModalSave = async (data: {
     timeSlots: Array<{
       startTime: string;
@@ -106,6 +107,7 @@ const AvailabilitiesPage = () => {
       setSelectedDate(null);
     }
   };
+
   const handleDayModalDelete = async () => {
     if (!selectedDate) return;
     const success = await deleteAvailability(selectedDate);
@@ -116,6 +118,8 @@ const AvailabilitiesPage = () => {
       });
       setIsDayModalOpen(false);
       setSelectedDate(null);
+      // Force a refresh to update the calendar display
+      updateSelectedMonth(new Date(selectedMonth));
     }
   };
 
@@ -152,6 +156,7 @@ const AvailabilitiesPage = () => {
       setIsBatchModalOpen(false);
     }
   };
+
   const openBatchModal = () => {
     if (isCalendarLocked) {
       toast({
@@ -179,7 +184,9 @@ const AvailabilitiesPage = () => {
       }))
     } as unknown as DayAvailability;
   })() : undefined;
-  return <div className="flex flex-col h-screen w-full overflow-hidden">
+
+  return (
+    <div className="flex flex-col h-screen w-full overflow-hidden">
       {/* PAGE HEADER */}
       <div className="flex-shrink-0 p-4 md:p-6 space-y-4 border-b bg-transparent py-[24px] px-[24px] mx-0 my-0 rounded-none">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -227,35 +234,72 @@ const AvailabilitiesPage = () => {
             </Button>
           </div>
 
-          {isManager && <Button variant="outline" className="flex items-center gap-2" onClick={handleToggleLock} size="sm">
-              {isCalendarLocked ? <>
+          {isManager && (
+            <Button variant="outline" className="flex items-center gap-2" onClick={handleToggleLock} size="sm">
+              {isCalendarLocked ? (
+                <>
                   <Unlock className="h-4 w-4" />
                   Unlock Calendar
-                </> : <>
+                </>
+              ) : (
+                <>
                   <Lock className="h-4 w-4" />
                   Lock Calendar
-                </>}
-            </Button>}
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
       {/* MAIN CONTENT: CALENDAR or LIST */}
-      {isLoading ? <div className="flex-grow p-4 grid place-items-center">
+      {isLoading ? (
+        <div className="flex-grow p-4 grid place-items-center">
           <Skeleton className="h-[600px] w-full" />
-        </div> : <div className="flex-grow overflow-auto h-[calc(100vh-200px)] bg-background">
-          {viewMode === 'calendar' ? <ImprovedAvailabilityCalendar onSelectDate={handleDateClick} selectedMonth={selectedMonth} isLocked={isCalendarLocked} /> : <div className="p-4 md:p-6">
-              <MonthListView onSelectDate={handleDateClick} isLocked={isCalendarLocked} />
-            </div>}
-        </div>}
+        </div>
+      ) : (
+        <div className="flex-grow overflow-auto h-[calc(100vh-200px)] bg-background">
+          {viewMode === 'calendar' ? (
+            <ImprovedAvailabilityCalendar 
+              onSelectDate={handleDateClick} 
+              selectedMonth={selectedMonth} 
+              isLocked={isCalendarLocked} 
+            />
+          ) : (
+            <div className="p-4 md:p-6">
+              <MonthListView 
+                onSelectDate={handleDateClick} 
+                isLocked={isCalendarLocked} 
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* DAY INTERACTION MODAL */}
-      <DayInteractionModal open={isDayModalOpen} onClose={() => {
-      setIsDayModalOpen(false);
-      setSelectedDate(null);
-    }} selectedDate={selectedDate} existingAvailability={existingAvailability} onSave={handleDayModalSave} onDelete={handleDayModalDelete} isLocked={isCalendarLocked} />
+      <DayInteractionModal 
+        open={isDayModalOpen} 
+        onClose={() => {
+          setIsDayModalOpen(false);
+          setSelectedDate(null);
+        }} 
+        selectedDate={selectedDate} 
+        existingAvailability={existingAvailability} 
+        onSave={handleDayModalSave} 
+        onDelete={handleDayModalDelete} 
+        isLocked={isCalendarLocked} 
+      />
 
       {/* BATCH APPLY MODAL */}
-      <BatchApplyModal open={isBatchModalOpen} onClose={() => setIsBatchModalOpen(false)} onApply={handleBatchApply} availabilityPresets={availabilityPresets} isLocked={isCalendarLocked} />
-    </div>;
+      <BatchApplyModal 
+        open={isBatchModalOpen} 
+        onClose={() => setIsBatchModalOpen(false)} 
+        onApply={handleBatchApply} 
+        availabilityPresets={availabilityPresets} 
+        isLocked={isCalendarLocked} 
+      />
+    </div>
+  );
 };
+
 export default AvailabilitiesPage;
