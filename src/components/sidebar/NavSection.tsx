@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronRight, FolderKanban, UserCircle2, Shield } from 'lucide-react';
@@ -18,40 +19,42 @@ const NavSection: React.FC<NavSectionProps> = ({
   collapsed,
   sectionColor = "primary"
 }) => {
-  const colorClass = sectionColor === "primary" ? "text-primary" : `text-${sectionColor}-400`;
+  const colorClass = sectionColor === "primary" ? "text-primary" : `text-${sectionColor}-500`;
   
   // Get section icon based on title
   const getSectionIcon = () => {
     switch (title.toLowerCase()) {
       case "my workspace":
-        return <UserCircle2 className={cn("h-5 w-5", colorClass)} />;
+        return <UserCircle2 className={cn("h-4 w-4", colorClass)} />;
       case "rostering":
-        return <FolderKanban className={cn("h-5 w-5", colorClass)} />;
+        return <FolderKanban className={cn("h-4 w-4", colorClass)} />;
       case "management":
-        return <Shield className={cn("h-5 w-5", colorClass)} />;
+        return <Shield className={cn("h-4 w-4", colorClass)} />;
       default:
-        return <FolderKanban className={cn("h-5 w-5", colorClass)} />;
+        return <FolderKanban className={cn("h-4 w-4", colorClass)} />;
     }
   };
   
   return (
-    <div className="mb-2">
+    <div>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               onClick={onToggle}
               className={cn(
-                // Always keep space for icon + label on the left, arrow (chevron) on the right
-                "flex items-center w-full px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors justify-between",
-                "mt-4 first:mt-0" // add spacing between sections
+                "flex items-center w-full px-2 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 justify-between group",
+                "bg-gradient-to-r from-transparent to-white/5"
               )}
             >
               {/* Left Side: Icon + Label */}
               <div className="flex items-center gap-2">
                 {getSectionIcon()}
                 {!collapsed && (
-                  <span className="text-sm font-medium uppercase tracking-wider text-xs text-muted-foreground">
+                  <span className={cn(
+                    "text-sm font-bold uppercase tracking-wider",
+                    colorClass
+                  )}>
                     {title}
                   </span>
                 )}
@@ -61,25 +64,11 @@ const NavSection: React.FC<NavSectionProps> = ({
               {!collapsed && (
                 <ChevronDown
                   className={cn(
-                    "h-4 w-4 transition-transform",
+                    "h-4 w-4 transition-all duration-200 group-hover:scale-110",
                     isOpen && "transform rotate-180",
                     colorClass
                   )}
                 />
-              )}
-              
-              {/* If collapsed, we show a small indicator or nothing at all */}
-              {collapsed && (
-                <motion.div 
-                  className={cn(
-                    "ml-1",
-                    "relative"
-                  )}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  {/* optional: place a tiny dot or arrow if you want a visual clue */}
-                </motion.div>
               )}
             </button>
           </TooltipTrigger>
@@ -88,15 +77,19 @@ const NavSection: React.FC<NavSectionProps> = ({
       </TooltipProvider>
       
       {/* Sub-menu when expanded and not collapsed */}
-      {!collapsed && isOpen && (
+      {!collapsed && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.2 }}
-          className="border-l border-border ml-3 pl-2" // vertical border for visual grouping
+          initial={false}
+          animate={{ 
+            height: isOpen ? "auto" : 0,
+            opacity: isOpen ? 1 : 0 
+          }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className="overflow-hidden"
         >
-          {children}
+          <div className="border-l-2 border-current/20 ml-2 pl-2 mt-1" style={{ borderColor: `var(--${sectionColor})` }}>
+            {children}
+          </div>
         </motion.div>
       )}
       

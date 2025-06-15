@@ -8,10 +8,14 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full bg-gradient-to-br from-background via-background/95 to-muted/10">
       <AppSidebar />
-      <main className="flex-1 overflow-auto ml-[280px] transition-all">
-        <div className="p-8 min-h-screen bg-gradient-to-br from-background to-muted/20">{children}</div>
+      <main className="flex-1 ml-[280px] transition-all duration-300 ease-in-out">
+        <div className="p-8 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </div>
       </main>
     </div>
   );
