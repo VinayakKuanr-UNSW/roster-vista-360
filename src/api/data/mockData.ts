@@ -188,7 +188,8 @@ export const templates: Template[] = [
     description: 'Standard template for weekday operations across all venues',
     groups: templateData,
     createdAt: '2023-06-15T08:00:00Z',
-    updatedAt: '2023-06-15T08:00:00Z'
+    updatedAt: '2023-06-15T08:00:00Z',
+    status: 'draft'
   },
   {
     id: 2,
@@ -202,7 +203,8 @@ export const templates: Template[] = [
       }))
     })),
     createdAt: '2023-06-20T10:30:00Z',
-    updatedAt: '2023-07-01T14:45:00Z'
+    updatedAt: '2023-07-01T14:45:00Z',
+    status: 'published'
   }
 ];
 

@@ -1,3 +1,4 @@
+
 import { Group, SubGroup, Template, DBTemplate, Shift, DepartmentName, DepartmentColor } from '../models/types';
 import { templates as mockTemplates } from '../data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +26,7 @@ const dbToAppTemplate = (dbTemplate: DBTemplate): Template => {
     sub_department_id: dbTemplate.sub_department_id,
     start_date: dbTemplate.start_date,
     end_date: dbTemplate.end_date,
-    status: dbTemplate.status
+    status: (dbTemplate.status === 'published' ? 'published' : 'draft') as 'draft' | 'published'
   };
 };
 

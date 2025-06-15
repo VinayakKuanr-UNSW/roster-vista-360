@@ -45,6 +45,7 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ onComplete }) => {
       description,
       start_date: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
       end_date: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+      status: 'draft',
       groups: [
         {
           id: 1,
