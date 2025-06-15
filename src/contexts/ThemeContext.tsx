@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'dark' | 'light' | 'glass';
+type Theme = 'dark' | 'light' | 'glass' | 'lovable';
 
 interface ThemeContextType {
   theme: Theme;
@@ -14,19 +15,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('theme') as Theme;
-      if (storedTheme && ['light', 'dark', 'glass'].includes(storedTheme)) return storedTheme;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (storedTheme && ['light', 'dark', 'glass', 'lovable'].includes(storedTheme)) return storedTheme;
+      return 'lovable'; // Default to lovable theme
     }
-    return 'dark';
+    return 'lovable';
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    root.classList.remove('light', 'dark', 'theme-default', 'theme-glass');
+    root.classList.remove('light', 'dark', 'theme-default', 'theme-glass', 'theme-lovable');
     
     if (theme === 'glass') {
       root.classList.add('theme-glass');
+    } else if (theme === 'lovable') {
+      root.classList.add('theme-lovable');
     } else {
       root.classList.add(theme);
     }
@@ -38,6 +41,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(prevTheme => {
       if (prevTheme === 'dark') return 'light';
       if (prevTheme === 'light') return 'glass';
+      if (prevTheme === 'glass') return 'lovable';
       return 'dark';
     });
   };

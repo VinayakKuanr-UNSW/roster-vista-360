@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Moon, Sun, Sparkles } from 'lucide-react';
+import { Moon, Sun, Sparkles, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from "@/components/ui/button";
@@ -38,13 +39,24 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isCollapsed, theme, handleThe
                 >
                   {theme === 'light' ? <Sun className="h-5 w-5" /> : 
                    theme === 'dark' ? <Moon className="h-5 w-5" /> : 
-                   <Sparkles className="h-5 w-5" />}
+                   theme === 'glass' ? <Sparkles className="h-5 w-5" /> :
+                   <Palette className="h-5 w-5" />}
                 </motion.div>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent side={isCollapsed ? "right" : "top"}>Theme Settings</TooltipContent>
-          <DropdownMenuContent align={isCollapsed ? "end" : "center"} className="w-40">
+          <DropdownMenuContent align={isCollapsed ? "end" : "center"} className="w-44 modern-card">
+            <DropdownMenuItem 
+              className={cn(
+                "flex items-center gap-2 cursor-pointer transition-all",
+                theme === 'lovable' ? 'bg-accent/50' : 'hover:bg-accent/30'
+              )}
+              onClick={() => handleThemeChange('lovable')}
+            >
+              <Palette className="h-4 w-4" />
+              <span>Lovable</span>
+            </DropdownMenuItem>
             <DropdownMenuItem 
               className={cn(
                 "flex items-center gap-2 cursor-pointer transition-all",

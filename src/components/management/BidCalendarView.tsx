@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isEqual, isToday, parseISO } from 'date-fns';
 import { 
@@ -275,66 +274,66 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
       <div className="lg:col-span-1 space-y-4">
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 gap-2">
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-3">
+          <div className="modern-card">
+            <div className="p-3">
               <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-blue-400" />
+                <Users className="h-4 w-4 text-primary" />
                 <div>
-                  <p className="text-xs text-gray-400">Total</p>
-                  <p className="text-lg font-bold">{stats.totalBids}</p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-lg font-semibold text-foreground">{stats.totalBids}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-3">
+          <div className="modern-card">
+            <div className="p-3">
               <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-yellow-400" />
+                <Clock className="h-4 w-4 text-amber-500" />
                 <div>
-                  <p className="text-xs text-gray-400">Pending</p>
-                  <p className="text-lg font-bold">{stats.pendingBids}</p>
+                  <p className="text-xs text-muted-foreground">Pending</p>
+                  <p className="text-lg font-semibold text-foreground">{stats.pendingBids}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-3">
+          <div className="modern-card">
+            <div className="p-3">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-400" />
+                <CheckCircle className="h-4 w-4 text-green-500" />
                 <div>
-                  <p className="text-xs text-gray-400">Approved</p>
-                  <p className="text-lg font-bold">{stats.approvedBids}</p>
+                  <p className="text-xs text-muted-foreground">Approved</p>
+                  <p className="text-lg font-semibold text-foreground">{stats.approvedBids}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-3">
+          <div className="modern-card">
+            <div className="p-3">
               <div className="flex items-center space-x-2">
-                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <AlertTriangle className="h-4 w-4 text-red-500" />
                 <div>
-                  <p className="text-xs text-gray-400">Urgent</p>
-                  <p className="text-lg font-bold">{stats.urgentBids}</p>
+                  <p className="text-xs text-muted-foreground">Urgent</p>
+                  <p className="text-lg font-semibold text-foreground">{stats.urgentBids}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Calendar Navigation */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4">
+        <div className="modern-card">
+          <div className="p-4">
             <div className="flex justify-between items-center mb-4">
-              <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+              <Button variant="outline" size="icon" onClick={handlePrevMonth} className="lovable-button-secondary">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <h3 className="text-lg font-medium">
+              <h3 className="text-lg font-semibold text-foreground">
                 {format(currentMonth, 'MMMM yyyy')}
               </h3>
-              <Button variant="outline" size="icon" onClick={handleNextMonth}>
+              <Button variant="outline" size="icon" onClick={handleNextMonth} className="lovable-button-secondary">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -347,65 +346,65 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
               components={{
                 Day: ({ date, displayMonth }) => {
                   if (displayMonth.getMonth() !== date.getMonth()) {
-                    return <div className="rdp-day_outside">{format(date, 'd')}</div>;
+                    return <div className="rdp-day_outside text-muted-foreground">{format(date, 'd')}</div>;
                   }
                   return <>{customDayContent(date)}</>;
                 }
               }}
               modifiersStyles={{
                 selected: {
-                  backgroundColor: 'var(--primary)',
-                  color: 'white',
-                  fontWeight: 'bold'
+                  backgroundColor: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))',
+                  fontWeight: '600'
                 },
                 today: {
-                  border: '2px solid var(--primary)'
+                  border: '2px solid hsl(var(--primary))'
                 }
               }}
             />
             
             {/* Legend */}
-            <div className="mt-4 space-y-2 text-xs">
+            <div className="mt-4 space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-green-700/30 border border-green-600/30 mr-2"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/40 mr-2"></div>
                 <span>Filled/Assigned shifts</span>
               </div>
               <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-yellow-700/30 border border-yellow-600/30 mr-2"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/40 mr-2"></div>
                 <span>Pending bids</span>
               </div>
               <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                <div className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></div>
                 <span>Urgent (within 24h)</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
       
       {/* Right Column - Details and Actions */}
       <div className="lg:col-span-3 space-y-4">
         {/* Search and Filters */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardContent className="p-4">
+        <div className="modern-card">
+          <div className="p-4">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-60">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
                     placeholder="Search employees, roles, departments..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="lovable-input pl-10"
                   />
                 </div>
               </div>
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 lovable-input">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="modern-card">
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="Pending">Pending</SelectItem>
                   <SelectItem value="Approved">Approved</SelectItem>
@@ -414,10 +413,10 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
               </Select>
               
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 lovable-input">
                   <SelectValue placeholder="Department" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="modern-card">
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map(dept => (
                     <SelectItem key={dept} value={dept}>{dept}</SelectItem>
@@ -425,7 +424,7 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" onClick={handleExport}>
+              <Button variant="outline" onClick={handleExport} className="lovable-button-secondary">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
@@ -433,9 +432,9 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
             
             {/* Bulk Actions */}
             {selectedBids.size > 0 && (
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">
+                  <span className="text-sm text-foreground">
                     {selectedBids.size} bid{selectedBids.size !== 1 ? 's' : ''} selected
                   </span>
                   <div className="flex gap-2">
@@ -443,6 +442,7 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => handleBulkAction('approve')}
+                      className="lovable-button-secondary"
                     >
                       Approve All
                     </Button>
@@ -450,6 +450,7 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => handleBulkAction('reject')}
+                      className="lovable-button-secondary"
                     >
                       Reject All
                     </Button>
@@ -457,6 +458,7 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => handleBulkAction('notify')}
+                      className="lovable-button-secondary"
                     >
                       <Mail className="h-4 w-4 mr-1" />
                       Notify
@@ -472,21 +474,23 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         
         {/* Selected Date Details */}
         {selectedDate ? (
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardHeader>
+          <div className="modern-card animate-fade-in-up">
+            <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center">
-                  <CalendarIcon className="mr-2 h-5 w-5 text-blue-500" />
-                  {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                  <Badge className="ml-2" variant="outline">
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2 h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                  </h3>
+                  <Badge className="ml-2 bg-primary/10 text-primary border-primary/20">
                     {selectedDateBids.length} shifts
                   </Badge>
-                </CardTitle>
+                </div>
                 
                 {selectedDateBids.length > 0 && (
                   <div className="flex items-center gap-2">
@@ -494,17 +498,17 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                       checked={selectedDateBids.every(bid => selectedBids.has(bid.id))}
                       onCheckedChange={() => handleSelectAllForDate(format(selectedDate, 'yyyy-MM-dd'))}
                     />
-                    <span className="text-sm">Select all</span>
+                    <span className="text-sm text-muted-foreground">Select all</span>
                   </div>
                 )}
               </div>
-            </CardHeader>
+            </div>
             
-            <CardContent>
+            <div className="p-4">
               {selectedDateBids.length === 0 ? (
-                <div className="p-6 text-center text-gray-400">
+                <div className="p-6 text-center text-muted-foreground">
                   <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No shifts found for this date.</p>
+                  <p className="text-foreground">No shifts found for this date.</p>
                   <p className="text-sm mt-1">Select another date or adjust your filters.</p>
                 </div>
               ) : (
@@ -512,108 +516,109 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
                   {selectedDateBids.map(bid => {
                     const priority = getBidPriority(bid);
                     return (
-                      <div key={bid.id} className="bg-gray-700/50 border border-gray-600 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3">
-                            <Checkbox
-                              checked={selectedBids.has(bid.id)}
-                              onCheckedChange={() => toggleBidSelection(bid.id)}
-                            />
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h4 className="font-medium">
-                                  {bid.shiftDetails?.department} - {bid.shiftDetails?.role}
-                                </h4>
-                                
-                                <Badge 
-                                  className={
-                                    bid.status === 'Approved' ? "bg-green-700" :
-                                    bid.status === 'Rejected' ? "bg-red-700" :
-                                    "bg-yellow-700"
-                                  }
-                                >
-                                  {bid.status}
-                                </Badge>
-                                
-                                {priority === 'urgent' && (
-                                  <Badge className="bg-red-700 animate-pulse">
-                                    <AlertTriangle className="w-3 h-3 mr-1" />
-                                    Urgent
-                                  </Badge>
-                                )}
-                              </div>
+                      <div key={bid.id} className="modern-card hover:shadow-md transition-all duration-200">
+                        <div className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-3">
+                              <Checkbox
+                                checked={selectedBids.has(bid.id)}
+                                onCheckedChange={() => toggleBidSelection(bid.id)}
+                              />
                               
-                              <div className="text-sm text-gray-400 space-y-1">
-                                <p>
-                                  <Clock className="inline w-4 h-4 mr-1" />
-                                  {bid.shiftDetails?.startTime} - {bid.shiftDetails?.endTime}
-                                </p>
-                                <p>
-                                  <Users className="inline w-4 h-4 mr-1" />
-                                  {bid.employee?.name || 'No employee assigned'}
-                                </p>
-                                {bid.employee?.tier && (
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-medium text-foreground">
+                                    {bid.shiftDetails?.department} - {bid.shiftDetails?.role}
+                                  </h4>
+                                  
+                                  <Badge 
+                                    className={
+                                      bid.status === 'Approved' ? "status-badge-filled" :
+                                      bid.status === 'Rejected' ? "bg-red-500/10 text-red-600 border-red-500/20" :
+                                      "status-badge-offered"
+                                    }
+                                  >
+                                    {bid.status}
+                                  </Badge>
+                                  
+                                  {priority === 'urgent' && (
+                                    <Badge className="bg-red-500/10 text-red-600 border-red-500/20 animate-pulse">
+                                      <AlertTriangle className="w-3 h-3 mr-1" />
+                                      Urgent
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                <div className="text-sm text-muted-foreground space-y-1">
                                   <p>
-                                    <Star className="inline w-4 h-4 mr-1" />
-                                    Tier {bid.employee.tier}
+                                    <Clock className="inline w-4 h-4 mr-1" />
+                                    {bid.shiftDetails?.startTime} - {bid.shiftDetails?.endTime}
                                   </p>
-                                )}
+                                  <p>
+                                    <Users className="inline w-4 h-4 mr-1" />
+                                    {bid.employee?.name || 'No employee assigned'}
+                                  </p>
+                                  {bid.employee?.tier && (
+                                    <p>
+                                      <Star className="inline w-4 h-4 mr-1" />
+                                      Tier {bid.employee.tier}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="modern-card">
+                                <DropdownMenuItem>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit Bid
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Mail className="mr-2 h-4 w-4" />
+                                  Contact Employee
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <MessageSquare className="mr-2 h-4 w-4" />
+                                  Add Note
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete Bid
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Bid
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Mail className="mr-2 h-4 w-4" />
-                                Contact Employee
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                Add Note
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-400">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Bid
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
-          <Card className="bg-gray-800/50 border-gray-700 h-64 flex items-center justify-center">
-            <CardContent className="text-center text-gray-400">
+          <div className="modern-card h-64 flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
               <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-medium mb-2">No date selected</h3>
+              <h3 className="text-lg font-medium text-foreground mb-2">No date selected</h3>
               <p>Select a date from the calendar to see shifts and manage bids.</p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </div>
       
       {/* Bulk Action Confirmation Dialog */}
       <Dialog open={showBulkActionDialog} onOpenChange={setShowBulkActionDialog}>
-        <DialogContent>
+        <DialogContent className="modern-card">
           <DialogHeader>
             <DialogTitle>Confirm Bulk Action</DialogTitle>
             <DialogDescription>
@@ -622,10 +627,10 @@ const BidCalendarView: React.FC<BidCalendarViewProps> = ({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBulkActionDialog(false)}>
+            <Button variant="outline" onClick={() => setShowBulkActionDialog(false)} className="lovable-button-secondary">
               Cancel
             </Button>
-            <Button onClick={executeBulkAction}>
+            <Button onClick={executeBulkAction} className="lovable-button">
               Confirm {bulkAction}
             </Button>
           </DialogFooter>

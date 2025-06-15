@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				inter: ['Inter', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -62,14 +67,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				template: {
-					blue: 'rgba(20, 100, 220, 0.6)',
-					green: 'rgba(20, 180, 80, 0.6)',
-					red: 'rgba(220, 60, 60, 0.6)',
-					purple: 'rgba(180, 60, 220, 0.6)',
-					sky: 'rgba(60, 180, 220, 0.6)',
-					action: 'rgba(50, 150, 230, 0.9)',
-					delete: 'rgba(230, 70, 70, 0.9)'
+				// Lovable brand colors
+				lovable: {
+					primary: '#6366f1',
+					'primary-dark': '#4f46e5',
+					'primary-light': '#818cf8',
+					secondary: '#10b981',
+					accent: '#f59e0b',
 				}
 			},
 			borderRadius: {
@@ -88,6 +92,10 @@ export default {
 				},
 				'fade-in': {
 					'0%': { opacity: '0', transform: 'translateY(10px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'fade-in-up': {
+					'0%': { opacity: '0', transform: 'translateY(20px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				},
 				'slide-up': {
@@ -120,6 +128,7 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.4s ease-out',
+				'fade-in-up': 'fade-in-up 0.5s ease-out',
 				'slide-up': 'slide-up 0.5s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
 				'pulse-light': 'pulse-light 2s infinite',
@@ -139,12 +148,17 @@ export default {
 			backgroundImage: {
 				'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0))',
 				'glass-shine': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-				'gaming-gradient': 'linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(37, 99, 235, 0.5))',
-				'gaming-card': 'linear-gradient(135deg, rgba(30, 30, 40, 0.7), rgba(20, 20, 30, 0.7))'
+				'lovable-gradient': 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1))',
+				'lovable-card': 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))'
 			},
 			boxShadow: {
-				'gaming': '0 10px 30px -5px rgba(0, 0, 0, 0.3)',
-				'gaming-hover': '0 20px 40px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 58, 237, 0.3)'
+				'lovable': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+				'lovable-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+				'lovable-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
 			}
 		}
 	},
