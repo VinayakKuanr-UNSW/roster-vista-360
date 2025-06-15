@@ -1,3 +1,4 @@
+
 // TemplateHeader.tsx • 2025‑04‑21 (responsive range‑picker)
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
@@ -125,14 +126,14 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 
   /* ───────────────── publish flow ───────────────── */
   const [pubOpen, setPubOpen] = useState(false);
-  const [range, setRange] = useState<{ from?: Date; to?: Date }>({});
+  const [range, setRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [conflict, setConflict] = useState(false);
 
   const startPublish = () => hasTemplate && setPubOpen(true);
 
   const doPublish = async (override = false) => {
-    if (!range.from || !range.to) return;
+    if (!range?.from || !range?.to) return;
     setChecking(true);
     try {
       const dateRange = { start: range.from, end: range.to };
@@ -319,7 +320,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               initialFocus
               className="mx-auto"
             />
-            {range.from && range.to && (
+            {range?.from && range?.to && (
               <p className="mt-3 text-sm text-muted-foreground text-center">
                 {range.from.toLocaleDateString()} &rarr;{' '}
                 {range.to.toLocaleDateString()}
@@ -332,7 +333,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               Cancel
             </Button>
             <Button
-              disabled={!range.from || !range.to || checking}
+              disabled={!range?.from || !range?.to || checking}
               onClick={() => doPublish(false)}
             >
               {checking && (

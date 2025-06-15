@@ -161,18 +161,15 @@ const TemplatesPage: React.FC = () => {
 
   /* ---------- Template‑level actions ---------- */
 
-  const handleSaveAsDraft = () =>
+  const handleSaveAsDraft = async () => {
     toast({ title: 'Template saved as draft (mock)' });
+  };
 
-  const handlePublish = async (
-    id: string,
-    dateRange: { start: Date; end: Date },
-    _apply: boolean
-  ) => {
-    const numericId = parseInt(id);
+  const handlePublish = async (dateRange: { start: Date; end: Date }, override: boolean) => {
+    if (!currentTemplate) return;
     setTemplates((prev) =>
       prev.map((t) =>
-        t.id === numericId
+        t.id === currentTemplate.id
           ? {
               ...t,
               status: 'published' as const,
@@ -189,8 +186,9 @@ const TemplatesPage: React.FC = () => {
     });
   };
 
-  const handleExportToPdf = () =>
+  const handleExportToPdf = async () => {
     toast({ title: 'Export', description: 'Pretend PDF was generated' });
+  };
 
   /* ---------- TemplatesLibrary handlers ---------- */
 
@@ -233,15 +231,12 @@ const TemplatesPage: React.FC = () => {
       <TemplatesLibrary
         initialTemplates={templates}
         onDelete={handleDeleteTemplate}
-        onPublish={handlePublish}
+        onPublish={async (id: string, dateRange: { start: Date; end: Date; }, _apply: boolean) => {
+          // This handler is not actually used since TemplatesLibrary doesn't have onSelectTemplate
+          await handlePublish(dateRange, false);
+        }}
         onDuplicate={handleDuplicateTemplate}
         onBulkShiftUpdate={handleBulkShiftUpdate}
-        /* optional — implement in TemplatesLibrary if you like */
-        onSelectTemplate={(id) => {
-          const numericId = typeof id === 'string' ? parseInt(id) : id;
-          const tpl = templates.find((t) => t.id === numericId);
-          if (tpl) setCurrentTemplate(tpl);
-        }}
       />
 
       {/* Editor Pane */}

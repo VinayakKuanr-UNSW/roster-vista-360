@@ -129,7 +129,7 @@ export default function TemplateContent({
                         >
                           <RosterGroup
                             group={group}
-                            templateId={String(template.id)}
+                            templateId={template.id}
                             toggleCollapse={() => toggleGroup(group.id)}
                             onUpdateGroup={onUpdateGroup}
                             onDeleteGroup={onDeleteGroup}
