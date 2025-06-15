@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, edit, trash2, UserPlus, ShieldAlert, UserMinus, Shield, Users, MessageSquare } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, UserPlus, ShieldAlert, UserMinus, Shield, Users, MessageSquare } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -335,7 +335,7 @@ const BroadcastGroups = () => {
                         handleEditGroup(group);
                       }}
                     >
-                      <edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -346,7 +346,7 @@ const BroadcastGroups = () => {
                         deleteGroup(group.id);
                       }}
                     >
-                      <trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 </div>
