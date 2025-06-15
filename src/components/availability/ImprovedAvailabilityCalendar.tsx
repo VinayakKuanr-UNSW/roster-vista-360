@@ -55,7 +55,7 @@ export function ImprovedAvailabilityCalendar({
 
   const getDayStatus = (date: Date) => {
     const availability = getDayAvailability(date);
-    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) return null;
+    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) return 'Not set';
     
     const hasAvailable = availability.timeSlots.some(slot => slot.status === 'Available');
     const hasUnavailable = availability.timeSlots.some(slot => slot.status === 'Unavailable');
@@ -63,7 +63,20 @@ export function ImprovedAvailabilityCalendar({
     if (hasAvailable && hasUnavailable) return 'Partial';
     if (hasAvailable && !hasUnavailable) return 'Available';
     if (hasUnavailable && !hasAvailable) return 'Unavailable';
-    return null;
+    return 'Not set';
+  };
+
+  const getStatusDotColor = (status: string) => {
+    switch (status) {
+      case 'Available':
+        return 'bg-green-500';
+      case 'Unavailable':
+        return 'bg-red-500';
+      case 'Partial':
+        return 'bg-yellow-500';
+      default:
+        return 'bg-gray-400';
+    }
   };
 
   const handleDayClick = (date: Date) => {
@@ -118,43 +131,49 @@ export function ImprovedAvailabilityCalendar({
                 {format(date, 'd')}
               </div>
               
-              {/* Time Slots Preview */}
-              {availability?.timeSlots && availability.timeSlots.length > 0 && (
+              {/* Time Slots Preview with Colored Dots */}
+              {availability?.timeSlots && availability.timeSlots.length > 0 ? (
                 <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate flex-grow overflow-y-auto pr-1">
                   {availability.timeSlots.slice(0, 2).map((slot, i) => (
-                    <div key={i} className="truncate">
-                      {slot.startTime}-{slot.endTime}
+                    <div key={i} className="flex items-center gap-1 truncate mb-1">
+                      <div className={cn(
+                        "w-2 h-2 rounded-full flex-shrink-0",
+                        getStatusDotColor(slot.status || 'Available')
+                      )} />
+                      <span className="truncate">
+                        {slot.startTime}-{slot.endTime}
+                      </span>
                     </div>
                   ))}
                   {availability.timeSlots.length > 2 && (
-                    <div className="text-xs text-gray-500">
-                      +{availability.timeSlots.length - 2} more
+                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
+                      <span>+{availability.timeSlots.length - 2} more</span>
                     </div>
                   )}
                 </div>
-              )}
+              ) : null}
               
               {/* Status Badge */}
-              {dayStatus && (
-                <Badge 
-                  variant="secondary" 
-                  className={cn(
-                    "text-xs text-center mt-auto w-full justify-center",
-                    dayStatus === 'Available' && "bg-green-200 text-green-900 dark:bg-green-800/50 dark:text-green-200",
-                    dayStatus === 'Unavailable' && "bg-red-200 text-red-900 dark:bg-red-800/50 dark:text-red-200",
-                    dayStatus === 'Partial' && "bg-yellow-200 text-yellow-900 dark:bg-yellow-800/50 dark:text-yellow-200"
-                  )}
-                >
-                  {dayStatus}
-                </Badge>
-              )}
+              <Badge 
+                variant="secondary" 
+                className={cn(
+                  "text-xs text-center mt-auto w-full justify-center",
+                  dayStatus === 'Available' && "bg-green-200 text-green-900 dark:bg-green-800/50 dark:text-green-200",
+                  dayStatus === 'Unavailable' && "bg-red-200 text-red-900 dark:bg-red-800/50 dark:text-red-200",
+                  dayStatus === 'Partial' && "bg-yellow-200 text-yellow-900 dark:bg-yellow-800/50 dark:text-yellow-200",
+                  dayStatus === 'Not set' && "bg-gray-200 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300"
+                )}
+              >
+                {dayStatus}
+              </Badge>
             </div>
           );
         })}
       </div>
       
       {/* Legend */}
-      <div className="mt-6 flex items-center justify-center gap-4 text-sm flex-shrink-0">
+      <div className="mt-6 flex items-center justify-center gap-4 text-sm flex-shrink-0 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
           <span>Available</span>
@@ -169,7 +188,15 @@ export function ImprovedAvailabilityCalendar({
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-transparent border border-gray-300 rounded"></div>
-          <span>No availability</span>
+          <span>Not set</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>Available slot</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+          <span>Unavailable slot</span>
         </div>
       </div>
     </div>

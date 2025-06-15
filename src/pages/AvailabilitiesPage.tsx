@@ -14,7 +14,6 @@ import { DayInteractionModal } from '@/components/availability/DayInteractionMod
 import { BatchApplyModal } from '@/components/availability/BatchApplyModal';
 
 const AvailabilitiesPage = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -26,28 +25,25 @@ const AvailabilitiesPage = () => {
   const isManager = hasPermission?.('manage_availability') || false;
   
   const {
+    selectedMonth,
+    setSelectedMonth,
     monthlyAvailabilities,
     isLoading,
     setAvailability,
     deleteAvailability,
     goToPreviousMonth,
     goToNextMonth,
-    setSelectedMonth: updateSelectedMonth,
     getDayAvailability,
     availabilityPresets
   } = useAvailabilities();
 
-  // Switch forward/back one month
+  // Switch forward/back one month - use the hook's navigation functions
   const handleNextMonth = () => {
-    const nextMonth = addMonths(selectedMonth, 1);
-    setSelectedMonth(nextMonth);
-    updateSelectedMonth(nextMonth);
+    goToNextMonth();
   };
   
   const handlePrevMonth = () => {
-    const prevMonth = subMonths(selectedMonth, 1);
-    setSelectedMonth(prevMonth);
-    updateSelectedMonth(prevMonth);
+    goToPreviousMonth();
   };
 
   // Toggle the locked state
@@ -62,7 +58,8 @@ const AvailabilitiesPage = () => {
 
   // Force refresh data
   const handleRefresh = () => {
-    updateSelectedMonth(new Date(selectedMonth));
+    // Force a re-fetch by setting the selected month to itself
+    setSelectedMonth(new Date(selectedMonth));
     toast({
       title: 'Refreshed',
       description: 'Availability data has been refreshed.'
@@ -118,8 +115,6 @@ const AvailabilitiesPage = () => {
       });
       setIsDayModalOpen(false);
       setSelectedDate(null);
-      // Force a refresh to update the calendar display
-      updateSelectedMonth(new Date(selectedMonth));
     }
   };
 

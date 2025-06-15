@@ -132,6 +132,8 @@ export function useAvailabilities() {
         const year = selectedMonth.getFullYear();
         const month = selectedMonth.getMonth() + 1;
         
+        console.log(`Fetching availabilities for ${year}-${month}`);
+        
         // Use the availabilityService to get the month's data
         const data = await availabilityService.getMonthlyAvailabilities('current-user', year, month);
         
@@ -147,6 +149,7 @@ export function useAvailabilities() {
           }))
         }));
         
+        console.log(`Loaded ${typeSafeData.length} availabilities for ${year}-${month}`);
         setMonthlyAvailabilities(typeSafeData);
       } catch (error) {
         console.error('Error fetching availabilities:', error);
@@ -163,14 +166,16 @@ export function useAvailabilities() {
     fetchAvailabilities();
   }, [selectedMonth, toast]);
   
-  // Navigation functions
+  // Navigation functions that properly update the selected month
   const goToPreviousMonth = useCallback(() => {
-    setSelectedMonth(prev => subMonths(prev, 1));
-  }, []);
+    const prevMonth = subMonths(selectedMonth, 1);
+    setSelectedMonth(prevMonth);
+  }, [selectedMonth]);
   
   const goToNextMonth = useCallback(() => {
-    setSelectedMonth(prev => addMonths(prev, 1));
-  }, []);
+    const nextMonth = addMonths(selectedMonth, 1);
+    setSelectedMonth(nextMonth);
+  }, [selectedMonth]);
   
   // Get availability for a specific date
   const getDayAvailability = useCallback((date: Date) => {
@@ -443,7 +448,7 @@ export function useAvailabilities() {
 
   return {
     selectedMonth,
-    setSelectedMonth,
+    setSelectedMonth, // Fixed: now properly updates and triggers data fetch
     startOfMonth: startOfSelectedMonth,
     endOfMonth: endOfSelectedMonth,
     monthlyAvailabilities,
