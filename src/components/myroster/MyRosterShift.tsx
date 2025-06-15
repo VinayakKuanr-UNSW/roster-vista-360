@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Shift } from '@/api/models/types';
 import { formatTime } from '@/lib/utils';
@@ -24,40 +25,46 @@ const MyRosterShift: React.FC<MyRosterShiftProps> = ({
   const getColorClass = () => {
     switch (groupColor) {
       case 'blue':
-        return 'bg-blue-500/90 hover:bg-blue-500/100';
+        return 'bg-blue-500/90 hover:bg-blue-500 border-blue-400/30';
       case 'green':
-        return 'bg-green-500/90 hover:bg-green-500/100';
+        return 'bg-green-500/90 hover:bg-green-500 border-green-400/30';
       case 'red':
-        return 'bg-red-500/90 hover:bg-red-500/100';
+        return 'bg-red-500/90 hover:bg-red-500 border-red-400/30';
+      case 'purple':
+        return 'bg-purple-500/90 hover:bg-purple-500 border-purple-400/30';
+      case 'orange':
+        return 'bg-orange-500/90 hover:bg-orange-500 border-orange-400/30';
+      case 'yellow':
+        return 'bg-yellow-500/90 hover:bg-yellow-500 border-yellow-400/30';
       default:
-        return 'bg-purple-500/90 hover:bg-purple-500/100';
+        return 'bg-purple-500/90 hover:bg-purple-500 border-purple-400/30';
     }
   };
   
-  // For month view
+  // For month view - ultra compact
   if (compact) {
     return (
       <div 
-        className={`rounded p-1 text-white text-xs cursor-pointer ${getColorClass()}`}
+        className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex flex-col justify-center px-2 py-1 ${getColorClass()}`}
         onClick={(e) => onClick && onClick(e)}
         style={style}
       >
-        <div className="font-medium truncate">{shift.role}</div>
-        <div className="opacity-80 text-[10px] truncate">{formatTime(shift.startTime)}</div>
+        <div className="font-medium truncate leading-tight">{shift.role}</div>
+        <div className="opacity-90 text-[10px] truncate leading-tight">{formatTime(shift.startTime)}</div>
       </div>
     );
   }
   
-  // For day/3-day/week view
+  // For day/3-day/week view - full details
   return (
     <div 
-      className={`rounded p-2 text-white cursor-pointer transition-all ${getColorClass()}`}
+      className={`rounded border text-white cursor-pointer transition-all duration-200 p-3 shadow-sm ${getColorClass()}`}
       onClick={() => onClick && onClick()}
       style={style}
     >
-      <div className="font-medium text-sm">{shift.role}</div>
-      <div className="text-xs mt-1">{subGroupName}</div>
-      <div className="text-xs mt-1 opacity-90">
+      <div className="font-medium text-sm mb-1 leading-tight">{shift.role}</div>
+      <div className="text-xs mb-2 opacity-90 leading-tight">{subGroupName}</div>
+      <div className="text-xs opacity-90 leading-tight">
         {formatTime(shift.startTime)} - {formatTime(shift.endTime)}
       </div>
     </div>

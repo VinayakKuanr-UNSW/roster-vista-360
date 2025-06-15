@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { cn } from '@/lib/utils';
+import { DateRange } from 'react-day-picker';
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -56,7 +57,7 @@ const useMediaQuery = (query: string) => {
 /* types                                                               */
 /* ------------------------------------------------------------------ */
 
-type DateRange = { start: Date; end: Date };
+type DateRangeInternal = { start: Date; end: Date };
 
 interface TemplateMeta {
   id: number;
@@ -70,13 +71,13 @@ interface TemplateHeaderProps {
   currentTemplate: TemplateMeta | null;
 
   onSaveAsDraft: () => Promise<void>;
-  onPublish: (range: DateRange, override: boolean) => Promise<void>;
+  onPublish: (range: DateRangeInternal, override: boolean) => Promise<void>;
   onExportToPdf: () => Promise<void>;
   onAddGroup: () => void;
 
   /* optional callbacks */
   onSavedDraft?: () => void;
-  checkDateRangeConflict?: (range: DateRange) => Promise<boolean>;
+  checkDateRangeConflict?: (range: DateRangeInternal) => Promise<boolean>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -126,7 +127,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 
   /* ───────────────── publish flow ───────────────── */
   const [pubOpen, setPubOpen] = useState(false);
-  const [range, setRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
+  const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [conflict, setConflict] = useState(false);
 
@@ -382,7 +383,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               Continue &amp; Override
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </AlertDialogFooter>
       </AlertDialog>
     </TooltipProvider>
   );
