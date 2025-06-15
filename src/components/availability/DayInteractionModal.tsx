@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { DayAvailability, AvailabilityStatus } from '@/api/models/types';
 import { cn } from '@/lib/utils';
@@ -113,15 +114,18 @@ export function DayInteractionModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
             Availability for {selectedDate && format(selectedDate, 'EEEE, MMMM d, yyyy')}
           </DialogTitle>
+          <DialogDescription>
+            Set your availability for this day using quick actions or custom time slots.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6 pt-2">
           {isLocked && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <p className="text-sm text-yellow-800">
@@ -133,26 +137,26 @@ export function DayInteractionModal({
           {/* Quick Actions */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Quick Actions</Label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button
                 type="button"
                 variant={quickAction === 'available' ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => handleQuickAction('available')}
                 disabled={isLocked}
-                className="flex-1"
+                className="justify-start"
               >
-                🟩 Fully Available
+                <div className="w-3.5 h-3.5 bg-green-500 rounded-full mr-3 border-2 border-green-300" />
+                Fully Available
               </Button>
               <Button
                 type="button"
                 variant={quickAction === 'unavailable' ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => handleQuickAction('unavailable')}
                 disabled={isLocked}
-                className="flex-1"
+                className="justify-start"
               >
-                🟥 Fully Unavailable
+                <div className="w-3.5 h-3.5 bg-red-500 rounded-full mr-3 border-2 border-red-300" />
+                Fully Unavailable
               </Button>
             </div>
           </div>
@@ -173,45 +177,53 @@ export function DayInteractionModal({
               </Button>
             </div>
 
-            <div className="space-y-2 max-h-40 overflow-y-auto">
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
               {timeSlots.map((slot) => (
-                <div key={slot.id} className="flex items-center gap-2 p-2 border rounded-lg">
+                <div key={slot.id} className="grid grid-cols-1 sm:grid-cols-8 items-center gap-2 p-2 border rounded-lg">
                   <Input
                     type="time"
                     value={slot.startTime}
                     onChange={(e) => updateTimeSlot(slot.id, 'startTime', e.target.value)}
                     disabled={isLocked}
-                    className="w-20"
+                    className="sm:col-span-2"
                   />
-                  <span className="text-sm text-muted-foreground">to</span>
+                  <span className="text-sm text-muted-foreground text-center hidden sm:block">to</span>
                   <Input
                     type="time"
                     value={slot.endTime}
                     onChange={(e) => updateTimeSlot(slot.id, 'endTime', e.target.value)}
                     disabled={isLocked}
-                    className="w-20"
+                    className="sm:col-span-2"
                   />
-                  <select
-                    value={slot.status}
-                    onChange={(e) => updateTimeSlot(slot.id, 'status', e.target.value)}
-                    disabled={isLocked}
-                    className="px-2 py-1 border rounded text-sm"
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Unavailable">Unavailable</option>
-                    <option value="Partial">Partial</option>
-                  </select>
+                  <div className="sm:col-span-2">
+                    <select
+                      value={slot.status}
+                      onChange={(e) => updateTimeSlot(slot.id, 'status', e.target.value)}
+                      disabled={isLocked}
+                      className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm focus:ring-ring focus:ring-1 focus:outline-none"
+                    >
+                      <option value="Available">Available</option>
+                      <option value="Unavailable">Unavailable</option>
+                      <option value="Partial">Partial</option>
+                    </select>
+                  </div>
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => removeTimeSlot(slot.id)}
                     disabled={isLocked}
+                    className="sm:col-span-1 justify-self-end"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
+              {timeSlots.length === 0 && (
+                 <div className="text-center text-sm text-muted-foreground py-4">
+                    No custom time slots added.
+                 </div>
+              )}
             </div>
           </div>
 
@@ -229,27 +241,27 @@ export function DayInteractionModal({
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {hasExistingData && onDelete && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isLocked}
-              className="w-full sm:w-auto"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Availability
-            </Button>
-          )}
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+        <DialogFooter className="flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-between">
+          <div>
+            {hasExistingData && onDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onDelete}
+                disabled={isLocked}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Availability
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={isLocked || timeSlots.length === 0}
-              className="flex-1"
             >
               Save Changes
             </Button>

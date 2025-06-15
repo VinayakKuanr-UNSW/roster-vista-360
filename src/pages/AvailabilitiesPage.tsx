@@ -188,9 +188,10 @@ const AvailabilitiesPage = () => {
       ...dayAvail,
       timeSlots: dayAvail.timeSlots.map(slot => ({
         ...slot,
-        id: slot.id || Math.random().toString(36).substring(2, 11)
+        id: slot.id || Math.random().toString(36).substring(2, 11),
+        status: slot.status || dayAvail.status || 'Available'
       }))
-    };
+    } as unknown as DayAvailability;
   })() : undefined;
 
   return (

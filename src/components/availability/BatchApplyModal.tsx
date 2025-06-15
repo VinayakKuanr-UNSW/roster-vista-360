@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, addDays, eachDayOfInterval } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -54,17 +53,8 @@ export function BatchApplyModal({
   const [activeTab, setActiveTab] = useState<'preset' | 'custom'>('preset');
   const [selectedPreset, setSelectedPreset] = useState<string>('');
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
-    
-    setSelectedDates(prev => {
-      const dateExists = prev.some(d => d.toDateString() === date.toDateString());
-      if (dateExists) {
-        return prev.filter(d => d.toDateString() !== date.toDateString());
-      } else {
-        return [...prev, date];
-      }
-    });
+  const handleDateSelect = (dates: Date[] | undefined) => {
+    setSelectedDates(dates || []);
   };
 
   const handlePresetSelect = (presetId: string) => {
