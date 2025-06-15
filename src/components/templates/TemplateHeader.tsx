@@ -1,4 +1,5 @@
 
+
 // TemplateHeader.tsx • 2025‑04‑21 (responsive range‑picker)
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
@@ -126,7 +127,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 
   /* ───────────────── publish flow ───────────────── */
   const [pubOpen, setPubOpen] = useState(false);
-  const [range, setRange] = useState<{ from?: Date; to?: Date } | undefined>(undefined);
+  const [range, setRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
   const [checking, setChecking] = useState(false);
   const [conflict, setConflict] = useState(false);
 
@@ -317,8 +318,12 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
               numberOfMonths={isWide ? 2 : 1}
               selected={range}
               onSelect={(dateRange) => {
-                if (dateRange) {
-                  setRange(dateRange);
+                if (dateRange && dateRange.from && dateRange.to) {
+                  setRange({ from: dateRange.from, to: dateRange.to });
+                } else if (dateRange && dateRange.from) {
+                  setRange({ from: dateRange.from, to: dateRange.from });
+                } else {
+                  setRange(undefined);
                 }
               }}
               initialFocus
@@ -372,3 +377,4 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 };
 
 export default TemplateHeader;
+

@@ -1,4 +1,5 @@
 
+
 // src/pages/TemplatesPage.tsx
 import React, { useState, useEffect, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -224,7 +225,7 @@ const TemplatesPage: React.FC = () => {
       ...tpl,
       id: Date.now(),
       name: `${tpl.name} (Copy)`,
-      status: 'draft',
+      status: 'draft' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -310,3 +311,4 @@ const TemplatesPage: React.FC = () => {
 };
 
 export default TemplatesPage;
+

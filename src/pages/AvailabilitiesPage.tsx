@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, addMonths, subMonths, eachDayOfInterval } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,8 @@ import { MonthListView } from '@/components/availability/MonthListView';
 // If you have these forms in your components folder:
 import { AvailabilityForm } from '@/components/availability/AvailabilityForm';
 import { BatchAvailabilityForm } from '@/components/availability/BatchAvailabilityForm';
+
+type AvailabilityStatus = 'available' | 'unavailable' | 'preferred';
 
 const AvailabilitiesPage = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -102,7 +105,7 @@ const AvailabilitiesPage = () => {
   const handleSaveBatchAvailability = async (data: {
     startDate: Date;
     endDate: Date;
-    timeSlots: Array<{ startTime: string; endTime: string; status?: string }>;
+    timeSlots: Array<{ startTime: string; endTime: string; status?: AvailabilityStatus }>;
     notes?: string;
   }) => {
     if (isCalendarLocked) {
@@ -191,9 +194,9 @@ const AvailabilitiesPage = () => {
 
     if (existingDays.length > 0) {
       toast({
-        title: 'Warning',
+        title: 'Conflicting Availability',
         description: `${existingDays.length} dates already have availability set and will be overwritten.`,
-        variant: 'warning',
+        variant: 'destructive',
       });
     }
 
@@ -353,7 +356,6 @@ const AvailabilitiesPage = () => {
             <div className="p-4 md:p-6">
               <MonthListView
                 onSelectDate={handleDateClick}
-                isLocked={isCalendarLocked}
               />
             </div>
           )}
@@ -384,3 +386,4 @@ const AvailabilitiesPage = () => {
 };
 
 export default AvailabilitiesPage;
+
