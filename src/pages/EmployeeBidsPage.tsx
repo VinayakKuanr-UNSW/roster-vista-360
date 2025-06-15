@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTableSorting } from '@/hooks/useTableSorting';
+import { SortableTableHeader } from '@/components/ui/sortable-table-header';
 import {
   Info,
   Filter as FilterIcon,
@@ -43,6 +45,10 @@ interface ShiftData {
   isEligible: boolean;
   openForBids: boolean;
   ineligibilityReason?: string;
+  // Additional fields for sorting
+  weekday?: string;
+  duration?: number; // in hours
+  coverage?: number; // percentage
 }
 
 interface BidData {
@@ -59,6 +65,10 @@ interface BidData {
   status: 'pending' | 'approved' | 'rejected';
   bidTime: string;
   notes: string | null;
+  // Additional fields for sorting
+  weekday?: string;
+  duration?: number;
+  coverage?: number;
 }
 
 // HELPER: Color-code cards by department
@@ -95,7 +105,12 @@ const EmployeeBidsPage: React.FC = () => {
   const [subDeptFilter, setSubDeptFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  // Sample Shifts
+  // Enhanced filters
+  const [tierFilter, setTierFilter] = useState('all');
+  const [eligibilityFilter, setEligibilityFilter] = useState('all'); // all, eligible, ineligible
+  const [dateRangeFilter, setDateRangeFilter] = useState('all'); // all, today, tomorrow, week, month
+
+  // Sample Shifts with enhanced data
   const [availableShifts] = useState<ShiftData[]>([
     {
       id: 1,
@@ -110,6 +125,9 @@ const EmployeeBidsPage: React.FC = () => {
       assignedTo: null,
       isEligible: true,
       openForBids: true,
+      weekday: 'Monday',
+      duration: 8.25,
+      coverage: 85,
     },
     {
       id: 2,
@@ -124,6 +142,9 @@ const EmployeeBidsPage: React.FC = () => {
       assignedTo: null,
       isEligible: true,
       openForBids: true,
+      weekday: 'Monday',
+      duration: 7.75,
+      coverage: 90,
     },
     {
       id: 3,
@@ -139,6 +160,9 @@ const EmployeeBidsPage: React.FC = () => {
       isEligible: false,
       openForBids: true,
       ineligibilityReason: 'Role requirements not met',
+      weekday: 'Monday',
+      duration: 5,
+      coverage: 60,
     },
     {
       id: 4,
@@ -154,6 +178,9 @@ const EmployeeBidsPage: React.FC = () => {
       isEligible: false,
       openForBids: true,
       ineligibilityReason: 'Department mismatch',
+      weekday: 'Tuesday',
+      duration: 8,
+      coverage: 75,
     },
     {
       id: 5,
@@ -168,10 +195,13 @@ const EmployeeBidsPage: React.FC = () => {
       assignedTo: null,
       isEligible: true,
       openForBids: true,
+      weekday: 'Wednesday',
+      duration: 8,
+      coverage: 95,
     },
   ]);
 
-  // Sample Bids
+  // Sample Bids with enhanced data
   const [myBids, setMyBids] = useState<BidData[]>([
     {
       id: 101,
@@ -187,6 +217,9 @@ const EmployeeBidsPage: React.FC = () => {
       status: 'pending',
       bidTime: '2023-04-02 14:30',
       notes: null,
+      weekday: 'Wednesday',
+      duration: 8,
+      coverage: 95,
     },
     {
       id: 102,
@@ -202,6 +235,9 @@ const EmployeeBidsPage: React.FC = () => {
       status: 'approved',
       bidTime: '2023-04-01 09:15',
       notes: 'Assigned on manager approval',
+      weekday: 'Monday',
+      duration: 8.25,
+      coverage: 85,
     },
     {
       id: 103,
@@ -217,18 +253,56 @@ const EmployeeBidsPage: React.FC = () => {
       status: 'rejected',
       bidTime: '2023-03-29 16:45',
       notes: 'Shift assigned to employee with higher seniority',
+      weekday: 'Sunday',
+      duration: 7.5,
+      coverage: 70,
     },
   ]);
+
+  // Selection state
+  const [selectedBidIds, setSelectedBidIds] = useState<number[]>([]);
+
+  // Table sorting hooks
+  const shiftsTableSort = useTableSorting(availableShifts, { key: 'date', direction: 'asc' });
+  const bidsTableSort = useTableSorting(myBids, { key: 'bidTime', direction: 'desc' });
+
+  // Filter functions
+  const filterShifts = (items: ShiftData[]) => {
+    return items.filter((shift) => {
+      if (deptFilter !== 'all' && shift.department !== deptFilter) return false;
+      if (subDeptFilter !== 'all' && shift.subGroup !== subDeptFilter) return false;
+      if (roleFilter !== 'all' && shift.role !== roleFilter) return false;
+      if (tierFilter !== 'all' && shift.remunerationLevel !== tierFilter) return false;
+      if (eligibilityFilter === 'eligible' && !shift.isEligible) return false;
+      if (eligibilityFilter === 'ineligible' && shift.isEligible) return false;
+      
+      // Date range filter logic would go here
+      if (dateRangeFilter !== 'all') {
+        // Implementation for date filtering
+      }
+      
+      return true;
+    });
+  };
+
+  const filterBids = (items: BidData[]) => {
+    return items.filter((bid) => {
+      if (deptFilter !== 'all' && bid.department !== deptFilter) return false;
+      if (subDeptFilter !== 'all' && bid.subGroup !== subDeptFilter) return false;
+      if (roleFilter !== 'all' && bid.role !== roleFilter) return false;
+      if (tierFilter !== 'all' && bid.remunerationLevel !== tierFilter) return false;
+      return true;
+    });
+  };
+
+  // Get filtered and sorted data
+  const filteredAvailableShifts = filterShifts(shiftsTableSort.sortedData);
+  const filteredMyBids = filterBids(bidsTableSort.sortedData);
 
   // --------------------------------------------------------------------------
   // 1) Manage Selection State
   //    We'll use a single "selectedBidIds" array to store the IDs of whatever
   //    we’ve currently selected—shifts in Available tab or bids in My Bids tab.
-  // --------------------------------------------------------------------------
-  const [selectedBidIds, setSelectedBidIds] = useState<number[]>([]);
-
-  // --------------------------------------------------------------------------
-  // 2) Implement "Select All" for "Available Shifts"
   // --------------------------------------------------------------------------
   const handleSelectAllAvailable = (isChecked: boolean) => {
     // We only select the shifts that are currently filtered + eligible
@@ -300,7 +374,7 @@ const EmployeeBidsPage: React.FC = () => {
       return true;
     } else {
       // action === 'withdraw'
-      // We’re withdrawing from selected Bids, so let's find them
+      // We're withdrawing from selected Bids, so let's find them
       const selectedUserBids = myBids.filter((b) =>
         selectedBidIds.includes(b.id)
       );
@@ -347,29 +421,6 @@ const EmployeeBidsPage: React.FC = () => {
     setSelectedBidIds([]);
   };
 
-  // --------------------------------------------------------------------------
-  // FILTER LOGIC
-  // --------------------------------------------------------------------------
-  const filterShifts = (items: ShiftData[]) => {
-    return items.filter((shift) => {
-      if (deptFilter !== 'all' && shift.department !== deptFilter) return false;
-      if (subDeptFilter !== 'all' && shift.subGroup !== subDeptFilter)
-        return false;
-      if (roleFilter !== 'all' && shift.role !== roleFilter) return false;
-      return true;
-    });
-  };
-
-  const filterBids = (items: BidData[]) => {
-    return items.filter((bid) => {
-      if (deptFilter !== 'all' && bid.department !== deptFilter) return false;
-      if (subDeptFilter !== 'all' && bid.subGroup !== subDeptFilter)
-        return false;
-      if (roleFilter !== 'all' && bid.role !== roleFilter) return false;
-      return true;
-    });
-  };
-
   // SHIFT COVERAGE DEMO
   const getShiftCoveragePercent = (start: string, end: string) => {
     const s = parseInt(start.slice(0, 2), 10) || 0;
@@ -399,6 +450,9 @@ const EmployeeBidsPage: React.FC = () => {
     setDeptFilter('all');
     setSubDeptFilter('all');
     setRoleFilter('all');
+    setTierFilter('all');
+    setEligibilityFilter('all');
+    setDateRangeFilter('all');
   };
 
   // HELPER to get weekday string from shift/bid date
@@ -411,7 +465,7 @@ const EmployeeBidsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full p-4 md:p-8">
-      {/* FILTER BAR */}
+      {/* ENHANCED FILTER BAR */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div className="flex items-center space-x-2 text-white/80 font-semibold">
           <FilterIcon size={20} />
@@ -459,6 +513,33 @@ const EmployeeBidsPage: React.FC = () => {
             <SelectItem value="Supervisor">Supervisor</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* TIER FILTER */}
+        <Select value={tierFilter} onValueChange={setTierFilter}>
+          <SelectTrigger className="w-[120px] bg-white/5 border-white/10 text-white/80">
+            <SelectValue placeholder="Tier" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Tiers</SelectItem>
+            <SelectItem value="Level-4">Level-4</SelectItem>
+            <SelectItem value="Level-3">Level-3</SelectItem>
+            <SelectItem value="Level-2">Level-2</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* ELIGIBILITY FILTER (only for Available tab) */}
+        {activeTab === 'available' && (
+          <Select value={eligibilityFilter} onValueChange={setEligibilityFilter}>
+            <SelectTrigger className="w-[120px] bg-white/5 border-white/10 text-white/80">
+              <SelectValue placeholder="Eligibility" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="eligible">Eligible</SelectItem>
+              <SelectItem value="ineligible">Ineligible</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
         {/* CLEAR ALL FILTERS */}
         <Button
@@ -514,13 +595,13 @@ const EmployeeBidsPage: React.FC = () => {
             value="available"
             className="data-[state=active]:bg-white/10"
           >
-            Available Shifts
+            Available Shifts ({filteredAvailableShifts.length})
           </TabsTrigger>
           <TabsTrigger
             value="myBids"
             className="data-[state=active]:bg-white/10"
           >
-            My Bids
+            My Bids ({filteredMyBids.length})
           </TabsTrigger>
         </TabsList>
 
@@ -535,7 +616,7 @@ const EmployeeBidsPage: React.FC = () => {
               </h3>
               <p className="text-white/80 text-sm">
                 You can bid on shifts that match your role, department, and
-                sub-department. The system will check your eligibility and work
+                sub-department. Click column headers to sort. The system will check your eligibility and work
                 hour compliance before bidding.
               </p>
             </div>
@@ -547,7 +628,7 @@ const EmployeeBidsPage: React.FC = () => {
               onClick={handleBulkExpressInterest}
               disabled={selectedBidIds.length === 0}
             >
-              Express Interest in Selected
+              Express Interest in Selected ({selectedBidIds.length})
             </Button>
           </div>
 
@@ -555,7 +636,7 @@ const EmployeeBidsPage: React.FC = () => {
           {viewMode === 'card' ? (
             // --- CARD VIEW ---
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filterShifts(availableShifts).map((shift) => {
+              {filteredAvailableShifts.map((shift) => {
                 const coveragePct = getShiftCoveragePercent(
                   shift.startTime,
                   shift.endTime
@@ -611,12 +692,12 @@ const EmployeeBidsPage: React.FC = () => {
                     <div className="space-y-2 mb-4 text-sm">
                       <div className="flex items-center">
                         <Calendar size={14} className="text-white/60 mr-2" />
-                        <span className="text-white/80">{shift.date}</span>
+                        <span className="text-white/80">{shift.date} ({shift.weekday})</span>
                       </div>
                       <div className="flex items-center">
                         <Clock size={14} className="text-white/60 mr-2" />
                         <span className="text-white/80">
-                          {shift.startTime} - {shift.endTime}
+                          {shift.startTime} - {shift.endTime} ({shift.duration}h)
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -627,17 +708,17 @@ const EmployeeBidsPage: React.FC = () => {
                       </div>
                       {/* SHIFT COVERAGE BAR */}
                       <div className="mt-2 text-xs text-white/60">
-                        Shift coverage:
+                        Shift coverage: {shift.coverage}%
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded relative">
                         {/* Coverage bar */}
                         <div
                           className="absolute top-0 left-0 h-2 bg-purple-500 rounded transition-all duration-300"
-                          style={{ width: `${coveragePct}%` }}
+                          style={{ width: `${shift.coverage}%` }}
                         />
                         {/* Coverage label */}
                         <div className="absolute right-1 top-0 text-[10px] text-white/80 h-full flex items-center">
-                          {Math.round(coveragePct)}%
+                          {Math.round(shift.coverage)}%
                         </div>
                       </div>
                     </div>
@@ -666,7 +747,7 @@ const EmployeeBidsPage: React.FC = () => {
                 );
               })}
 
-              {filterShifts(availableShifts).length === 0 && (
+              {filteredAvailableShifts.length === 0 && (
                 <div className="text-center py-6 text-white/60 col-span-full">
                   No shifts match the selected filters.
                 </div>
@@ -690,19 +771,81 @@ const EmployeeBidsPage: React.FC = () => {
                         }
                       />
                     </th>
-                    <th className="p-4 text-left font-medium">Dept</th>
-                    <th className="p-4 text-left font-medium">Sub-Dept</th>
-                    <th className="p-4 text-left font-medium">Role</th>
-                    <th className="p-4 text-left font-medium">Tier</th>
-                    <th className="p-4 text-left font-medium">Date</th>
-                    <th className="p-4 text-left font-medium">Day</th>
-                    <th className="p-4 text-left font-medium">Time</th>
-                    <th className="p-4 text-left font-medium">Coverage</th>
+                    <SortableTableHeader
+                      sortKey="department"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Dept
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="subGroup"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Sub-Dept
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="role"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Role
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="remunerationLevel"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Tier
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="date"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Date
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="weekday"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Day
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="startTime"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Time
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="duration"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Duration
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="coverage"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Coverage
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="isEligible"
+                      currentSort={shiftsTableSort.sortConfig}
+                      onSort={shiftsTableSort.handleSort}
+                    >
+                      Eligibility
+                    </SortableTableHeader>
                     <th className="p-4 text-left font-medium">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filterShifts(availableShifts).map((shift, index) => {
+                  {filteredAvailableShifts.map((shift, index) => {
                     const coveragePct = getShiftCoveragePercent(
                       shift.startTime,
                       shift.endTime
@@ -754,7 +897,7 @@ const EmployeeBidsPage: React.FC = () => {
                         <td className="p-4">
                           <div className="w-full h-2 bg-white/10 rounded relative">
                             <div
-                              className="absolute top-0 left-0 h-2 bg-purple-500 rounded transition-all duration-300"
+                              className="absolute top-0 left-0 h-2 bg-purple-500 rounded"
                               style={{ width: `${coveragePct}%` }}
                             />
                             <div className="absolute right-1 top-0 text-[10px] text-white/80 h-full flex items-center">
@@ -780,10 +923,10 @@ const EmployeeBidsPage: React.FC = () => {
                       </tr>
                     );
                   })}
-                  {filterShifts(availableShifts).length === 0 && (
+                  {filteredAvailableShifts.length === 0 && (
                     <tr>
                       <td
-                        colSpan={10}
+                        colSpan={12}
                         className="text-center p-4 text-white/60 text-sm"
                       >
                         No shifts match the selected filters.
@@ -804,7 +947,7 @@ const EmployeeBidsPage: React.FC = () => {
             <div>
               <h3 className="text-purple-300 font-medium mb-1">My Bids</h3>
               <p className="text-white/80 text-sm">
-                You can review and withdraw from any of your active bids here.
+                You can review and withdraw from any of your active bids here. Click column headers to sort your bids.
               </p>
             </div>
           </div>
@@ -814,15 +957,16 @@ const EmployeeBidsPage: React.FC = () => {
             <Button
               onClick={handleBulkWithdraw}
               disabled={selectedBidIds.length === 0}
+              variant="destructive"
             >
-              Withdraw Selected Bids
+              Withdraw Selected Bids ({selectedBidIds.length})
             </Button>
           </div>
 
           {viewMode === 'card' ? (
             // CARD VIEW for My Bids
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filterBids(myBids).map((bid) => {
+              {filteredMyBids.map((bid) => {
                 const coveragePct = getShiftCoveragePercent(
                   bid.startTime,
                   bid.endTime
@@ -876,12 +1020,12 @@ const EmployeeBidsPage: React.FC = () => {
                     <div className="space-y-2 mb-3 text-sm">
                       <div className="flex items-center">
                         <Calendar size={14} className="text-white/60 mr-2" />
-                        <span className="text-white/80">{bid.date}</span>
+                        <span className="text-white/80">{bid.date} ({bid.weekday})</span>
                       </div>
                       <div className="flex items-center">
                         <Clock size={14} className="text-white/60 mr-2" />
                         <span className="text-white/80">
-                          {bid.startTime} - {bid.endTime}
+                          {bid.startTime} - {bid.endTime} ({bid.duration}h)
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -892,16 +1036,13 @@ const EmployeeBidsPage: React.FC = () => {
                       </div>
                       {/* SHIFT COVERAGE BAR */}
                       <div className="mt-2 text-xs text-white/60">
-                        Shift coverage:
+                        Shift coverage: {bid.coverage}%
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded relative">
                         <div
                           className="absolute top-0 left-0 h-2 bg-purple-500 rounded"
-                          style={{ width: `${coveragePct}%` }}
+                          style={{ width: `${bid.coverage}%` }}
                         />
-                        <div className="absolute right-1 top-0 text-[10px] text-white/80 h-full flex items-center">
-                          {Math.round(coveragePct)}%
-                        </div>
                       </div>
                     </div>
 
@@ -930,7 +1071,7 @@ const EmployeeBidsPage: React.FC = () => {
                 );
               })}
 
-              {filterBids(myBids).length === 0 && (
+              {filteredMyBids.length === 0 && (
                 <div className="text-center py-6 text-white/60 col-span-full">
                   No bids match the selected filters.
                 </div>
@@ -954,20 +1095,88 @@ const EmployeeBidsPage: React.FC = () => {
                         }
                       />
                     </th>
-                    <th className="p-4 text-left font-medium">Dept</th>
-                    <th className="p-4 text-left font-medium">Sub-Dept</th>
-                    <th className="p-4 text-left font-medium">Role</th>
-                    <th className="p-4 text-left font-medium">Tier</th>
-                    <th className="p-4 text-left font-medium">Date</th>
-                    <th className="p-4 text-left font-medium">Day</th>
-                    <th className="p-4 text-left font-medium">Time</th>
-                    <th className="p-4 text-left font-medium">Coverage</th>
-                    <th className="p-4 text-left font-medium">Status</th>
+                    <SortableTableHeader
+                      sortKey="department"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Dept
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="subGroup"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Sub-Dept
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="role"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Role
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="remunerationLevel"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Tier
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="date"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Date
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="weekday"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Day
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="startTime"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Time
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="duration"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Duration
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="coverage"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Coverage
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="status"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Status
+                    </SortableTableHeader>
+                    <SortableTableHeader
+                      sortKey="bidTime"
+                      currentSort={bidsTableSort.sortConfig}
+                      onSort={bidsTableSort.handleSort}
+                    >
+                      Bid Time
+                    </SortableTableHeader>
                     <th className="p-4 text-left font-medium">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filterBids(myBids).map((bid, index) => {
+                  {filteredMyBids.map((bid, index) => {
                     const coveragePct = getShiftCoveragePercent(
                       bid.startTime,
                       bid.endTime
@@ -1049,10 +1258,10 @@ const EmployeeBidsPage: React.FC = () => {
                       </tr>
                     );
                   })}
-                  {filterBids(myBids).length === 0 && (
+                  {filteredMyBids.length === 0 && (
                     <tr>
                       <td
-                        colSpan={11}
+                        colSpan={13}
                         className="text-center p-4 text-white/60 text-sm"
                       >
                         No bids match the selected filters.
