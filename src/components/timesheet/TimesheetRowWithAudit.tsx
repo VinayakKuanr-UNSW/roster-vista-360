@@ -20,7 +20,6 @@ interface TimesheetRowWithAuditProps {
 export const TimesheetRowWithAudit: React.FC<TimesheetRowWithAuditProps> = ({ shift, date }) => {
   const [auditOpen, setAuditOpen] = useState(false);
 
-  // Convert shift ID to numeric timesheet ID for the audit
   const timesheetId = parseInt(shift.id.replace(/\D/g, '')) || 1;
 
   return (
