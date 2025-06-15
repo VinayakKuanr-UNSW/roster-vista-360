@@ -23,24 +23,36 @@ const BroadcastForm = () => {
   const [groups, setGroups] = useState<GroupWithAdminStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch broadcast groups where the current user is an admin
   useEffect(() => {
     const fetchGroups = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.log('No user ID available');
+        setIsLoading(false);
+        return;
+      }
       
       try {
+        console.log('Fetching groups for user:', user.id);
         setIsLoading(true);
+        setError(null);
+        
         const userGroups = await BroadcastDbClient.fetchUserGroups(user.id);
+        console.log('Fetched user groups:', userGroups);
         
         // Filter to only include groups where the user is an admin
         const adminGroups = userGroups.filter(group => group.is_admin);
+        console.log('Admin groups:', adminGroups);
         
         setGroups(adminGroups);
         if (adminGroups.length > 0) {
           setSelectedGroupId(adminGroups[0].id);
         }
       } catch (error: any) {
+        console.error('Error fetching groups:', error);
+        setError(error.message);
         toast({
           title: "Error",
           description: `Failed to load broadcast groups: ${error.message}`,
@@ -51,9 +63,7 @@ const BroadcastForm = () => {
       }
     };
 
-    if (user?.id) {
-      fetchGroups();
-    }
+    fetchGroups();
   }, [user?.id]);
 
   // Send broadcast message
@@ -86,6 +96,7 @@ const BroadcastForm = () => {
     }
 
     try {
+      console.log('Sending broadcast...', { selectedGroupId, userId: user.id, message: message.trim() });
       setIsSending(true);
       
       // Create a new broadcast
@@ -95,13 +106,17 @@ const BroadcastForm = () => {
         message.trim()
       );
       
+      console.log('Created broadcast:', broadcast);
+      
       // Get all members of the selected group
       const groupMembers = await BroadcastDbClient.fetchGroupMembers(selectedGroupId);
+      console.log('Group members:', groupMembers);
       
       if (groupMembers.length > 0) {
         // Create notifications for all members
         const memberIds = groupMembers.map(member => member.user_id);
         await BroadcastDbClient.createNotificationsForBroadcast(broadcast.id, memberIds);
+        console.log('Created notifications for members:', memberIds);
       }
       
       toast({
@@ -111,6 +126,7 @@ const BroadcastForm = () => {
       
       setMessage('');
     } catch (error: any) {
+      console.error('Error sending broadcast:', error);
       toast({
         title: "Error",
         description: `Failed to send broadcast: ${error.message}`,
@@ -120,6 +136,28 @@ const BroadcastForm = () => {
       setIsSending(false);
     }
   };
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Error Loading Broadcast Groups</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-destructive">
+            {error}
+          </div>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+            variant="outline"
+          >
+            Reload Page
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -135,7 +173,7 @@ const BroadcastForm = () => {
             <Skeleton className="h-10 w-full" />
           ) : groups.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              You don't have admin access to any broadcast groups.
+              You don't have admin access to any broadcast groups. Please contact your administrator to be added as an admin to a group.
             </div>
           ) : (
             <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>

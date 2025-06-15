@@ -45,22 +45,37 @@ export class BroadcastDbClient {
 
   // Group Members methods
   static async fetchGroupMembers(groupId: string) {
-    const { data, error } = await supabase
+    // First get the basic member data
+    const { data: members, error: membersError } = await supabase
       .from('broadcast_group_members')
-      .select(`
-        *,
-        user:user_id (
-          id,
-          name,
-          email,
-          role,
-          department
-        )
-      `)
+      .select('*')
       .eq('group_id', groupId);
     
-    if (error) throw error;
-    return data as GroupMember[];
+    if (membersError) throw membersError;
+    
+    // Then get user details for each member
+    const membersWithUsers = await Promise.all(
+      members.map(async (member) => {
+        const { data: userData, error: userError } = await supabase
+          .from('auth_users_view')
+          .select('id, name, email, role, department')
+          .eq('id', member.user_id)
+          .single();
+        
+        return {
+          ...member,
+          user: userData || {
+            id: member.user_id,
+            name: 'Unknown User',
+            email: '',
+            role: '',
+            department: ''
+          }
+        };
+      })
+    );
+    
+    return membersWithUsers as GroupMember[];
   }
 
   static async addGroupMember(groupId: string, userId: string, isAdmin: boolean = false) {
@@ -95,29 +110,57 @@ export class BroadcastDbClient {
 
   // User Groups methods
   static async fetchUserGroups(userId: string) {
-    const { data, error } = await supabase
+    console.log('Fetching user groups for user:', userId);
+    
+    // Get group memberships
+    const { data: memberships, error: membershipsError } = await supabase
       .from('broadcast_group_members')
-      .select(`
-        group_id,
-        is_admin,
-        broadcast_groups:group_id (
-          id,
-          name
-        )
-      `)
+      .select('group_id, is_admin')
       .eq('user_id', userId);
     
-    if (error) throw error;
+    if (membershipsError) {
+      console.error('Error fetching memberships:', membershipsError);
+      throw membershipsError;
+    }
+
+    console.log('Found memberships:', memberships);
     
-    return data.map(item => ({
-      id: item.broadcast_groups.id,
-      name: item.broadcast_groups.name,
-      is_admin: item.is_admin
-    }));
+    if (!memberships || memberships.length === 0) {
+      return [];
+    }
+    
+    // Get group details
+    const groupIds = memberships.map(m => m.group_id);
+    const { data: groups, error: groupsError } = await supabase
+      .from('broadcast_groups')
+      .select('id, name')
+      .in('id', groupIds);
+    
+    if (groupsError) {
+      console.error('Error fetching groups:', groupsError);
+      throw groupsError;
+    }
+
+    console.log('Found groups:', groups);
+    
+    // Combine group data with admin status
+    const userGroups = groups.map(group => {
+      const membership = memberships.find(m => m.group_id === group.id);
+      return {
+        id: group.id,
+        name: group.name,
+        is_admin: membership?.is_admin || false
+      };
+    });
+
+    console.log('Returning user groups:', userGroups);
+    return userGroups;
   }
 
   // Broadcasts methods
   static async createBroadcast(groupId: string, senderId: string, message: string) {
+    console.log('Creating broadcast:', { groupId, senderId, message });
+    
     const { data, error } = await supabase
       .from('broadcasts')
       .insert([{
@@ -127,30 +170,60 @@ export class BroadcastDbClient {
       }])
       .select();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating broadcast:', error);
+      throw error;
+    }
+    
+    console.log('Created broadcast:', data[0]);
     return data[0] as Broadcast;
   }
 
-  // New method to fetch broadcasts for a specific group
+  // Fetch broadcasts for a specific group
   static async fetchGroupBroadcasts(groupId: string) {
-    const { data, error } = await supabase
+    console.log('Fetching broadcasts for group:', groupId);
+    
+    // First get the broadcasts
+    const { data: broadcasts, error: broadcastsError } = await supabase
       .from('broadcasts')
-      .select(`
-        *,
-        sender:sender_id (
-          id,
-          name
-        ),
-        group:group_id (
-          id,
-          name
-        )
-      `)
+      .select('*')
       .eq('group_id', groupId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
-    return data as Broadcast[];
+    if (broadcastsError) {
+      console.error('Error fetching broadcasts:', broadcastsError);
+      throw broadcastsError;
+    }
+
+    console.log('Found broadcasts:', broadcasts);
+    
+    // Then get sender and group details for each broadcast
+    const broadcastsWithDetails = await Promise.all(
+      broadcasts.map(async (broadcast) => {
+        // Get sender details
+        const { data: senderData } = await supabase
+          .from('auth_users_view')
+          .select('id, name')
+          .eq('id', broadcast.sender_id)
+          .single();
+        
+        // Get group details
+        const { data: groupData } = await supabase
+          .from('broadcast_groups')
+          .select('id, name')
+          .eq('id', broadcast.group_id)
+          .single();
+        
+        return {
+          ...broadcast,
+          sender: senderData || { id: broadcast.sender_id, name: 'Unknown User' },
+          group: groupData || { id: broadcast.group_id, name: 'Unknown Group' }
+        };
+      })
+    );
+    
+    console.log('Returning broadcasts with details:', broadcastsWithDetails);
+    return broadcastsWithDetails as Broadcast[];
   }
 
   // Notifications methods
@@ -200,6 +273,13 @@ export class BroadcastDbClient {
   }
 
   static async createNotificationsForBroadcast(broadcastId: string, userIds: string[]) {
+    console.log('Creating notifications for broadcast:', broadcastId, 'users:', userIds);
+    
+    if (userIds.length === 0) {
+      console.log('No users to notify');
+      return;
+    }
+    
     const notifications = userIds.map(userId => ({
       user_id: userId,
       broadcast_id: broadcastId,
@@ -210,17 +290,29 @@ export class BroadcastDbClient {
       .from('broadcast_notifications')
       .insert(notifications);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating notifications:', error);
+      throw error;
+    }
+    
+    console.log('Created notifications successfully');
   }
 
   // Employees / Users methods
   static async fetchUsers() {
+    console.log('Fetching users from auth_users_view');
+    
     const { data, error } = await supabase
       .from('auth_users_view')
       .select('id, name, email, role, department')
       .order('name');
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+    
+    console.log('Found users:', data);
     return data as Employee[];
   }
 }
