@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Dialog,
@@ -157,9 +158,7 @@ const SwapDetailsModal: React.FC<SwapDetailsModalProps> = ({
       <DialogContent
         className="bg-slate-900 text-white border-white/10 focus:outline-none"
         aria-labelledby="swap-dialog-title"
-        asChild
       >
-        {/* Framer Motion wrapper for subtle scale/opacity animation */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
