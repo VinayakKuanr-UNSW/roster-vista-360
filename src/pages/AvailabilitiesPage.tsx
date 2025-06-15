@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, addMonths, subMonths, eachDayOfInterval } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useAvailabilities } from '@/hooks/useAvailabilities';
+import { AvailabilityStatus } from '@/api/models/types';
 
 import { AvailabilityCalendar } from '@/components/availability/AvailabilityCalendar';
 import { PresetSelector } from '@/components/availability/PresetSelector';
@@ -23,8 +23,6 @@ import { MonthListView } from '@/components/availability/MonthListView';
 // If you have these forms in your components folder:
 import { AvailabilityForm } from '@/components/availability/AvailabilityForm';
 import { BatchAvailabilityForm } from '@/components/availability/BatchAvailabilityForm';
-
-type AvailabilityStatus = 'available' | 'unavailable' | 'preferred';
 
 const AvailabilitiesPage = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -386,4 +384,3 @@ const AvailabilitiesPage = () => {
 };
 
 export default AvailabilitiesPage;
-
