@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useAuth } from '@/hooks/useAuth';
 import InsightMetricCard from "@/components/insights/InsightMetricCard";
-import { Brain, ChartBar, Clock, User, Calendar, Comment, DollarSign, Search, MapPin } from "lucide-react";
+import { Brain, ChartBar, Clock, User, Calendar, DollarSign, Search, MapPin, MessageSquare } from "lucide-react";
 
 const InsightsPage: React.FC = () => {
   const { user } = useAuth();
@@ -247,7 +247,7 @@ const InsightsPage: React.FC = () => {
           {/* ==== 6. Communication & Interaction ==== */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <Comment size={20} className="text-cyan-400" /> Communication & Interaction
+              <MessageSquare size={20} className="text-cyan-400" /> Communication & Interaction
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <InsightMetricCard
@@ -260,13 +260,13 @@ const InsightsPage: React.FC = () => {
                 title="Broadcast Engagement"
                 metric={broadcastEngagement}
                 description="Message views & replies"
-                icon={<Comment size={18} className="text-green-400" />}
+                icon={<MessageSquare size={18} className="text-green-400" />}
               />
               <InsightMetricCard
                 title="Staff Feedback"
                 metric={feedbackMetrics}
                 description="Event survey results"
-                icon={<Comment size={18} className="text-rose-400" />}
+                icon={<MessageSquare size={18} className="text-rose-400" />}
               />
             </div>
           </div>
