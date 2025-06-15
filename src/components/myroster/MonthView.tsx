@@ -66,7 +66,7 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
     
     return (
       <div className={`
-        h-32 md:h-36 border transition-colors duration-200 flex flex-col ${
+        h-full border transition-colors duration-200 flex flex-col ${
           isToday(day) 
             ? 'border-blue-500/70 bg-blue-500/10' 
             : isCurrentMonth 
@@ -139,18 +139,18 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
   };
   
   return (
-    <div className="h-full bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+    <div className="h-full bg-gray-900 rounded-lg border border-gray-800 overflow-hidden flex flex-col">
       {/* Month header */}
-      <div className="p-4 border-b border-gray-800">
+      <div className="p-4 border-b border-gray-800 flex-shrink-0">
         <h3 className="text-lg font-semibold text-center">
           {format(date, 'MMMM yyyy')}
         </h3>
       </div>
       
       {/* Calendar grid */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto flex flex-col">
         {/* Day headers */}
-        <div className="grid grid-cols-7 border-b border-gray-800 bg-gray-800/50">
+        <div className="grid grid-cols-7 border-b border-gray-800 bg-gray-800/50 flex-shrink-0">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <div key={day} className="p-3 text-center text-sm font-medium text-white/80 border-r border-gray-700 last:border-r-0">
               {day}
@@ -158,12 +158,12 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
           ))}
         </div>
         
-        {/* Calendar weeks */}
-        <div className="min-h-[600px]">
+        {/* Calendar weeks - now expand to fill available space */}
+        <div className="flex-1 flex flex-col">
           {weeks.map((weekIndex, index) => (
-            <div key={index} className="grid grid-cols-7 border-b border-gray-800 last:border-b-0">
+            <div key={index} className="flex-1 grid grid-cols-7 border-b border-gray-800 last:border-b-0">
               {weekIndex.map((day, dayIndex) => (
-                <div key={dayIndex} className="border-r border-gray-800 last:border-r-0">
+                <div key={dayIndex} className="border-r border-gray-800 last:border-r-0 flex">
                   {getDayContent(day)}
                 </div>
               ))}
