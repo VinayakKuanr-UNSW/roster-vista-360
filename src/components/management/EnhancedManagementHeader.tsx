@@ -34,71 +34,81 @@ const EnhancedManagementHeader: React.FC<EnhancedManagementHeaderProps> = ({
   filteredItems
 }) => {
   return (
-    <div className="management-header space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="lovable-title">{title}</h1>
+    <header className="management-header space-y-6" role="banner">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
           {subtitle && (
-            <p className="lovable-subtitle">{subtitle}</p>
+            <p className="text-lg text-muted-foreground">{subtitle}</p>
           )}
           {totalItems !== undefined && filteredItems !== undefined && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground" aria-live="polite">
               Showing {filteredItems} of {totalItems} total items
             </p>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {/* Search */}
           {onSearchChange && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative" role="search">
+              <Search 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" 
+                aria-hidden="true"
+              />
               <Input
                 placeholder="Search..."
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-9 w-64 lovable-input"
+                className="pl-10 w-72 h-11 text-base lovable-input focus:ring-2 focus:ring-primary/30"
+                aria-label="Search items"
               />
             </div>
           )}
 
           {/* View Mode Toggle */}
-          <div className="flex items-center border rounded-lg overflow-hidden bg-card/50">
+          <fieldset className="flex items-center border rounded-lg overflow-hidden bg-card/50">
+            <legend className="sr-only">View mode selection</legend>
             <Button
               variant={viewMode === 'list' ? "default" : "ghost"}
-              size="sm"
+              size="default"
               className={cn(
-                "rounded-none border-none",
-                viewMode === 'list' ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                "rounded-none border-none h-11 px-4 text-base font-medium",
+                viewMode === 'list' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-accent"
               )}
               onClick={() => onViewModeChange('list')}
+              aria-pressed={viewMode === 'list'}
+              aria-label="List view"
             >
-              <List className="h-4 w-4 mr-1" />
+              <List className="h-5 w-5 mr-2" aria-hidden="true" />
               List
             </Button>
             <Button
               variant={viewMode === 'calendar' ? "default" : "ghost"}
-              size="sm"
+              size="default"
               className={cn(
-                "rounded-none border-none",
-                viewMode === 'calendar' ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                "rounded-none border-none h-11 px-4 text-base font-medium",
+                viewMode === 'calendar' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-accent"
               )}
               onClick={() => onViewModeChange('calendar')}
+              aria-pressed={viewMode === 'calendar'}
+              aria-label="Calendar view"
             >
-              <Calendar className="h-4 w-4 mr-1" />
+              <Calendar className="h-5 w-5 mr-2" aria-hidden="true" />
               Calendar
             </Button>
-          </div>
+          </fieldset>
 
           {/* Sort Button */}
           {onSortClick && (
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               onClick={onSortClick}
-              className="lovable-btn-secondary"
+              className="lovable-btn-secondary h-11 px-4 text-base font-medium"
+              aria-label="Sort options"
             >
-              <SortAsc className="h-4 w-4 mr-1" />
+              <SortAsc className="h-5 w-5 mr-2" aria-hidden="true" />
               Sort
             </Button>
           )}
@@ -107,19 +117,23 @@ const EnhancedManagementHeader: React.FC<EnhancedManagementHeaderProps> = ({
           {onFilterClick && (
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               onClick={onFilterClick}
               className={cn(
-                "lovable-btn-secondary relative",
-                activeFilterCount > 0 && "border-primary"
+                "lovable-btn-secondary relative h-11 px-4 text-base font-medium",
+                activeFilterCount > 0 && "border-primary bg-primary/5"
               )}
+              aria-label={`Filter options${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
+              aria-describedby={activeFilterCount > 0 ? "filter-count" : undefined}
             >
-              <Filter className="h-4 w-4 mr-1" />
+              <Filter className="h-5 w-5 mr-2" aria-hidden="true" />
               Filters
               {activeFilterCount > 0 && (
                 <Badge 
                   variant="destructive" 
-                  className="absolute -top-2 -right-2 h-5 w-5 text-xs p-0 flex items-center justify-center"
+                  className="absolute -top-2 -right-2 h-6 w-6 text-xs p-0 flex items-center justify-center font-semibold"
+                  id="filter-count"
+                  aria-label={`${activeFilterCount} active filters`}
                 >
                   {activeFilterCount}
                 </Badge>
@@ -128,7 +142,7 @@ const EnhancedManagementHeader: React.FC<EnhancedManagementHeaderProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

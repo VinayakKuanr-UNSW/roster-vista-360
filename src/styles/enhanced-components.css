@@ -7,16 +7,16 @@
 }
 
 .lovable-card-header {
-  @apply p-4 border-b border-border/20 bg-gradient-to-r from-primary/5 to-transparent;
+  @apply p-6 border-b border-border/20 bg-gradient-to-r from-primary/5 to-transparent;
 }
 
 .lovable-card-content {
-  @apply p-4 space-y-3;
+  @apply p-6 space-y-4;
 }
 
 /* Enhanced Status Badges */
 .status-badge {
-  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-200;
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200;
 }
 
 .status-open {
@@ -41,64 +41,68 @@
 
 /* Enhanced Button Styles */
 .lovable-btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20;
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20 focus:outline-none;
 }
 
 .lovable-btn-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 hover:translate-y-[-1px];
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-5 py-3 rounded-lg font-semibold text-base transition-all duration-200 hover:translate-y-[-1px] focus:ring-2 focus:ring-border/20 focus:outline-none;
 }
 
 .lovable-btn-ghost {
-  @apply text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-1.5 rounded-md font-medium text-sm transition-all duration-200;
+  @apply text-foreground hover:bg-accent hover:text-accent-foreground px-4 py-2.5 rounded-md font-semibold text-base transition-all duration-200 focus:ring-2 focus:ring-accent/20 focus:outline-none;
 }
 
 /* Enhanced Form Elements */
 .lovable-input {
-  @apply bg-background border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+  @apply bg-background border border-border rounded-lg px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground/70 focus:outline-none;
 }
 
 .lovable-select {
-  @apply bg-background border border-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+  @apply bg-background border border-border rounded-lg px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 focus:outline-none;
 }
 
 /* Enhanced Layout Components */
 .lovable-section {
-  @apply bg-card/50 backdrop-blur-sm rounded-xl border border-border/30 p-6 space-y-4;
+  @apply bg-card/50 backdrop-blur-sm rounded-xl border border-border/30 p-8 space-y-6;
 }
 
 .lovable-header {
-  @apply bg-gradient-to-r from-primary/10 to-transparent border-b border-border/20 p-4 rounded-t-xl;
+  @apply bg-gradient-to-r from-primary/10 to-transparent border-b border-border/20 p-6 rounded-t-xl;
 }
 
 /* Enhanced List Items */
 .lovable-list-item {
-  @apply bg-card/60 border border-border/30 rounded-lg p-4 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
+  @apply bg-card/60 border border-border/30 rounded-lg p-6 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
 }
 
 /* Enhanced Typography */
 .lovable-title {
-  @apply text-xl font-semibold text-foreground;
+  @apply text-2xl font-bold text-foreground tracking-tight;
 }
 
 .lovable-subtitle {
-  @apply text-sm font-medium text-muted-foreground;
+  @apply text-lg font-semibold text-muted-foreground;
 }
 
 .lovable-body {
-  @apply text-sm text-foreground;
+  @apply text-base text-foreground leading-relaxed;
+}
+
+.lovable-caption {
+  @apply text-sm text-muted-foreground font-medium;
 }
 
 /* Enhanced Spacing */
 .lovable-stack {
-  @apply space-y-4;
+  @apply space-y-6;
 }
 
 .lovable-stack-sm {
-  @apply space-y-2;
+  @apply space-y-3;
 }
 
 .lovable-stack-lg {
-  @apply space-y-6;
+  @apply space-y-8;
 }
 
 /* Enhanced Animations */
@@ -112,37 +116,37 @@
 
 /* Enhanced Grid Layouts */
 .lovable-grid {
-  @apply grid gap-4;
+  @apply grid gap-6;
 }
 
 .lovable-grid-2 {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
 }
 
 .lovable-grid-3 {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
 }
 
 /* Enhanced Priority Indicators */
 .priority-high {
-  @apply text-red-600 dark:text-red-400;
+  @apply text-red-600 dark:text-red-400 font-semibold;
 }
 
 .priority-medium {
-  @apply text-amber-600 dark:text-amber-400;
+  @apply text-amber-600 dark:text-amber-400 font-semibold;
 }
 
 .priority-low {
-  @apply text-green-600 dark:text-green-400;
+  @apply text-green-600 dark:text-green-400 font-semibold;
 }
 
 /* Enhanced Interactive Elements */
 .lovable-interactive {
-  @apply cursor-pointer transition-all duration-200 hover:bg-accent/50 rounded-md p-2;
+  @apply cursor-pointer transition-all duration-200 hover:bg-accent/50 rounded-md p-3 focus:ring-2 focus:ring-primary/20 focus:outline-none;
 }
 
 .lovable-tooltip {
-  @apply bg-popover text-popover-foreground border border-border rounded-md px-2 py-1 text-xs shadow-md;
+  @apply bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 text-sm shadow-md font-medium;
 }
 
 /* Enhanced Loading States */
@@ -152,9 +156,52 @@
 
 /* Enhanced Empty States */
 .lovable-empty-state {
-  @apply text-center py-12 text-muted-foreground;
+  @apply text-center py-16 text-muted-foreground;
 }
 
 .lovable-empty-state-icon {
-  @apply mx-auto h-12 w-12 text-muted-foreground/50 mb-4;
+  @apply mx-auto h-16 w-16 text-muted-foreground/50 mb-6 text-4xl;
+}
+
+/* Enhanced Focus States */
+.lovable-focus {
+  @apply focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none transition-all duration-200;
+}
+
+/* Enhanced Hover States */
+.lovable-hover {
+  @apply hover:bg-accent/30 hover:border-border/60 transition-all duration-200;
+}
+
+/* Enhanced Text Sizes */
+.text-heading-1 {
+  @apply text-4xl font-bold tracking-tight;
+}
+
+.text-heading-2 {
+  @apply text-3xl font-bold tracking-tight;
+}
+
+.text-heading-3 {
+  @apply text-2xl font-semibold tracking-tight;
+}
+
+.text-heading-4 {
+  @apply text-xl font-semibold;
+}
+
+.text-body-large {
+  @apply text-lg leading-relaxed;
+}
+
+.text-body {
+  @apply text-base leading-relaxed;
+}
+
+.text-body-small {
+  @apply text-sm;
+}
+
+.text-caption {
+  @apply text-xs font-medium;
 }

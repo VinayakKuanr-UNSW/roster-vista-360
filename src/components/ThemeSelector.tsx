@@ -70,6 +70,8 @@ export const ThemeSelector = () => {
             <DropdownMenuItem 
               className={`flex items-center gap-3 cursor-pointer transition-all duration-150 p-3 ${theme === 'lovable' ? 'bg-primary/10 text-primary' : ''}`}
               onClick={() => handleThemeChange('lovable')}
+              role="menuitem"
+              aria-selected={theme === 'lovable'}
             >
               <Palette className="h-4 w-4" />
               <div className="flex flex-col">
@@ -80,6 +82,8 @@ export const ThemeSelector = () => {
             <DropdownMenuItem 
               className={`flex items-center gap-3 cursor-pointer transition-all duration-150 p-3 ${theme === 'light' ? 'bg-accent/50' : ''}`}
               onClick={() => handleThemeChange('light')}
+              role="menuitem"
+              aria-selected={theme === 'light'}
             >
               <Sun className="h-4 w-4" />
               <div className="flex flex-col">
@@ -90,6 +94,8 @@ export const ThemeSelector = () => {
             <DropdownMenuItem 
               className={`flex items-center gap-3 cursor-pointer transition-all duration-150 p-3 ${theme === 'dark' ? 'bg-accent/50' : ''}`}
               onClick={() => handleThemeChange('dark')}
+              role="menuitem"
+              aria-selected={theme === 'dark'}
             >
               <Moon className="h-4 w-4" />
               <div className="flex flex-col">
@@ -100,6 +106,8 @@ export const ThemeSelector = () => {
             <DropdownMenuItem 
               className={`flex items-center gap-3 cursor-pointer transition-all duration-150 p-3 ${theme === 'glass' ? 'bg-accent/50' : ''}`}
               onClick={() => handleThemeChange('glass')}
+              role="menuitem"
+              aria-selected={theme === 'glass'}
             >
               <Sparkles className="h-4 w-4" />
               <div className="flex flex-col">
@@ -109,7 +117,7 @@ export const ThemeSelector = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </tooltip>
+      </Tooltip>
     </TooltipProvider>
   );
 };
