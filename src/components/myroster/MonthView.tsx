@@ -14,6 +14,9 @@ import {
 import { Shift } from '@/api/models/types';
 import MyRosterShift from './MyRosterShift';
 import ShiftDetailsDialog from './ShiftDetailsDialog';
+import CalendarLegend from './CalendarLegend';
+import DayQuickActions from './DayQuickActions';
+import { Badge } from '@/components/ui/badge';
 
 interface MonthViewProps {
   date: Date;
@@ -58,17 +61,49 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
   if (currentWeek.length > 0) {
     weeks.push(currentWeek);
   }
+
+  // Group shifts by role to reduce visual noise
+  const groupShiftsByRole = (shifts: Array<{
+    shift: Shift;
+    groupName: string;
+    groupColor: string;
+    subGroupName: string;
+  }>) => {
+    const grouped = shifts.reduce((acc, shiftData) => {
+      const key = `${shiftData.shift.role}-${shiftData.groupColor}`;
+      if (!acc[key]) {
+        acc[key] = {
+          role: shiftData.shift.role,
+          color: shiftData.groupColor,
+          shifts: [],
+          groupName: shiftData.groupName,
+          subGroupName: shiftData.subGroupName
+        };
+      }
+      acc[key].shifts.push(shiftData);
+      return acc;
+    }, {} as Record<string, any>);
+
+    return Object.values(grouped);
+  };
+
+  const handleQuickAction = (action: string, day: Date) => {
+    console.log(`${action} action for`, format(day, 'yyyy-MM-dd'));
+    // These would integrate with actual shift management functionality
+  };
   
   const getDayContent = (day: Date) => {
     const isCurrentMonth = isSameMonth(day, date);
     const isSelectedDay = isSameDay(day, date);
     const shifts = getShiftsForDate(day);
+    const groupedShifts = groupShiftsByRole(shifts);
+    const today = isToday(day);
     
     return (
       <div className={`
-        h-full border transition-colors duration-200 flex flex-col ${
-          isToday(day) 
-            ? 'border-blue-500/70 bg-blue-500/10' 
+        h-full border transition-colors duration-200 flex flex-col group relative ${
+          today
+            ? 'border-blue-500/70 bg-blue-500/15 ring-2 ring-blue-500/30' 
             : isCurrentMonth 
               ? 'border-white/20 bg-black/30 hover:bg-black/40' 
               : 'border-white/10 bg-black/10'
@@ -78,59 +113,85 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
             : ''
         }
       `}>
+        {/* Quick actions overlay */}
+        <DayQuickActions
+          onAddShift={() => handleQuickAction('add', day)}
+          onEditShift={() => handleQuickAction('edit', day)}
+          onViewDetails={() => handleQuickAction('details', day)}
+          hasShifts={shifts.length > 0}
+        />
+
         {/* Date header */}
         <div className="flex justify-between items-center p-2 border-b border-white/10 flex-shrink-0">
           <span className={`
-            text-sm font-medium px-2 py-1 rounded-full ${
-              isToday(day) 
-                ? 'bg-blue-500 text-white' 
+            text-sm font-medium px-2 py-1 rounded-full transition-colors ${
+              today
+                ? 'bg-blue-500 text-white ring-2 ring-blue-300/50' 
                 : isCurrentMonth 
                   ? 'text-white/90 hover:bg-white/10' 
                   : 'text-white/40'
             }
           `}>
             {format(day, 'd')}
+            {today && <span className="ml-1 text-xs">Today</span>}
           </span>
           
           {shifts.length > 0 && (
-            <span className="text-xs bg-purple-500/80 text-white px-2 py-1 rounded-full font-medium">
+            <Badge variant="secondary" className="text-xs bg-purple-500/80 text-white border-purple-400/30">
               {shifts.length}
-            </span>
+            </Badge>
           )}
         </div>
         
-        {/* Shifts container - now consumes full remaining space */}
+        {/* Shifts container */}
         <div className="flex-1 p-1 overflow-hidden flex flex-col">
           {shifts.length > 0 ? (
             <div className="flex-1 flex flex-col gap-1">
-              {shifts.slice(0, 3).map((shiftData, index) => (
+              {groupedShifts.slice(0, 2).map((group, index) => (
                 <div key={index} className="flex-1 min-h-0">
-                  <MyRosterShift
-                    shift={shiftData.shift}
-                    groupName={shiftData.groupName}
-                    groupColor={shiftData.groupColor}
-                    subGroupName={shiftData.subGroupName}
-                    onClick={() => setSelectedShift(shiftData)}
-                    compact={true}
-                    style={{ 
-                      height: '100%',
-                      width: '100%'
-                    }}
-                  />
+                  {group.shifts.length === 1 ? (
+                    <MyRosterShift
+                      shift={group.shifts[0].shift}
+                      groupName={group.shifts[0].groupName}
+                      groupColor={group.shifts[0].groupColor}
+                      subGroupName={group.shifts[0].subGroupName}
+                      onClick={() => setSelectedShift(group.shifts[0])}
+                      compact={true}
+                      style={{ 
+                        height: '100%',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      className={`rounded border text-white text-xs cursor-pointer transition-all duration-200 flex flex-col justify-center px-2 py-1 h-full bg-${group.color}-500/90 hover:bg-${group.color}-500 border-${group.color}-400/30`}
+                      onClick={() => setSelectedShift(group.shifts[0])}
+                    >
+                      <div className="font-medium truncate text-center leading-tight">
+                        {group.role}
+                      </div>
+                      <div className="opacity-90 text-[10px] truncate text-center leading-tight mt-0.5">
+                        {group.shifts.length} shifts
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
               
-              {shifts.length > 3 && (
+              {shifts.length > 2 && (
                 <div className="h-5 flex items-center justify-center">
                   <div className="text-xs text-white/70 bg-gray-700/50 px-2 py-1 rounded-full border border-white/20">
-                    +{shifts.length - 3} more
+                    +{shifts.length - 2} more
                   </div>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <span className="text-xs text-white/30">No shifts</span>
+              <span className="text-sm text-white/60 bg-gray-800/30 px-3 py-2 rounded-lg border border-white/10 hover:bg-gray-700/40 transition-colors cursor-pointer"
+                    onClick={() => handleQuickAction('add', day)}>
+                No shifts - Click to add
+              </span>
             </div>
           )}
         </div>
@@ -140,6 +201,11 @@ const MonthView: React.FC<MonthViewProps> = ({ date, getShiftsForDate }) => {
   
   return (
     <div className="h-full bg-gray-900 rounded-lg border border-gray-800 overflow-hidden flex flex-col">
+      {/* Legend */}
+      <div className="p-4 border-b border-gray-800 flex-shrink-0">
+        <CalendarLegend />
+      </div>
+
       {/* Month header */}
       <div className="p-4 border-b border-gray-800 flex-shrink-0">
         <h3 className="text-lg font-semibold text-center">
