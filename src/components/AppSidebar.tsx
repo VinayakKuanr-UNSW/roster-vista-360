@@ -13,289 +13,322 @@ import {
   BellRing,
   BadgeCheck,
   RefreshCw,
-  ChevronDown,
+  ChevronRight,
   HelpCircle,
   Settings,
-  TrendingUp  // Added the missing import
+  TrendingUp,
+  UserCircle2,
+  Shield,
+  FolderKanban,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { 
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  useSidebar
-} from '@/components/ui/sidebar';
 import { Button } from './ui/button';
+import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
+import { ThemeSelector } from './ThemeSelector';
+import { BroadcastNotifications } from './broadcast/BroadcastNotifications';
 
 const AppSidebar = () => {
   const location = useLocation();
-  const { user, hasPermission } = useAuth();
-  const { state } = useSidebar();
+  const { user, hasPermission, logout } = useAuth();
   const userRole = user?.role || 'member';
 
   // Helper function to check if a route is active
   const isRouteActive = (path: string) => {
     if (path === location.pathname) return true;
-    // For submenus, check if the current path starts with the submenu path
     if (path !== '/dashboard' && location.pathname.startsWith(path)) return true;
     return false;
   };
 
-  return (
-    <Sidebar variant="floating" collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-2 pb-0">
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "text-lg font-semibold transition-opacity",
-                state === "collapsed" && "opacity-0"
-              )}>
-                ShiftoPia
-              </span>
-            </div>
-          </SidebarGroupLabel>
-            
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isRouteActive('/dashboard')}
-                  tooltip="Dashboard"
-                  asChild
-                >
-                  <NavLink to="/dashboard" className="transition-colors hover:bg-muted/50">
-                    <LayoutDashboard className="h-5 w-5" />
-                    <span>Dashboard</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-                
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isRouteActive('/my-roster')}
-                  tooltip="My Roster"
-                  asChild
-                >
-                  <NavLink to="/my-roster" className="transition-colors hover:bg-muted/50">
-                    <Calendar className="h-5 w-5" />
-                    <span>My Roster</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isRouteActive('/availabilities')}
-                  tooltip="Availabilities"
-                  asChild
-                >
-                  <NavLink to="/availabilities" className="transition-colors hover:bg-muted/50">
-                    <CalendarDays className="h-5 w-5" />
-                    <span>Availabilities</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isRouteActive('/bids')}
-                  tooltip="My Bids"
-                  asChild
-                >
-                  <NavLink to="/bids" className="transition-colors hover:bg-muted/50">
-                    <BadgeCheck className="h-5 w-5" />
-                    <span>My Bids</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {(hasPermission('templates') || hasPermission('rosters') || hasPermission('birds-view') || hasPermission('timesheet-view')) && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={
-                      isRouteActive('/templates') ||
-                      isRouteActive('/rosters') ||
-                      isRouteActive('/birds-view') ||
-                      isRouteActive('/timesheet')
-                    }
-                  >
-                    <FileSpreadsheet className="h-5 w-5" />
-                    <span>Rostering</span>
-                    <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform ui-open:rotate-180" />
-                  </SidebarMenuButton>
-                  <SidebarMenuSub>
-                    {hasPermission('templates') && (
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton 
-                          isActive={isRouteActive('/templates')}
-                          asChild
-                        >
-                          <NavLink to="/templates" className="transition-colors hover:bg-muted/50">
-                            <Workflow className="h-4 w-4" />
-                            <span>Templates</span>
-                          </NavLink>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )}
-                    {hasPermission('rosters') && (
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton 
-                          isActive={isRouteActive('/rosters')}
-                          asChild
-                        >
-                          <NavLink to="/rosters" className="transition-colors hover:bg-muted/50">
-                            <FileSpreadsheet className="h-4 w-4" />
-                            <span>Rosters</span>
-                          </NavLink>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )}
-                    {hasPermission('birds-view') && (
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton 
-                          isActive={isRouteActive('/birds-view')}
-                          asChild
-                        >
-                          <NavLink to="/birds-view" className="transition-colors hover:bg-muted/50">
-                            <PanelLeft className="h-4 w-4" />
-                            <span>Birds View</span>
-                          </NavLink>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )}
-                    {hasPermission('timesheet-view') && (
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton 
-                          isActive={isRouteActive('/timesheet')}
-                          asChild
-                        >
-                          <NavLink to="/timesheet" className="transition-colors hover:bg-muted/50">
-                            <Clock className="h-4 w-4" />
-                            <span>Timesheet</span>
-                          </NavLink>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )}
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-              )}
-
-              {hasPermission('management') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={
-                      isRouteActive('/management/bids') ||
-                      isRouteActive('/management/swaps')
-                    }
-                  >
-                    <Users className="h-5 w-5" />
-                    <span>Management</span>
-                    <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform ui-open:rotate-180" />
-                  </SidebarMenuButton>
-                  <SidebarMenuSub>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton 
-                        isActive={isRouteActive('/management/bids')}
-                        asChild
-                      >
-                        <NavLink to="/management/bids" className="transition-colors hover:bg-muted/50">
-                          <BadgeCheck className="h-4 w-4" />
-                          <span>Open Bids</span>
-                        </NavLink>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton 
-                        isActive={isRouteActive('/management/swaps')}
-                        asChild
-                      >
-                        <NavLink to="/management/swaps" className="transition-colors hover:bg-muted/50">
-                          <RefreshCw className="h-4 w-4" />
-                          <span>Swap Requests</span>
-                        </NavLink>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('broadcast') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={isRouteActive('/broadcast')}
-                    tooltip="Broadcast"
-                    asChild
-                  >
-                    <NavLink to="/broadcast" className="transition-colors hover:bg-muted/50">
-                      <BellRing className="h-5 w-5" />
-                      <span>Broadcast</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('insights') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={isRouteActive('/insights')}
-                    tooltip="Insights"
-                    asChild
-                  >
-                    <NavLink to="/insights" className="transition-colors hover:bg-muted/50">
-                      <TrendingUp className="h-5 w-5" />
-                      <span>Insights</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              
-              {hasPermission('configurations') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    isActive={isRouteActive('/configurations')}
-                    tooltip="Configurations"
-                    asChild
-                  >
-                    <NavLink to="/configurations" className="transition-colors hover:bg-muted/50">
-                      <Settings className="h-5 w-5" />
-                      <span>Configurations</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+  const NavigationItem = ({ 
+    to, 
+    icon: Icon, 
+    label, 
+    isActive, 
+    badge,
+    description 
+  }: {
+    to: string;
+    icon: any;
+    label: string;
+    isActive: boolean;
+    badge?: string;
+    description?: string;
+  }) => (
+    <NavLink
+      to={to}
+      className={cn(
+        "group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden",
+        isActive 
+          ? "bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20 shadow-sm" 
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+      )}
+    >
+      {/* Active indicator */}
+      {isActive && (
+        <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full" />
+      )}
       
-      <SidebarFooter className="hidden md:block">
-        <div className="p-2 flex items-center justify-center">
-          <Button variant="outline" size="sm" className="w-full">
-            <span className={cn(
-              "transition-opacity",
-              state === "collapsed" && "opacity-0"
-            )}>
-              Help & Support
-            </span>
-            <HelpCircle className={cn(
-              "h-4 w-4",
-              state !== "collapsed" && "ml-2"
-            )} />
-          </Button>
+      <Icon className={cn(
+        "h-5 w-5 transition-transform duration-200 group-hover:scale-110",
+        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+      )} />
+      
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className={cn(
+            "font-medium text-base truncate",
+            isActive ? "text-primary" : ""
+          )}>
+            {label}
+          </span>
+          {badge && (
+            <Badge variant="secondary" className="ml-2 text-xs">
+              {badge}
+            </Badge>
+          )}
         </div>
-      </SidebarFooter>
-    </Sidebar>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            {description}
+          </p>
+        )}
+      </div>
+      
+      {isActive && (
+        <ChevronRight className="h-4 w-4 text-primary" />
+      )}
+    </NavLink>
+  );
+
+  const SectionHeader = ({ 
+    icon: Icon, 
+    title, 
+    color = "text-primary" 
+  }: {
+    icon: any;
+    title: string;
+    color?: string;
+  }) => (
+    <div className="flex items-center gap-3 px-4 py-2 mb-2">
+      <Icon className={cn("h-4 w-4", color)} />
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </span>
+    </div>
+  );
+
+  return (
+    <div className="h-screen w-[280px] fixed left-0 top-0 z-40 flex flex-col bg-card/95 backdrop-blur-sm border-r border-border/50 shadow-lg">
+      {/* Header */}
+      <div className="p-6 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-md">
+            <Sparkles className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              ShiftoPia
+            </h1>
+            <p className="text-xs text-muted-foreground">Workforce Management</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6">
+        {/* Main Navigation */}
+        <div className="space-y-2">
+          <NavigationItem
+            to="/dashboard"
+            icon={LayoutDashboard}
+            label="Dashboard"
+            isActive={isRouteActive('/dashboard')}
+            description="Overview & analytics"
+          />
+        </div>
+
+        {/* My Workspace Section */}
+        <div className="space-y-2">
+          <SectionHeader 
+            icon={UserCircle2} 
+            title="My Workspace" 
+            color="text-purple-500"
+          />
+          
+          <NavigationItem
+            to="/my-roster"
+            icon={Calendar}
+            label="My Roster"
+            isActive={isRouteActive('/my-roster')}
+            description="Your assigned shifts"
+          />
+          
+          <NavigationItem
+            to="/availabilities"
+            icon={CalendarDays}
+            label="Availabilities"
+            isActive={isRouteActive('/availabilities')}
+            description="Set your availability"
+          />
+          
+          <NavigationItem
+            to="/bids"
+            icon={BadgeCheck}
+            label="My Bids"
+            isActive={isRouteActive('/bids')}
+            description="Shift bid requests"
+          />
+        </div>
+
+        {/* Rostering Section */}
+        {(hasPermission('templates') || hasPermission('rosters') || hasPermission('birds-view') || hasPermission('timesheet-view')) && (
+          <div className="space-y-2">
+            <SectionHeader 
+              icon={FolderKanban} 
+              title="Rostering" 
+              color="text-blue-500"
+            />
+            
+            {hasPermission('templates') && (
+              <NavigationItem
+                to="/templates"
+                icon={Workflow}
+                label="Templates"
+                isActive={isRouteActive('/templates')}
+                description="Shift templates"
+              />
+            )}
+            
+            {hasPermission('rosters') && (
+              <NavigationItem
+                to="/rosters"
+                icon={FileSpreadsheet}
+                label="Rosters"
+                isActive={isRouteActive('/rosters')}
+                description="Manage schedules"
+              />
+            )}
+            
+            {hasPermission('birds-view') && (
+              <NavigationItem
+                to="/birds-view"
+                icon={PanelLeft}
+                label="Birds View"
+                isActive={isRouteActive('/birds-view')}
+                description="Overview of all shifts"
+              />
+            )}
+            
+            {hasPermission('timesheet-view') && (
+              <NavigationItem
+                to="/timesheet"
+                icon={Clock}
+                label="Timesheet"
+                isActive={isRouteActive('/timesheet')}
+                description="Time tracking"
+              />
+            )}
+          </div>
+        )}
+
+        {/* Management Section */}
+        {hasPermission('management') && (
+          <div className="space-y-2">
+            <SectionHeader 
+              icon={Shield} 
+              title="Management" 
+              color="text-green-500"
+            />
+            
+            <NavigationItem
+              to="/management/bids"
+              icon={BadgeCheck}
+              label="Open Bids"
+              isActive={isRouteActive('/management/bids')}
+              description="Review bid requests"
+            />
+            
+            <NavigationItem
+              to="/management/swaps"
+              icon={RefreshCw}
+              label="Swap Requests"
+              isActive={isRouteActive('/management/swaps')}
+              description="Approve shift swaps"
+            />
+          </div>
+        )}
+
+        {/* Additional Features */}
+        <div className="space-y-2">
+          {hasPermission('broadcast') && (
+            <NavigationItem
+              to="/broadcast"
+              icon={BellRing}
+              label="Broadcast"
+              isActive={isRouteActive('/broadcast')}
+              description="Send notifications"
+            />
+          )}
+          
+          {hasPermission('insights') && (
+            <NavigationItem
+              to="/insights"
+              icon={TrendingUp}
+              label="Insights"
+              isActive={isRouteActive('/insights')}
+              description="Analytics & reports"
+            />
+          )}
+          
+          {hasPermission('configurations') && (
+            <NavigationItem
+              to="/configurations"
+              icon={Settings}
+              label="Configurations"
+              isActive={isRouteActive('/configurations')}
+              description="System settings"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-border/50 space-y-4">
+        {/* Quick Actions */}
+        <div className="flex items-center justify-between">
+          <ThemeSelector />
+          <BroadcastNotifications isCollapsed={false} />
+        </div>
+
+        <Separator />
+
+        {/* User Profile */}
+        {user && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <UserCircle2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Help Button */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full justify-start gap-2 h-10"
+        >
+          <HelpCircle className="h-4 w-4" />
+          <span>Help & Support</span>
+        </Button>
+      </div>
+    </div>
   );
 };
 

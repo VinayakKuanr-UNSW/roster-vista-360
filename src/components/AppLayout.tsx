@@ -1,6 +1,6 @@
 
 import React from 'react';
-import UnifiedSidebar from './UnifiedSidebar';
+import AppSidebar from './AppSidebar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,9 +9,9 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="flex h-full w-full">
-      <UnifiedSidebar />
-      <main className="flex-1 overflow-auto ml-[70px] md:ml-[70px] lg:ml-[70px] transition-all">
-        <div className="p-6 min-h-screen">{children}</div>
+      <AppSidebar />
+      <main className="flex-1 overflow-auto ml-[280px] transition-all">
+        <div className="p-8 min-h-screen bg-gradient-to-br from-background to-muted/20">{children}</div>
       </main>
     </div>
   );

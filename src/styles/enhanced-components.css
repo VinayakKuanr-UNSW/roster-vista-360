@@ -14,6 +14,19 @@
   @apply p-6 space-y-4;
 }
 
+/* Modern Card Variants */
+.modern-card {
+  @apply bg-card/95 backdrop-blur-md border border-border/30 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:border-border/50;
+}
+
+.glass-card {
+  @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg transition-all duration-200 hover:bg-white/15;
+}
+
+.gradient-card {
+  @apply bg-gradient-to-br from-card to-card/80 border border-border/30 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg;
+}
+
 /* Enhanced Status Badges */
 .status-badge {
   @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200;
@@ -41,24 +54,24 @@
 
 /* Enhanced Button Styles */
 .lovable-btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm hover:shadow-md hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-xl font-semibold text-base transition-all duration-200 shadow-md hover:shadow-lg hover:translate-y-[-1px] focus:ring-2 focus:ring-primary/20 focus:outline-none;
 }
 
 .lovable-btn-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-5 py-3 rounded-lg font-semibold text-base transition-all duration-200 hover:translate-y-[-1px] focus:ring-2 focus:ring-border/20 focus:outline-none;
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-6 py-3 rounded-xl font-semibold text-base transition-all duration-200 hover:translate-y-[-1px] focus:ring-2 focus:ring-border/20 focus:outline-none;
 }
 
 .lovable-btn-ghost {
-  @apply text-foreground hover:bg-accent hover:text-accent-foreground px-4 py-2.5 rounded-md font-semibold text-base transition-all duration-200 focus:ring-2 focus:ring-accent/20 focus:outline-none;
+  @apply text-foreground hover:bg-accent hover:text-accent-foreground px-5 py-2.5 rounded-lg font-semibold text-base transition-all duration-200 focus:ring-2 focus:ring-accent/20 focus:outline-none;
 }
 
 /* Enhanced Form Elements */
 .lovable-input {
-  @apply bg-background border border-border rounded-lg px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground/70 focus:outline-none;
+  @apply bg-background border border-border rounded-xl px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground/70 focus:outline-none;
 }
 
 .lovable-select {
-  @apply bg-background border border-border rounded-lg px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 focus:outline-none;
+  @apply bg-background border border-border rounded-xl px-4 py-3 text-base font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 focus:outline-none;
 }
 
 /* Enhanced Layout Components */
@@ -70,18 +83,40 @@
   @apply bg-gradient-to-r from-primary/10 to-transparent border-b border-border/20 p-6 rounded-t-xl;
 }
 
+/* Navigation Enhancements */
+.nav-item-active {
+  @apply bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20 shadow-sm;
+}
+
+.nav-item-hover {
+  @apply hover:bg-muted/50 hover:text-foreground transition-all duration-200;
+}
+
+/* Sidebar Enhancements */
+.sidebar-section {
+  @apply space-y-2 mb-6;
+}
+
+.sidebar-header {
+  @apply flex items-center gap-3 px-4 py-2 mb-2;
+}
+
+.sidebar-item {
+  @apply group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden;
+}
+
 /* Enhanced List Items */
 .lovable-list-item {
-  @apply bg-card/60 border border-border/30 rounded-lg p-6 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
+  @apply bg-card/60 border border-border/30 rounded-xl p-6 transition-all duration-200 hover:bg-card/80 hover:border-border/50 hover:shadow-sm;
 }
 
 /* Enhanced Typography */
 .lovable-title {
-  @apply text-2xl font-bold text-foreground tracking-tight;
+  @apply text-3xl font-bold text-foreground tracking-tight;
 }
 
 .lovable-subtitle {
-  @apply text-lg font-semibold text-muted-foreground;
+  @apply text-xl font-semibold text-muted-foreground;
 }
 
 .lovable-body {
@@ -114,6 +149,10 @@
   @apply transition-transform duration-200 hover:translate-y-[-2px];
 }
 
+.lovable-scale-hover {
+  @apply transition-transform duration-200 hover:scale-105;
+}
+
 /* Enhanced Grid Layouts */
 .lovable-grid {
   @apply grid gap-6;
@@ -142,16 +181,16 @@
 
 /* Enhanced Interactive Elements */
 .lovable-interactive {
-  @apply cursor-pointer transition-all duration-200 hover:bg-accent/50 rounded-md p-3 focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply cursor-pointer transition-all duration-200 hover:bg-accent/50 rounded-xl p-3 focus:ring-2 focus:ring-primary/20 focus:outline-none;
 }
 
 .lovable-tooltip {
-  @apply bg-popover text-popover-foreground border border-border rounded-md px-3 py-2 text-sm shadow-md font-medium;
+  @apply bg-popover text-popover-foreground border border-border rounded-xl px-3 py-2 text-sm shadow-md font-medium;
 }
 
 /* Enhanced Loading States */
 .lovable-skeleton {
-  @apply animate-pulse bg-muted/50 rounded;
+  @apply animate-pulse bg-muted/50 rounded-xl;
 }
 
 /* Enhanced Empty States */
@@ -204,4 +243,26 @@
 
 .text-caption {
   @apply text-xs font-medium;
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+  @apply bg-gradient-to-r from-primary to-primary/80;
+}
+
+.gradient-secondary {
+  @apply bg-gradient-to-r from-secondary to-secondary/80;
+}
+
+.gradient-accent {
+  @apply bg-gradient-to-r from-accent to-accent/80;
+}
+
+/* Border Radius Utilities */
+.rounded-2xl {
+  @apply rounded-[1rem];
+}
+
+.rounded-3xl {
+  @apply rounded-[1.5rem];
 }
