@@ -198,7 +198,7 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
               
               {/* Action Buttons */}
               <DialogFooter className="mt-6 flex justify-end gap-3">
-                <Button onClick={onClose} variant="outline" className="bg-black/20 border-white/20 hover:bg-black/30">
+                <Button onClick={onClose} variant="outline" className="border-white/20 rounded-full text-inherit bg-[lovable-primary-dark] bg-transparent">
                   Close
                 </Button>
                 <Button onClick={handleSwapClick} className="bg-purple-600 hover:bg-purple-700 text-white rounded-full">
