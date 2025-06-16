@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ValidationResult {
@@ -66,16 +65,18 @@ export class SchemaValidator {
     const warnings: string[] = [];
 
     try {
-      // Check if required tables exist by attempting simple queries
-      const tables = [
+      // Define table names with proper typing
+      const broadcastTables = [
         'broadcast_groups',
         'broadcast_group_members', 
         'broadcasts',
-        'broadcast_notifications',
-        'auth_users_view'
-      ];
+        'broadcast_notifications'
+      ] as const;
 
-      for (const table of tables) {
+      const viewTables = ['auth_users_view'] as const;
+
+      // Check broadcast tables
+      for (const table of broadcastTables) {
         try {
           const { error } = await supabase.from(table).select('*').limit(1);
           if (error) {
@@ -86,7 +87,19 @@ export class SchemaValidator {
         }
       }
 
-      // Test basic connectivity
+      // Check view tables
+      for (const table of viewTables) {
+        try {
+          const { error } = await supabase.from(table).select('*').limit(1);
+          if (error) {
+            errors.push(`View ${table} is not accessible: ${error.message}`);
+          }
+        } catch (e) {
+          errors.push(`Failed to query view ${table}`);
+        }
+      }
+
+      // Test basic connectivity with a known table
       const { data, error } = await supabase.from('broadcast_groups').select('count').limit(1);
       if (error && !errors.some(e => e.includes('broadcast_groups'))) {
         errors.push(`Database connectivity issue: ${error.message}`);
