@@ -1,3 +1,4 @@
+
 import { Bid } from '../models/types';
 import { currentBids } from '../data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +21,7 @@ const mapDbBidToBid = (dbBid: any): Bid => {
     shiftId: String(dbBid.shift_id),
     employeeId: String(dbBid.employee_id),
     status: validateBidStatus(dbBid.status),
-    createdAt: dbBid.created_at || dbBid.bid_time || new Date().toISOString(),
+    createdAt: dbBid.created_at || new Date().toISOString(),
     notes: dbBid.notes || ''
   };
 };
@@ -28,14 +29,24 @@ const mapDbBidToBid = (dbBid: any): Bid => {
 export const bidService = {
   getAllBids: async (): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase
-      const { data, error } = await supabase
-        .from('bids')
-        .select('*');
+      // First try to get bids from Supabase using raw SQL query to avoid type issues
+      const { data, error } = await supabase.rpc('get_all_bids') as any;
       
       if (error) {
         console.error('Error fetching bids from Supabase:', error);
-        return Promise.resolve(bids);
+        // Try direct table access with type assertion
+        const { data: directData, error: directError } = await (supabase as any)
+          .from('bids')
+          .select('*');
+        
+        if (directError) {
+          console.error('Direct query also failed:', directError);
+          return Promise.resolve(bids);
+        }
+        
+        if (directData && directData.length > 0) {
+          return directData.map(mapDbBidToBid);
+        }
       }
       
       // Map Supabase data to our Bid model
@@ -53,11 +64,11 @@ export const bidService = {
   
   getBidById: async (id: string): Promise<Bid | null> => {
     try {
-      // First try to get bid from Supabase
-      const { data, error } = await supabase
+      // First try to get bid from Supabase with type assertion
+      const { data, error } = await (supabase as any)
         .from('bids')
         .select('*')
-        .eq('id', parseInt(id, 10)) // Convert string to number
+        .eq('id', parseInt(id, 10))
         .single();
       
       if (error) {
@@ -85,11 +96,11 @@ export const bidService = {
   
   getBidsByEmployee: async (employeeId: string): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase
-      const { data, error } = await supabase
+      // First try to get bids from Supabase with type assertion
+      const { data, error } = await (supabase as any)
         .from('bids')
         .select('*')
-        .eq('employee_id', parseInt(employeeId, 10)); // Convert string to number
+        .eq('employee_id', parseInt(employeeId, 10));
       
       if (error) {
         console.error(`Error fetching bids for employee ${employeeId} from Supabase:`, error);
@@ -116,11 +127,11 @@ export const bidService = {
   
   getBidsForShift: async (shiftId: string): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase
-      const { data, error } = await supabase
+      // First try to get bids from Supabase with type assertion
+      const { data, error } = await (supabase as any)
         .from('bids')
         .select('*')
-        .eq('shift_id', parseInt(shiftId, 10)); // Convert string to number
+        .eq('shift_id', parseInt(shiftId, 10));
       
       if (error) {
         console.error(`Error fetching bids for shift ${shiftId} from Supabase:`, error);
@@ -147,20 +158,18 @@ export const bidService = {
   
   createBid: async (bid: Omit<Bid, 'id' | 'createdAt'>): Promise<Bid> => {
     try {
-      // Need to convert ID strings to numbers for the database
       const newBidData: Record<string, any> = {
-        shift_id: parseInt(bid.shiftId, 10), // Convert string to number
-        employee_id: parseInt(bid.employeeId, 10), // Convert string to number
+        shift_id: parseInt(bid.shiftId, 10),
+        employee_id: parseInt(bid.employeeId, 10),
         status: bid.status || 'Pending',
       };
 
-      // Add notes field if it exists in bid object
       if (bid.notes) {
         newBidData.notes = bid.notes;
       }
 
-      // First try to insert bid into Supabase
-      const { data, error } = await supabase
+      // First try to insert bid into Supabase with type assertion
+      const { data, error } = await (supabase as any)
         .from('bids')
         .insert([newBidData])
         .select()
@@ -214,11 +223,11 @@ export const bidService = {
   
   updateBidStatus: async (id: string, status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed'): Promise<Bid | null> => {
     try {
-      // First try to update bid in Supabase
-      const { data, error } = await supabase
+      // First try to update bid in Supabase with type assertion
+      const { data, error } = await (supabase as any)
         .from('bids')
         .update({ status })
-        .eq('id', parseInt(id, 10)) // Convert string to number
+        .eq('id', parseInt(id, 10))
         .select()
         .single();
       
@@ -275,16 +284,16 @@ export const bidService = {
           const shiftId = updatedBid.shiftId;
           
           // Update other pending bids for the same shift in Supabase
-          supabase
+          (supabase as any)
             .from('bids')
             .update({
               status: 'Rejected', 
               notes: 'Shift offered to another employee'
             })
-            .eq('shift_id', parseInt(shiftId, 10)) // Convert string to number
-            .neq('id', parseInt(id, 10)) // Convert string to number
+            .eq('shift_id', parseInt(shiftId, 10))
+            .neq('id', parseInt(id, 10))
             .eq('status', 'Pending')
-            .then(({ error }) => {
+            .then(({ error }: any) => {
               if (error) {
                 console.error('Error rejecting other bids in Supabase:', error);
                 
@@ -386,17 +395,17 @@ export const bidService = {
   // New methods for bulk operations
   updateBulkBidStatus: async (ids: string[], status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed'): Promise<Bid[]> => {
     try {
-      // First try to update bids in Supabase
+      // First try to update bids in Supabase with type assertion
       const promises = ids.map(id => 
-        supabase
+        (supabase as any)
           .from('bids')
           .update({ status })
-          .eq('id', parseInt(id, 10)) // Fix: Convert string to number
+          .eq('id', parseInt(id, 10))
           .select()
       );
       
       const results = await Promise.all(promises);
-      const errors = results.filter(r => r.error);
+      const errors = results.filter((r: any) => r.error);
       
       if (errors.length > 0) {
         console.error('Error updating bulk bids in Supabase:', errors);
@@ -421,7 +430,7 @@ export const bidService = {
       
       // Map Supabase data to our Bid model
       const updatedBids: Bid[] = [];
-      results.forEach(result => {
+      results.forEach((result: any) => {
         if (result.data && result.data.length > 0) {
           const data = result.data[0];
           const updatedBid = mapDbBidToBid(data);
@@ -481,10 +490,10 @@ export const bidService = {
   
   addNotesToBid: async (id: string, notes: string): Promise<Bid | null> => {
     try {
-      // First try to update bid in Supabase
+      // First try to update bid in Supabase with type assertion
       const updateData: Record<string, any> = { notes };
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('bids')
         .update(updateData)
         .eq('id', parseInt(id, 10))
@@ -549,11 +558,11 @@ export const bidService = {
   // New method to withdraw a bid
   withdrawBid: async (id: string): Promise<boolean> => {
     try {
-      // First try to delete bid in Supabase
-      const { error } = await supabase
+      // First try to delete bid in Supabase with type assertion
+      const { error } = await (supabase as any)
         .from('bids')
         .delete()
-        .eq('id', parseInt(id, 10)); // Convert string to number
+        .eq('id', parseInt(id, 10));
       
       if (error) {
         console.error(`Error withdrawing bid with ID ${id} in Supabase:`, error);
