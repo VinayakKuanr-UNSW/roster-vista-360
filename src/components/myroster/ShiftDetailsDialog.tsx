@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Shift } from '@/api/models/types';
-
 interface ShiftDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,13 +23,12 @@ interface ShiftDetailsDialogProps {
     subDepartmentName?: string;
   };
 }
-
 const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   isOpen,
   onClose,
   onSwap,
   onCancelShift,
-  shift,
+  shift
 }) => {
   // State for cancellation confirmation dialog
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
@@ -40,11 +38,16 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
 
   // Dummy list of eligible employees; replace with real data if needed
-  const eligibleEmployees = useMemo(() => [
-    { id: '1', name: 'John Doe' },
-    { id: '2', name: 'Jane Smith' },
-    { id: '3', name: 'Alex Johnson' },
-  ], []);
+  const eligibleEmployees = useMemo(() => [{
+    id: '1',
+    name: 'John Doe'
+  }, {
+    id: '2',
+    name: 'Jane Smith'
+  }, {
+    id: '3',
+    name: 'Alex Johnson'
+  }], []);
 
   // Always call hooks; instead of returning null if no shift data,
   // we render a fallback message. This avoids disrupting the hook order.
@@ -57,7 +60,6 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   const groupName = shift?.groupName || 'Unknown Group';
   const groupColor = shift?.groupColor || 'gray';
   const subGroupName = shift?.subGroupName || 'Unknown Sub-Group';
-
   const role = shift?.shift?.role || 'Unknown Role';
   const startTime = shift?.shift?.startTime;
   const endTime = shift?.shift?.endTime;
@@ -75,7 +77,6 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
       return 'Invalid time';
     }
   }, [startTime]);
-
   const formattedEndTime = useMemo(() => {
     if (!endTime) return 'Invalid time';
     try {
@@ -98,22 +99,26 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   // Utility function: get background class based on groupColor.
   const getBgColorClass = useCallback((color: string) => {
     switch (color.toLowerCase()) {
-      case 'blue': return 'bg-blue-500';
-      case 'green': return 'bg-green-500';
-      case 'red': return 'bg-red-500';
-      case 'purple': return 'bg-purple-500';
-      case 'sky': return 'bg-sky-500';
-      default: return 'bg-gray-700';
+      case 'blue':
+        return 'bg-blue-500';
+      case 'green':
+        return 'bg-green-500';
+      case 'red':
+        return 'bg-red-500';
+      case 'purple':
+        return 'bg-purple-500';
+      case 'sky':
+        return 'bg-sky-500';
+      default:
+        return 'bg-gray-700';
     }
   }, []);
-
   const bgClass = getBgColorClass(groupColor);
 
   // Handlers for cancellation flow.
   const handleCancelClick = useCallback(() => {
     setIsCancelConfirmOpen(true);
   }, []);
-
   const handleConfirmCancel = useCallback(() => {
     if (onCancelShift) {
       onCancelShift();
@@ -121,7 +126,6 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
     setIsCancelConfirmOpen(false);
     onClose();
   }, [onCancelShift, onClose]);
-
   const handleCloseCancelConfirm = useCallback(() => {
     setIsCancelConfirmOpen(false);
   }, []);
@@ -130,25 +134,20 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   const handleSwapClick = useCallback(() => {
     setIsSwapDialogOpen(true);
   }, []);
-
   const handleSendSwapRequest = useCallback(() => {
     if (selectedEmployee && onSwap) {
       onSwap(selectedEmployee);
     }
     setIsSwapDialogOpen(false);
   }, [selectedEmployee, onSwap]);
-
   const handleCloseSwapDialog = useCallback(() => {
     setIsSwapDialogOpen(false);
   }, []);
-
-  return (
-    <>
+  return <>
       {/* Main Shift Details Dialog */}
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className={cn("max-w-md text-white border border-gray-800", bgClass)}>
-          {hasShiftData ? (
-            <>
+          {hasShiftData ? <>
               <DialogHeader>
                 <div className="mb-2 text-sm">
                   <span className="font-semibold">Organization:</span> {organizationName} | 
@@ -191,45 +190,30 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
                 </div>
                 
                 {/* Notes */}
-                {notes && (
-                  <div className="mt-4 pt-4 border-t border-gray-700">
+                {notes && <div className="mt-4 pt-4 border-t border-gray-700">
                     <h4 className="text-sm font-medium mb-2">Notes</h4>
                     <p className="text-sm text-gray-300">{notes}</p>
-                  </div>
-                )}
+                  </div>}
               </div>
               
               {/* Action Buttons */}
               <DialogFooter className="mt-6 flex justify-end gap-3">
-                <Button
-                  onClick={onClose}
-                  variant="outline"
-                  className="bg-black/20 border-white/20 hover:bg-black/30"
-                >
+                <Button onClick={onClose} variant="outline" className="bg-black/20 border-white/20 hover:bg-black/30">
                   Close
                 </Button>
-                <Button
-                  onClick={handleSwapClick}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                >
+                <Button onClick={handleSwapClick} className="bg-purple-600 hover:bg-purple-700 text-white">
                   <ArrowLeftRight size={16} className="mr-2" /> Swap Shift
                 </Button>
-                <Button
-                  onClick={handleCancelClick}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
+                <Button onClick={handleCancelClick} className="bg-red-600 hover:bg-red-500 rounded-full text-white font-normal text-base mx-0 my-0 py-0 px-[10px]">
                   <X size={16} className="mr-2" /> Cancel Shift
                 </Button>
               </DialogFooter>
-            </>
-          ) : (
-            <div className="text-center">
+            </> : <div className="text-center">
               <DialogTitle>No shift data available</DialogTitle>
               <Button onClick={onClose} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
                 Close
               </Button>
-            </div>
-          )}
+            </div>}
         </DialogContent>
       </Dialog>
 
@@ -272,18 +256,11 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
             <label htmlFor="swap-employee" className="block text-sm font-medium mb-1">
               Eligible Employees
             </label>
-            <select
-              id="swap-employee"
-              className="w-full p-2 text-black rounded"
-              value={selectedEmployee}
-              onChange={(e) => setSelectedEmployee(e.target.value)}
-            >
+            <select id="swap-employee" className="w-full p-2 text-black rounded" value={selectedEmployee} onChange={e => setSelectedEmployee(e.target.value)}>
               <option value="">Select an employee</option>
-              {eligibleEmployees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
+              {eligibleEmployees.map(emp => <option key={emp.id} value={emp.id}>
                   {emp.name}
-                </option>
-              ))}
+                </option>)}
             </select>
           </div>
 
@@ -298,8 +275,6 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default ShiftDetailsDialog;
