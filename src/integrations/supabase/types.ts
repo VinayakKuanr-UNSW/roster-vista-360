@@ -9,373 +9,113 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      bids: {
+      departments: {
         Row: {
-          bid_time: string | null
           created_at: string | null
-          employee_id: number | null
-          id: number
-          notes: string | null
-          shift_id: number | null
-          status: string | null
+          id: string
+          name: string
+          organization_id: string
           updated_at: string | null
         }
         Insert: {
-          bid_time?: string | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          notes?: string | null
-          shift_id?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bid_time?: string | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          notes?: string | null
-          shift_id?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bids_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bids_shift_id_fkey"
-            columns: ["shift_id"]
-            isOneToOne: false
-            referencedRelation: "shifts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      broadcast_group_members: {
-        Row: {
-          created_at: string | null
-          group_id: string
-          id: string
-          is_admin: boolean
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          group_id: string
-          id?: string
-          is_admin?: boolean
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          group_id?: string
-          id?: string
-          is_admin?: boolean
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "broadcast_group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "broadcast_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "broadcast_group_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "auth_users_view"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      broadcast_groups: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string
-        }
-        Insert: {
           created_at?: string | null
           id?: string
           name: string
+          organization_id: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
-        }
-        Relationships: []
-      }
-      broadcast_notifications: {
-        Row: {
-          broadcast_id: string
-          created_at: string | null
-          id: string
-          read: boolean
-          user_id: string
-        }
-        Insert: {
-          broadcast_id: string
-          created_at?: string | null
-          id?: string
-          read?: boolean
-          user_id: string
-        }
-        Update: {
-          broadcast_id?: string
-          created_at?: string | null
-          id?: string
-          read?: boolean
-          user_id?: string
+          organization_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "broadcast_notifications_broadcast_id_fkey"
-            columns: ["broadcast_id"]
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "broadcasts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "broadcast_notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "auth_users_view"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
       }
-      broadcasts: {
+      employee_assignments: {
         Row: {
           created_at: string | null
-          group_id: string
+          department_id: string
+          employee_id: string
           id: string
-          message: string
-          sender_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          group_id: string
-          id?: string
-          message: string
-          sender_id: string
-        }
-        Update: {
-          created_at?: string | null
-          group_id?: string
-          id?: string
-          message?: string
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "broadcasts_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "broadcast_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "broadcasts_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "auth_users_view"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      departments: {
-        Row: {
-          department: string | null
-          id: number
-        }
-        Insert: {
-          department?: string | null
-          id: number
-        }
-        Update: {
-          department?: string | null
-          id?: number
-        }
-        Relationships: []
-      }
-      employee_certifications: {
-        Row: {
-          certification_name: string
-          created_at: string | null
-          employee_id: number | null
-          expiry_date: string | null
-          id: number
-          issued_date: string | null
+          is_primary: boolean | null
+          organization_id: string
+          remuneration_level_id: string
+          role_id: string
+          sub_department_id: string
           updated_at: string | null
         }
         Insert: {
-          certification_name: string
           created_at?: string | null
-          employee_id?: number | null
-          expiry_date?: string | null
-          id?: number
-          issued_date?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          certification_name?: string
-          created_at?: string | null
-          employee_id?: number | null
-          expiry_date?: string | null
-          id?: number
-          issued_date?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employee_certifications_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      employee_metrics: {
-        Row: {
-          acceptance_ratio: number | null
-          cancellation_ratio: number | null
-          employee_id: number
-          fatigue_factor: number | null
-          late_cancellation_1hr_ratio: number | null
-          late_cancellation_24hr_ratio: number | null
-          late_cancellation_4hr_ratio: number | null
-          no_show_ratio: number | null
-          rejection_ratio: number | null
-          shift_assigned_30: number | null
-          shift_suitability_score: number | null
-        }
-        Insert: {
-          acceptance_ratio?: number | null
-          cancellation_ratio?: number | null
-          employee_id: number
-          fatigue_factor?: number | null
-          late_cancellation_1hr_ratio?: number | null
-          late_cancellation_24hr_ratio?: number | null
-          late_cancellation_4hr_ratio?: number | null
-          no_show_ratio?: number | null
-          rejection_ratio?: number | null
-          shift_assigned_30?: number | null
-          shift_suitability_score?: number | null
-        }
-        Update: {
-          acceptance_ratio?: number | null
-          cancellation_ratio?: number | null
-          employee_id?: number
-          fatigue_factor?: number | null
-          late_cancellation_1hr_ratio?: number | null
-          late_cancellation_24hr_ratio?: number | null
-          late_cancellation_4hr_ratio?: number | null
-          no_show_ratio?: number | null
-          rejection_ratio?: number | null
-          shift_assigned_30?: number | null
-          shift_suitability_score?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employee_metrics_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      employees: {
-        Row: {
-          acceptance_ratio: number | null
-          availability: Json | null
-          cancellation_ratio: number | null
-          created_at: string | null
-          department_id: number | null
-          email: string
+          department_id: string
           employee_id: string
-          first_name: string
-          id: number
-          last_name: string
-          late_cancellation_ratio: number | null
-          phone: string | null
-          remuneration_level: number | null
-          role_id: number | null
-          status: string | null
-          sub_department_id: number | null
-          swap_ratio: number | null
-          tier: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          acceptance_ratio?: number | null
-          availability?: Json | null
-          cancellation_ratio?: number | null
-          created_at?: string | null
-          department_id?: number | null
-          email: string
-          employee_id: string
-          first_name: string
-          id?: number
-          last_name: string
-          late_cancellation_ratio?: number | null
-          phone?: string | null
-          remuneration_level?: number | null
-          role_id?: number | null
-          status?: string | null
-          sub_department_id?: number | null
-          swap_ratio?: number | null
-          tier?: number | null
+          id?: string
+          is_primary?: boolean | null
+          organization_id: string
+          remuneration_level_id: string
+          role_id: string
+          sub_department_id: string
           updated_at?: string | null
         }
         Update: {
-          acceptance_ratio?: number | null
-          availability?: Json | null
-          cancellation_ratio?: number | null
           created_at?: string | null
-          department_id?: number | null
-          email?: string
+          department_id?: string
           employee_id?: string
-          first_name?: string
-          id?: number
-          last_name?: string
-          late_cancellation_ratio?: number | null
-          phone?: string | null
-          remuneration_level?: number | null
-          role_id?: number | null
-          status?: string | null
-          sub_department_id?: number | null
-          swap_ratio?: number | null
-          tier?: number | null
+          id?: string
+          is_primary?: boolean | null
+          organization_id?: string
+          remuneration_level_id?: string
+          role_id?: string
+          sub_department_id?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "employees_department_id_fkey"
+            foreignKeyName: "employee_assignments_department_id_fkey"
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "employees_role_id_fkey"
+            foreignKeyName: "employee_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_assignments_remuneration_level_id_fkey"
+            columns: ["remuneration_level_id"]
+            isOneToOne: false
+            referencedRelation: "remuneration_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_assignments_role_id_fkey"
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "roles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "employees_sub_department_id_fkey"
+            foreignKeyName: "employee_assignments_sub_department_id_fkey"
             columns: ["sub_department_id"]
             isOneToOne: false
             referencedRelation: "sub_departments"
@@ -383,486 +123,248 @@ export type Database = {
           },
         ]
       }
-      forecasting_logs: {
+      employee_bids: {
         Row: {
-          actual_labor_used: number | null
-          created_at: string | null
-          department_id: number | null
-          forecast_date: string
-          id: number
-          predicted_labor_demand: number | null
-        }
-        Insert: {
-          actual_labor_used?: number | null
-          created_at?: string | null
-          department_id?: number | null
-          forecast_date: string
-          id?: number
-          predicted_labor_demand?: number | null
-        }
-        Update: {
-          actual_labor_used?: number | null
-          created_at?: string | null
-          department_id?: number | null
-          forecast_date?: string
-          id?: number
-          predicted_labor_demand?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forecasting_logs_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      groups: {
-        Row: {
-          color: string
-          created_at: string | null
-          group_id: number
-          name: string
-          template_id: number
-          updated_at: string | null
-        }
-        Insert: {
-          color: string
-          created_at?: string | null
-          group_id?: never
-          name: string
-          template_id: number
-          updated_at?: string | null
-        }
-        Update: {
-          color?: string
-          created_at?: string | null
-          group_id?: never
-          name?: string
-          template_id?: number
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_template"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "templates"
-            referencedColumns: ["template_id"]
-          },
-        ]
-      }
-      incident_reports: {
-        Row: {
-          created_at: string | null
-          description: string
-          employee_id: number | null
-          id: number
-          incident_type: string
-          reported_at: string | null
-          resolution: string | null
-          resolved_at: string | null
-          shift_id: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description: string
-          employee_id?: number | null
-          id?: number
-          incident_type: string
-          reported_at?: string | null
-          resolution?: string | null
-          resolved_at?: string | null
-          shift_id?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string
-          employee_id?: number | null
-          id?: number
-          incident_type?: string
-          reported_at?: string | null
-          resolution?: string | null
-          resolved_at?: string | null
-          shift_id?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_reports_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_reports_shift_id_fkey"
-            columns: ["shift_id"]
-            isOneToOne: false
-            referencedRelation: "shifts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      leave_requests: {
-        Row: {
-          created_at: string | null
-          employee_id: number | null
-          end_date: string
-          id: number
-          leave_type: string
-          reason: string | null
-          start_date: string
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          employee_id?: number | null
-          end_date: string
-          id?: number
-          leave_type: string
-          reason?: string | null
-          start_date: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          employee_id?: number | null
-          end_date?: string
-          id?: number
-          leave_type?: string
-          reason?: string | null
-          start_date?: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "leave_requests_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      messaging: {
-        Row: {
-          created_at: string | null
-          id: number
-          message: string
-          read_status: boolean | null
-          receiver_id: number | null
-          sender_id: number | null
-          sent_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          message: string
-          read_status?: boolean | null
-          receiver_id?: number | null
-          sender_id?: number | null
-          sent_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          message?: string
-          read_status?: boolean | null
-          receiver_id?: number | null
-          sender_id?: number | null
-          sent_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messaging_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messaging_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      notifications: {
-        Row: {
-          created_at: string | null
-          employee_id: number | null
-          id: number
-          message: string
-          read_status: boolean | null
-          title: string
-        }
-        Insert: {
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          message: string
-          read_status?: boolean | null
-          title: string
-        }
-        Update: {
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          message?: string
-          read_status?: boolean | null
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      overtime_requests: {
-        Row: {
-          approved_overtime: unknown | null
-          created_at: string | null
-          employee_id: number | null
-          id: number
-          requested_overtime: unknown
-          shift_id: number | null
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approved_overtime?: unknown | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          requested_overtime: unknown
-          shift_id?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approved_overtime?: unknown | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          requested_overtime?: unknown
-          shift_id?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "overtime_requests_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "overtime_requests_shift_id_fkey"
-            columns: ["shift_id"]
-            isOneToOne: false
-            referencedRelation: "shifts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      payroll_records: {
-        Row: {
-          amount: number
-          bonuses: number | null
-          created_at: string | null
-          deductions: number | null
-          employee_id: number | null
-          id: number
-          net_pay: number
-          pay_date: string
-          shift_id: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          amount: number
-          bonuses?: number | null
-          created_at?: string | null
-          deductions?: number | null
-          employee_id?: number | null
-          id?: number
-          net_pay: number
-          pay_date: string
-          shift_id?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          bonuses?: number | null
-          created_at?: string | null
-          deductions?: number | null
-          employee_id?: number | null
-          id?: number
-          net_pay?: number
-          pay_date?: string
-          shift_id?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payroll_records_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payroll_records_shift_id_fkey"
-            columns: ["shift_id"]
-            isOneToOne: false
-            referencedRelation: "shifts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      performance_reviews: {
-        Row: {
+          bid_status: string | null
+          bid_time: string | null
           comments: string | null
           created_at: string | null
-          employee_id: number | null
-          id: number
-          rating: number | null
-          review_date: string
-          reviewer_id: number | null
+          employee_id: string | null
+          id: string
+          open_bid_id: string | null
           updated_at: string | null
         }
         Insert: {
+          bid_status?: string | null
+          bid_time?: string | null
           comments?: string | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          rating?: number | null
-          review_date: string
-          reviewer_id?: number | null
+          employee_id?: string | null
+          id?: string
+          open_bid_id?: string | null
           updated_at?: string | null
         }
         Update: {
+          bid_status?: string | null
+          bid_time?: string | null
           comments?: string | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          rating?: number | null
-          review_date?: string
-          reviewer_id?: number | null
+          employee_id?: string | null
+          id?: string
+          open_bid_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "performance_reviews_employee_id_fkey"
+            foreignKeyName: "employee_bids_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "performance_reviews_reviewer_id_fkey"
-            columns: ["reviewer_id"]
+            foreignKeyName: "employee_bids_open_bid_id_fkey"
+            columns: ["open_bid_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "open_bids"
             referencedColumns: ["id"]
           },
         ]
       }
-      role_history: {
+      employee_skills: {
         Row: {
-          change_date: string
-          changed_by: number | null
           created_at: string | null
-          employee_id: number | null
-          id: number
-          new_role_id: number | null
-          old_role_id: number | null
-          reason: string | null
+          employee_id: string
+          id: string
+          skill_id: string
           updated_at: string | null
         }
         Insert: {
-          change_date: string
-          changed_by?: number | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          new_role_id?: number | null
-          old_role_id?: number | null
-          reason?: string | null
+          employee_id: string
+          id?: string
+          skill_id: string
           updated_at?: string | null
         }
         Update: {
-          change_date?: string
-          changed_by?: number | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          new_role_id?: number | null
-          old_role_id?: number | null
-          reason?: string | null
+          employee_id?: string
+          id?: string
+          skill_id?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "role_history_employee_id_fkey"
+            foreignKeyName: "employee_skills_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "role_history_new_role_id_fkey"
-            columns: ["new_role_id"]
+            foreignKeyName: "employee_skills_skill_id_fkey"
+            columns: ["skill_id"]
             isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_history_old_role_id_fkey"
-            columns: ["old_role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
         ]
+      }
+      employees: {
+        Row: {
+          availability: Json | null
+          created_at: string | null
+          email: string
+          employee_id: string
+          employment_type: string | null
+          first_name: string
+          id: string
+          last_name: string
+          middle_name: string | null
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          availability?: Json | null
+          created_at?: string | null
+          email: string
+          employee_id: string
+          employment_type?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          middle_name?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          availability?: Json | null
+          created_at?: string | null
+          email?: string
+          employee_id?: string
+          employment_type?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          middle_name?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      open_bids: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          id: string
+          shift_id: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          shift_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          shift_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_bids_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      remuneration_levels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          level: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          level: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          level?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       roles: {
         Row: {
-          department_id: number | null
-          id: number
-          "Renumeration Level": number | null
-          Role: string | null
-          "sub-department_id": number | null
+          created_at: string | null
+          department_id: string | null
+          id: string
+          name: string
+          remuneration_level_id: string | null
+          sub_department_id: string | null
+          updated_at: string | null
         }
         Insert: {
-          department_id?: number | null
-          id: number
-          "Renumeration Level"?: number | null
-          Role?: string | null
-          "sub-department_id"?: number | null
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          name: string
+          remuneration_level_id?: string | null
+          sub_department_id?: string | null
+          updated_at?: string | null
         }
         Update: {
-          department_id?: number | null
-          id?: number
-          "Renumeration Level"?: number | null
-          Role?: string | null
-          "sub-department_id"?: number | null
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          name?: string
+          remuneration_level_id?: string | null
+          sub_department_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -873,58 +375,182 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "roles_sub-department_id_fkey"
-            columns: ["sub-department_id"]
+            foreignKeyName: "roles_remuneration_level_id_fkey"
+            columns: ["remuneration_level_id"]
+            isOneToOne: false
+            referencedRelation: "remuneration_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roles_sub_department_id_fkey"
+            columns: ["sub_department_id"]
             isOneToOne: false
             referencedRelation: "sub_departments"
             referencedColumns: ["id"]
           },
         ]
       }
-      shift_requests: {
+      rosters: {
         Row: {
           created_at: string | null
-          details: Json | null
-          employee_id: number | null
-          id: number
-          request_time: string | null
-          request_type: string
-          shift_id: number | null
+          created_by: string | null
+          department_id: string
+          finalized_at: string | null
+          finalized_by: string | null
+          id: string
+          shift_date: string
+          shift_template_id: string | null
+          status: string | null
+          sub_department_id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          department_id: string
+          finalized_at?: string | null
+          finalized_by?: string | null
+          id?: string
+          shift_date: string
+          shift_template_id?: string | null
+          status?: string | null
+          sub_department_id: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          department_id?: string
+          finalized_at?: string | null
+          finalized_by?: string | null
+          id?: string
+          shift_date?: string
+          shift_template_id?: string | null
+          status?: string | null
+          sub_department_id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rosters_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rosters_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rosters_finalized_by_fkey"
+            columns: ["finalized_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rosters_shift_template_id_fkey"
+            columns: ["shift_template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rosters_sub_department_id_fkey"
+            columns: ["sub_department_id"]
+            isOneToOne: false
+            referencedRelation: "sub_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rosters_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_draft: boolean | null
+          name: string
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_draft?: boolean | null
+          name: string
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_draft?: boolean | null
+          name?: string
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_groups_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_notifications: {
+        Row: {
+          created_at: string | null
+          employee_id: string | null
+          id: string
+          notification_message: string
+          shift_id: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          details?: Json | null
-          employee_id?: number | null
-          id?: number
-          request_time?: string | null
-          request_type: string
-          shift_id?: number | null
+          employee_id?: string | null
+          id?: string
+          notification_message: string
+          shift_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          details?: Json | null
-          employee_id?: number | null
-          id?: number
-          request_time?: string | null
-          request_type?: string
-          shift_id?: number | null
+          employee_id?: string | null
+          id?: string
+          notification_message?: string
+          shift_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "shift_requests_employee_id_fkey"
+            foreignKeyName: "shift_notifications_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "shift_requests_shift_id_fkey"
+            foreignKeyName: "shift_notifications_shift_id_fkey"
             columns: ["shift_id"]
             isOneToOne: false
             referencedRelation: "shifts"
@@ -932,130 +558,217 @@ export type Database = {
           },
         ]
       }
-      shift_skeletons: {
+      shift_skills: {
         Row: {
-          approximate_pay: number
-          break_duration: unknown
           created_at: string | null
-          net_shift_length: unknown
-          remuneration_level: number
-          role_id: number
-          shift_end_time: string
-          shift_length: unknown
-          shift_skeleton_id: number
-          shift_start_time: string
-          sub_group_id: number
+          id: string
+          shift_id: string
+          skill_id: string
           updated_at: string | null
         }
         Insert: {
-          approximate_pay: number
-          break_duration: unknown
           created_at?: string | null
-          net_shift_length: unknown
-          remuneration_level: number
-          role_id: number
-          shift_end_time: string
-          shift_length: unknown
-          shift_skeleton_id?: never
-          shift_start_time: string
-          sub_group_id: number
+          id?: string
+          shift_id: string
+          skill_id: string
           updated_at?: string | null
         }
         Update: {
-          approximate_pay?: number
-          break_duration?: unknown
           created_at?: string | null
-          net_shift_length?: unknown
-          remuneration_level?: number
-          role_id?: number
-          shift_end_time?: string
-          shift_length?: unknown
-          shift_skeleton_id?: never
-          shift_start_time?: string
-          sub_group_id?: number
+          id?: string
+          shift_id?: string
+          skill_id?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_role"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_sub_group"
-            columns: ["sub_group_id"]
-            isOneToOne: false
-            referencedRelation: "sub_groups"
-            referencedColumns: ["sub_group_id"]
-          },
-        ]
-      }
-      shift_swap_logs: {
-        Row: {
-          approving_employee_id: number | null
-          created_at: string | null
-          id: number
-          new_shift_id: number | null
-          original_shift_id: number | null
-          requesting_employee_id: number | null
-          status: string | null
-          swap_approval_time: string | null
-          swap_request_time: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approving_employee_id?: number | null
-          created_at?: string | null
-          id?: number
-          new_shift_id?: number | null
-          original_shift_id?: number | null
-          requesting_employee_id?: number | null
-          status?: string | null
-          swap_approval_time?: string | null
-          swap_request_time?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approving_employee_id?: number | null
-          created_at?: string | null
-          id?: number
-          new_shift_id?: number | null
-          original_shift_id?: number | null
-          requesting_employee_id?: number | null
-          status?: string | null
-          swap_approval_time?: string | null
-          swap_request_time?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "shift_swap_logs_approving_employee_id_fkey"
-            columns: ["approving_employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shift_swap_logs_new_shift_id_fkey"
-            columns: ["new_shift_id"]
+            foreignKeyName: "shift_skills_shift_id_fkey"
+            columns: ["shift_id"]
             isOneToOne: false
             referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "shift_swap_logs_original_shift_id_fkey"
+            foreignKeyName: "shift_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_subgroups: {
+        Row: {
+          created_at: string | null
+          group_id: string
+          id: string
+          is_draft: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_id: string
+          id?: string
+          is_draft?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          is_draft?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_subgroups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "shift_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_swap_approvals: {
+        Row: {
+          approval_date: string | null
+          approval_status: string | null
+          approver_id: string | null
+          comments: string | null
+          created_at: string | null
+          id: string
+          swap_request_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_date?: string | null
+          approval_status?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          swap_request_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_date?: string | null
+          approval_status?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          swap_request_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_swap_approvals_approver_id_fkey"
+            columns: ["approver_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swap_approvals_swap_request_id_fkey"
+            columns: ["swap_request_id"]
+            isOneToOne: false
+            referencedRelation: "shift_swap_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_swap_requests: {
+        Row: {
+          approving_manager_id: string | null
+          created_at: string | null
+          employee_id: string | null
+          employee_to_swap_with_id: string | null
+          final_decision_date: string | null
+          id: string
+          notification_status: string | null
+          original_shift_id: string | null
+          reason: string | null
+          request_date: string | null
+          requested_shift_id: string | null
+          status: string | null
+          swap_status_change_history: Json | null
+          swap_time_limit: string | null
+          swap_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approving_manager_id?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          employee_to_swap_with_id?: string | null
+          final_decision_date?: string | null
+          id?: string
+          notification_status?: string | null
+          original_shift_id?: string | null
+          reason?: string | null
+          request_date?: string | null
+          requested_shift_id?: string | null
+          status?: string | null
+          swap_status_change_history?: Json | null
+          swap_time_limit?: string | null
+          swap_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approving_manager_id?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          employee_to_swap_with_id?: string | null
+          final_decision_date?: string | null
+          id?: string
+          notification_status?: string | null
+          original_shift_id?: string | null
+          reason?: string | null
+          request_date?: string | null
+          requested_shift_id?: string | null
+          status?: string | null
+          swap_status_change_history?: Json | null
+          swap_time_limit?: string | null
+          swap_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_swap_requests_approving_manager_id_fkey"
+            columns: ["approving_manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swap_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swap_requests_employee_to_swap_with_id_fkey"
+            columns: ["employee_to_swap_with_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shift_swap_requests_original_shift_id_fkey"
             columns: ["original_shift_id"]
             isOneToOne: false
             referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "shift_swap_logs_requesting_employee_id_fkey"
-            columns: ["requesting_employee_id"]
+            foreignKeyName: "shift_swap_requests_requested_shift_id_fkey"
+            columns: ["requested_shift_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
         ]
@@ -1063,38 +776,35 @@ export type Database = {
       shift_templates: {
         Row: {
           created_at: string | null
-          day_of_week: string
-          department_id: number | null
-          end_time: string
-          id: number
+          department_id: string
+          end_date: string
+          id: string
+          is_draft: boolean | null
           name: string
-          role_id: number | null
-          start_time: string
-          sub_department_id: number | null
+          start_date: string
+          sub_department_id: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          day_of_week: string
-          department_id?: number | null
-          end_time: string
-          id?: number
+          department_id: string
+          end_date: string
+          id?: string
+          is_draft?: boolean | null
           name: string
-          role_id?: number | null
-          start_time: string
-          sub_department_id?: number | null
+          start_date: string
+          sub_department_id: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          day_of_week?: string
-          department_id?: number | null
-          end_time?: string
-          id?: number
+          department_id?: string
+          end_date?: string
+          id?: string
+          is_draft?: boolean | null
           name?: string
-          role_id?: number | null
-          start_time?: string
-          sub_department_id?: number | null
+          start_date?: string
+          sub_department_id?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -1103,13 +813,6 @@ export type Database = {
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shift_templates_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
             referencedColumns: ["id"]
           },
           {
@@ -1123,36 +826,69 @@ export type Database = {
       }
       shifts: {
         Row: {
-          assigned_employee_id: number | null
+          assigned_employee_id: string | null
           created_at: string | null
-          department_id: number | null
-          id: number
+          department_id: string
+          end_time: string
+          id: string
+          is_draft: boolean | null
+          length: number | null
+          net_length: number | null
+          paid_break_duration: number | null
+          remuneration_level_id: string | null
+          role_id: string | null
           shift_date: string
-          shift_time: string
+          shift_group_id: string | null
+          shift_subgroup_id: string | null
+          shift_template_id: string | null
+          start_time: string
           status: string | null
-          sub_departments_id: number | null
+          sub_department_id: string
+          unpaid_break_duration: number | null
           updated_at: string | null
         }
         Insert: {
-          assigned_employee_id?: number | null
+          assigned_employee_id?: string | null
           created_at?: string | null
-          department_id?: number | null
-          id?: number
+          department_id: string
+          end_time: string
+          id?: string
+          is_draft?: boolean | null
+          length?: number | null
+          net_length?: number | null
+          paid_break_duration?: number | null
+          remuneration_level_id?: string | null
+          role_id?: string | null
           shift_date: string
-          shift_time: string
+          shift_group_id?: string | null
+          shift_subgroup_id?: string | null
+          shift_template_id?: string | null
+          start_time: string
           status?: string | null
-          sub_departments_id?: number | null
+          sub_department_id: string
+          unpaid_break_duration?: number | null
           updated_at?: string | null
         }
         Update: {
-          assigned_employee_id?: number | null
+          assigned_employee_id?: string | null
           created_at?: string | null
-          department_id?: number | null
-          id?: number
+          department_id?: string
+          end_time?: string
+          id?: string
+          is_draft?: boolean | null
+          length?: number | null
+          net_length?: number | null
+          paid_break_duration?: number | null
+          remuneration_level_id?: string | null
+          role_id?: string | null
           shift_date?: string
-          shift_time?: string
+          shift_group_id?: string | null
+          shift_subgroup_id?: string | null
+          shift_template_id?: string | null
+          start_time?: string
           status?: string | null
-          sub_departments_id?: number | null
+          sub_department_id?: string
+          unpaid_break_duration?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -1170,134 +906,43 @@ export type Database = {
             referencedRelation: "departments"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      sub_departments: {
-        Row: {
-          department_id: number | null
-          id: number
-          "sub-department": string | null
-        }
-        Insert: {
-          department_id?: number | null
-          id: number
-          "sub-department"?: string | null
-        }
-        Update: {
-          department_id?: number | null
-          id?: number
-          "sub-department"?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "sub-departments_department_id_fkey"
-            columns: ["department_id"]
+            foreignKeyName: "shifts_remuneration_level_id_fkey"
+            columns: ["remuneration_level_id"]
             isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sub_groups: {
-        Row: {
-          created_at: string | null
-          group_id: number
-          name: string
-          sub_group_id: number
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          group_id: number
-          name: string
-          sub_group_id?: never
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          group_id?: number
-          name?: string
-          sub_group_id?: never
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_group"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["group_id"]
-          },
-        ]
-      }
-      system_settings: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: number
-          setting_name: string
-          setting_value: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: number
-          setting_name: string
-          setting_value: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: number
-          setting_name?: string
-          setting_value?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      templates: {
-        Row: {
-          created_at: string | null
-          department_id: number
-          end_date: string
-          name: string
-          start_date: string
-          sub_department_id: number
-          template_id: number
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          department_id: number
-          end_date: string
-          name: string
-          start_date: string
-          sub_department_id: number
-          template_id?: never
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          department_id?: number
-          end_date?: string
-          name?: string
-          start_date?: string
-          sub_department_id?: number
-          template_id?: never
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "templates_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
+            referencedRelation: "remuneration_levels"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "templates_sub_department_id_fkey"
+            foreignKeyName: "shifts_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_shift_group_id_fkey"
+            columns: ["shift_group_id"]
+            isOneToOne: false
+            referencedRelation: "shift_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_shift_subgroup_id_fkey"
+            columns: ["shift_subgroup_id"]
+            isOneToOne: false
+            referencedRelation: "shift_subgroups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_shift_template_id_fkey"
+            columns: ["shift_template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_sub_department_id_fkey"
             columns: ["sub_department_id"]
             isOneToOne: false
             referencedRelation: "sub_departments"
@@ -1305,40 +950,96 @@ export type Database = {
           },
         ]
       }
+      skills: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sub_departments: {
+        Row: {
+          created_at: string | null
+          department_id: string
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department_id: string
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department_id?: string
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_departments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timecards: {
         Row: {
-          break_duration: unknown | null
+          break_duration: number | null
           clock_in: string | null
           clock_out: string | null
           created_at: string | null
-          employee_id: number | null
-          id: number
-          overtime_duration: unknown | null
-          shift_id: number | null
+          employee_id: string | null
+          id: string
+          overtime_duration: number | null
+          shift_id: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
-          break_duration?: unknown | null
+          break_duration?: number | null
           clock_in?: string | null
           clock_out?: string | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          overtime_duration?: unknown | null
-          shift_id?: number | null
+          employee_id?: string | null
+          id?: string
+          overtime_duration?: number | null
+          shift_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
-          break_duration?: unknown | null
+          break_duration?: number | null
           clock_in?: string | null
           clock_out?: string | null
           created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          overtime_duration?: unknown | null
-          shift_id?: number | null
+          employee_id?: string | null
+          id?: string
+          overtime_duration?: number | null
+          shift_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
@@ -1359,105 +1060,9 @@ export type Database = {
           },
         ]
       }
-      training_records: {
-        Row: {
-          certificate_url: string | null
-          created_at: string | null
-          employee_id: number | null
-          id: number
-          trainer: string | null
-          training_date: string
-          training_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          certificate_url?: string | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          trainer?: string | null
-          training_date: string
-          training_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          certificate_url?: string | null
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          trainer?: string | null
-          training_date?: string
-          training_name?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_records_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_settings: {
-        Row: {
-          created_at: string | null
-          employee_id: number | null
-          id: number
-          settings: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          settings?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          employee_id?: number | null
-          id?: number
-          settings?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_settings_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
-      auth_users_view: {
-        Row: {
-          department: string | null
-          email: string | null
-          id: string | null
-          name: string | null
-          role: string | null
-        }
-        Insert: {
-          department?: never
-          email?: string | null
-          id?: string | null
-          name?: never
-          role?: never
-        }
-        Update: {
-          department?: never
-          email?: string | null
-          id?: string | null
-          name?: never
-          role?: never
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
@@ -1471,27 +1076,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1499,20 +1106,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1520,20 +1129,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1541,21 +1152,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -1564,6 +1177,12 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
