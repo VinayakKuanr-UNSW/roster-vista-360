@@ -201,7 +201,7 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
                 <Button onClick={onClose} variant="outline" className="bg-black/20 border-white/20 hover:bg-black/30">
                   Close
                 </Button>
-                <Button onClick={handleSwapClick} className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Button onClick={handleSwapClick} className="bg-purple-600 hover:bg-purple-700 text-white rounded-full">
                   <ArrowLeftRight size={16} className="mr-2" /> Swap Shift
                 </Button>
                 <Button onClick={handleCancelClick} className="bg-red-600 hover:bg-red-500 rounded-full text-white font-normal text-base mx-0 my-0 py-0 px-[10px]">
