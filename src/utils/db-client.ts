@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type { BroadcastGroup, GroupMember, Broadcast, Notification, Employee } from '@/types/broadcast';
 import { MockStorage } from './mock-storage';
@@ -7,7 +8,7 @@ export class BroadcastDbClient {
   // Check if Supabase is properly connected
   static async testConnection() {
     try {
-      const { data, error } = await supabase.from('broadcast_groups').select('count').limit(1);
+      const { data, error } = await supabase.from('bids').select('count').limit(1);
       return !error;
     } catch (error) {
       console.error('Supabase connection test failed:', error);
@@ -15,497 +16,122 @@ export class BroadcastDbClient {
     }
   }
 
-  // Broadcast Groups methods
+  // Broadcast Groups methods - Using mock data since broadcast tables don't exist
   static async fetchBroadcastGroups() {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, returning mock data');
-        return MockStorage.getGroups() as BroadcastGroup[];
-      }
-
-      const { data, error } = await supabase
-        .from('broadcast_groups')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data as BroadcastGroup[];
-    } catch (error) {
-      console.error('Error fetching broadcast groups:', error);
-      return MockStorage.getGroups() as BroadcastGroup[];
-    }
+    console.warn('Broadcast tables not available in database, using mock data');
+    return MockStorage.getGroups() as BroadcastGroup[];
   }
 
   static async createBroadcastGroup(name: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating group creation');
-        const newGroup = { id: Date.now().toString(), name, created_at: new Date().toISOString() };
-        return MockStorage.addGroup(newGroup) as BroadcastGroup[];
-      }
-
-      const { data, error } = await supabase
-        .from('broadcast_groups')
-        .insert([{ name }])
-        .select();
-      
-      if (error) throw error;
-      return data as BroadcastGroup[];
-    } catch (error) {
-      console.error('Error creating broadcast group:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating group creation');
+    const newGroup = { id: Date.now().toString(), name, created_at: new Date().toISOString() };
+    return MockStorage.addGroup(newGroup) as BroadcastGroup[];
   }
 
   static async updateBroadcastGroup(id: string, name: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating group update');
-        MockStorage.updateGroup(id, name);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_groups')
-        .update({ name })
-        .eq('id', id);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating broadcast group:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating group update');
+    MockStorage.updateGroup(id, name);
+    return;
   }
 
   static async deleteBroadcastGroup(id: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating group deletion');
-        MockStorage.deleteGroup(id);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_groups')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error deleting broadcast group:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating group deletion');
+    MockStorage.deleteGroup(id);
+    return;
   }
 
-  // Group Members methods
+  // Group Members methods - Using mock data since broadcast tables don't exist
   static async fetchGroupMembers(groupId: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, returning mock members');
-        return MockStorage.getGroupMembers(groupId) as GroupMember[];
-      }
-
-      // First get the basic member data
-      const { data: members, error: membersError } = await supabase
-        .from('broadcast_group_members')
-        .select('*')
-        .eq('group_id', groupId);
-      
-      if (membersError) throw membersError;
-      
-      // Then get user details for each member
-      const membersWithUsers = await Promise.all(
-        members.map(async (member) => {
-          const { data: userData, error: userError } = await supabase
-            .from('auth_users_view')
-            .select('id, name, email, role, department')
-            .eq('id', member.user_id)
-            .single();
-          
-          return {
-            ...member,
-            user: userData || {
-              id: member.user_id,
-              name: 'Unknown User',
-              email: '',
-              role: '',
-              department: ''
-            }
-          };
-        })
-      );
-      
-      return membersWithUsers as GroupMember[];
-    } catch (error) {
-      console.error('Error fetching group members:', error);
-      return [] as GroupMember[];
-    }
+    console.warn('Broadcast tables not available in database, returning mock members');
+    return MockStorage.getGroupMembers(groupId) as GroupMember[];
   }
 
   static async addGroupMember(groupId: string, userId: string, isAdmin: boolean = false) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating member addition');
-        const newMember = {
-          id: Date.now().toString(),
-          group_id: groupId,
-          user_id: userId,
-          is_admin: isAdmin,
-          user: {
-            id: userId,
-            name: 'New User',
-            email: 'newuser@example.com',
-            role: 'member',
-            department: 'General'
-          }
-        };
-        MockStorage.addMember(newMember);
-        return;
+    console.warn('Broadcast tables not available in database, simulating member addition');
+    const newMember = {
+      id: Date.now().toString(),
+      group_id: groupId,
+      user_id: userId,
+      is_admin: isAdmin,
+      user: {
+        id: userId,
+        name: 'New User',
+        email: 'newuser@example.com',
+        role: 'member',
+        department: 'General'
       }
-
-      const { error } = await supabase
-        .from('broadcast_group_members')
-        .insert([{
-          group_id: groupId,
-          user_id: userId,
-          is_admin: isAdmin
-        }]);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error adding group member:', error);
-      throw error;
-    }
+    };
+    MockStorage.addMember(newMember);
+    return;
   }
 
   static async removeGroupMember(memberId: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating member removal');
-        MockStorage.removeMember(memberId);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_group_members')
-        .delete()
-        .eq('id', memberId);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error removing group member:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating member removal');
+    MockStorage.removeMember(memberId);
+    return;
   }
 
   static async updateMemberAdminStatus(memberId: string, isAdmin: boolean) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating admin status update');
-        MockStorage.updateMemberAdminStatus(memberId, isAdmin);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_group_members')
-        .update({ is_admin: isAdmin })
-        .eq('id', memberId);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating member admin status:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating admin status update');
+    MockStorage.updateMemberAdminStatus(memberId, isAdmin);
+    return;
   }
 
-  // User Groups methods
+  // User Groups methods - Using mock data since broadcast tables don't exist
   static async fetchUserGroups(userId: string) {
     console.log('Fetching user groups for user:', userId);
-    
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, returning mock user groups');
-        return MockStorage.getUserGroups(userId);
-      }
-
-      // Get group memberships
-      const { data: memberships, error: membershipsError } = await supabase
-        .from('broadcast_group_members')
-        .select('group_id, is_admin')
-        .eq('user_id', userId);
-      
-      if (membershipsError) {
-        console.error('Error fetching memberships:', membershipsError);
-        throw membershipsError;
-      }
-
-      console.log('Found memberships:', memberships);
-      
-      if (!memberships || memberships.length === 0) {
-        return [];
-      }
-      
-      // Get group details
-      const groupIds = memberships.map(m => m.group_id);
-      const { data: groups, error: groupsError } = await supabase
-        .from('broadcast_groups')
-        .select('id, name')
-        .in('id', groupIds);
-      
-      if (groupsError) {
-        console.error('Error fetching groups:', groupsError);
-        throw groupsError;
-      }
-
-      console.log('Found groups:', groups);
-      
-      // Combine group data with admin status
-      const userGroups = groups.map(group => {
-        const membership = memberships.find(m => m.group_id === group.id);
-        return {
-          id: group.id,
-          name: group.name,
-          is_admin: membership?.is_admin || false
-        };
-      });
-
-      console.log('Returning user groups:', userGroups);
-      return userGroups;
-    } catch (error) {
-      console.error('Error in fetchUserGroups:', error);
-      // Return mock data as fallback
-      return MockStorage.getUserGroups(userId);
-    }
+    console.warn('Broadcast tables not available in database, returning mock user groups');
+    return MockStorage.getUserGroups(userId);
   }
 
-  // Broadcasts methods
+  // Broadcasts methods - Using mock data since broadcast tables don't exist
   static async createBroadcast(groupId: string, senderId: string, message: string) {
     console.log('Creating broadcast:', { groupId, senderId, message });
-    
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating broadcast creation');
-        const newBroadcast = {
-          id: Date.now().toString(),
-          group_id: groupId,
-          sender_id: senderId,
-          message: message,
-          created_at: new Date().toISOString(),
-          sender: { id: senderId, name: 'Demo User' },
-          group: { id: groupId, name: 'Demo Group' }
-        };
-        return MockStorage.addBroadcast(newBroadcast) as Broadcast;
-      }
-
-      const { data, error } = await supabase
-        .from('broadcasts')
-        .insert([{
-          group_id: groupId,
-          sender_id: senderId,
-          message: message
-        }])
-        .select();
-      
-      if (error) {
-        console.error('Error creating broadcast:', error);
-        throw error;
-      }
-      
-      console.log('Created broadcast:', data[0]);
-      return data[0] as Broadcast;
-    } catch (error) {
-      console.error('Error in createBroadcast:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating broadcast creation');
+    const newBroadcast = {
+      id: Date.now().toString(),
+      group_id: groupId,
+      sender_id: senderId,
+      message: message,
+      created_at: new Date().toISOString(),
+      sender: { id: senderId, name: 'Demo User' },
+      group: { id: groupId, name: 'Demo Group' }
+    };
+    return MockStorage.addBroadcast(newBroadcast) as Broadcast;
   }
 
-  // Fetch broadcasts for a specific group
+  // Fetch broadcasts for a specific group - Using mock data
   static async fetchGroupBroadcasts(groupId: string) {
     console.log('Fetching broadcasts for group:', groupId);
-    
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, returning mock broadcasts');
-        return MockStorage.getGroupBroadcasts(groupId) as Broadcast[];
-      }
-
-      // First get the broadcasts
-      const { data: broadcasts, error: broadcastsError } = await supabase
-        .from('broadcasts')
-        .select('*')
-        .eq('group_id', groupId)
-        .order('created_at', { ascending: false });
-      
-      if (broadcastsError) {
-        console.error('Error fetching broadcasts:', broadcastsError);
-        throw broadcastsError;
-      }
-
-      console.log('Found broadcasts:', broadcasts);
-      
-      // Then get sender and group details for each broadcast
-      const broadcastsWithDetails = await Promise.all(
-        broadcasts.map(async (broadcast) => {
-          // Get sender details
-          const { data: senderData } = await supabase
-            .from('auth_users_view')
-            .select('id, name')
-            .eq('id', broadcast.sender_id)
-            .single();
-          
-          // Get group details
-          const { data: groupData } = await supabase
-            .from('broadcast_groups')
-            .select('id, name')
-            .eq('id', broadcast.group_id)
-            .single();
-          
-          return {
-            ...broadcast,
-            sender: senderData || { id: broadcast.sender_id, name: 'Unknown User' },
-            group: groupData || { id: broadcast.group_id, name: 'Unknown Group' }
-          };
-        })
-      );
-      
-      console.log('Returning broadcasts with details:', broadcastsWithDetails);
-      return broadcastsWithDetails as Broadcast[];
-    } catch (error) {
-      console.error('Error in fetchGroupBroadcasts:', error);
-      return [] as Broadcast[];
-    }
+    console.warn('Broadcast tables not available in database, returning mock broadcasts');
+    return MockStorage.getGroupBroadcasts(groupId) as Broadcast[];
   }
 
-  // Notifications methods
+  // Notifications methods - Using mock data since broadcast tables don't exist
   static async fetchUserNotifications(userId: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, returning empty notifications');
-        return [] as Notification[];
-      }
-
-      const { data, error } = await supabase
-        .from('broadcast_notifications')
-        .select(`
-          *,
-          broadcast:broadcast_id (
-            id,
-            message,
-            created_at,
-            sender:sender_id (
-              id,
-              name
-            ),
-            group:group_id (
-              id,
-              name
-            )
-          )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(20);
-      
-      if (error) throw error;
-      return data as Notification[];
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      return [] as Notification[];
-    }
+    console.warn('Broadcast tables not available in database, returning empty notifications');
+    return [] as Notification[];
   }
 
   static async markNotificationAsRead(notificationId: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating notification read');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_notifications')
-        .update({ read: true })
-        .eq('id', notificationId);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating notification read');
+    return;
   }
 
   static async markAllNotificationsAsRead(userId: string) {
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating mark all as read');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('broadcast_notifications')
-        .update({ read: true })
-        .eq('user_id', userId);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating mark all as read');
+    return;
   }
 
   static async createNotificationsForBroadcast(broadcastId: string, userIds: string[]) {
     console.log('Creating notifications for broadcast:', broadcastId, 'users:', userIds);
-    
-    try {
-      const isConnected = await this.testConnection();
-      if (!isConnected) {
-        console.warn('Supabase not connected, simulating notification creation');
-        return;
-      }
-
-      if (userIds.length === 0) {
-        console.log('No users to notify');
-        return;
-      }
-      
-      const notifications = userIds.map(userId => ({
-        user_id: userId,
-        broadcast_id: broadcastId,
-        read: false
-      }));
-      
-      const { error } = await supabase
-        .from('broadcast_notifications')
-        .insert(notifications);
-      
-      if (error) {
-        console.error('Error creating notifications:', error);
-        throw error;
-      }
-      
-      console.log('Created notifications successfully');
-    } catch (error) {
-      console.error('Error in createNotificationsForBroadcast:', error);
-      throw error;
-    }
+    console.warn('Broadcast tables not available in database, simulating notification creation');
+    return;
   }
 
-  // Employees / Users methods
+  // Employees / Users methods - Try to use employees table, fallback to mock data
   static async fetchUsers() {
-    console.log('Fetching users from auth_users_view');
+    console.log('Fetching users from employees table');
     
     try {
       const isConnected = await this.testConnection();
@@ -519,17 +145,26 @@ export class BroadcastDbClient {
       }
 
       const { data, error } = await supabase
-        .from('auth_users_view')
-        .select('id, name, email, role, department')
-        .order('name');
+        .from('employees')
+        .select('id, first_name, last_name, email, status')
+        .order('first_name');
       
       if (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching employees:', error);
         throw error;
       }
       
-      console.log('Found users:', data);
-      return data as Employee[];
+      // Map employees data to the Employee interface expected by broadcast functionality
+      const mappedEmployees = data.map(emp => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        email: emp.email,
+        role: emp.status || 'member',
+        department: 'General' // Since department info is in separate tables
+      }));
+      
+      console.log('Found employees:', mappedEmployees);
+      return mappedEmployees as Employee[];
     } catch (error) {
       console.error('Error in fetchUsers:', error);
       return [

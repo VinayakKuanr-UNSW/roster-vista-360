@@ -147,20 +147,18 @@ export const bidService = {
   
   createBid: async (bid: Omit<Bid, 'id' | 'createdAt'>): Promise<Bid> => {
     try {
-      const newBidData: Record<string, any> = {
+      // Create the properly typed bid data object
+      const newBidData = {
         shift_id: parseInt(bid.shiftId, 10),
         employee_id: parseInt(bid.employeeId, 10),
         status: bid.status || 'Pending',
+        notes: bid.notes || undefined
       };
-
-      if (bid.notes) {
-        newBidData.notes = bid.notes;
-      }
 
       // First try to insert bid into Supabase
       const { data, error } = await supabase
         .from('bids')
-        .insert([newBidData])
+        .insert(newBidData)
         .select()
         .single();
       
@@ -480,7 +478,7 @@ export const bidService = {
   addNotesToBid: async (id: string, notes: string): Promise<Bid | null> => {
     try {
       // First try to update bid in Supabase
-      const updateData: Record<string, any> = { notes };
+      const updateData = { notes };
       
       const { data, error } = await supabase
         .from('bids')
