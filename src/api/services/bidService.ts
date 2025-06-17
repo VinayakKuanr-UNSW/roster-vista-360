@@ -1,4 +1,3 @@
-
 import { Bid } from '../models/types';
 import { currentBids } from '../data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,24 +28,14 @@ const mapDbBidToBid = (dbBid: any): Bid => {
 export const bidService = {
   getAllBids: async (): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase using raw SQL query to avoid type issues
-      const { data, error } = await supabase.rpc('get_all_bids') as any;
+      // Direct table access with type assertion
+      const { data, error } = await supabase
+        .from('bids')
+        .select('*');
       
       if (error) {
         console.error('Error fetching bids from Supabase:', error);
-        // Try direct table access with type assertion
-        const { data: directData, error: directError } = await (supabase as any)
-          .from('bids')
-          .select('*');
-        
-        if (directError) {
-          console.error('Direct query also failed:', directError);
-          return Promise.resolve(bids);
-        }
-        
-        if (directData && directData.length > 0) {
-          return directData.map(mapDbBidToBid);
-        }
+        return Promise.resolve(bids);
       }
       
       // Map Supabase data to our Bid model
@@ -64,8 +53,8 @@ export const bidService = {
   
   getBidById: async (id: string): Promise<Bid | null> => {
     try {
-      // First try to get bid from Supabase with type assertion
-      const { data, error } = await (supabase as any)
+      // First try to get bid from Supabase
+      const { data, error } = await supabase
         .from('bids')
         .select('*')
         .eq('id', parseInt(id, 10))
@@ -96,8 +85,8 @@ export const bidService = {
   
   getBidsByEmployee: async (employeeId: string): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase with type assertion
-      const { data, error } = await (supabase as any)
+      // First try to get bids from Supabase
+      const { data, error } = await supabase
         .from('bids')
         .select('*')
         .eq('employee_id', parseInt(employeeId, 10));
@@ -127,8 +116,8 @@ export const bidService = {
   
   getBidsForShift: async (shiftId: string): Promise<Bid[]> => {
     try {
-      // First try to get bids from Supabase with type assertion
-      const { data, error } = await (supabase as any)
+      // First try to get bids from Supabase
+      const { data, error } = await supabase
         .from('bids')
         .select('*')
         .eq('shift_id', parseInt(shiftId, 10));
@@ -168,8 +157,8 @@ export const bidService = {
         newBidData.notes = bid.notes;
       }
 
-      // First try to insert bid into Supabase with type assertion
-      const { data, error } = await (supabase as any)
+      // First try to insert bid into Supabase
+      const { data, error } = await supabase
         .from('bids')
         .insert([newBidData])
         .select()
@@ -223,8 +212,8 @@ export const bidService = {
   
   updateBidStatus: async (id: string, status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed'): Promise<Bid | null> => {
     try {
-      // First try to update bid in Supabase with type assertion
-      const { data, error } = await (supabase as any)
+      // First try to update bid in Supabase
+      const { data, error } = await supabase
         .from('bids')
         .update({ status })
         .eq('id', parseInt(id, 10))
@@ -284,7 +273,7 @@ export const bidService = {
           const shiftId = updatedBid.shiftId;
           
           // Update other pending bids for the same shift in Supabase
-          (supabase as any)
+          supabase
             .from('bids')
             .update({
               status: 'Rejected', 
@@ -293,7 +282,7 @@ export const bidService = {
             .eq('shift_id', parseInt(shiftId, 10))
             .neq('id', parseInt(id, 10))
             .eq('status', 'Pending')
-            .then(({ error }: any) => {
+            .then(({ error }) => {
               if (error) {
                 console.error('Error rejecting other bids in Supabase:', error);
                 
@@ -395,9 +384,9 @@ export const bidService = {
   // New methods for bulk operations
   updateBulkBidStatus: async (ids: string[], status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed'): Promise<Bid[]> => {
     try {
-      // First try to update bids in Supabase with type assertion
+      // First try to update bids in Supabase
       const promises = ids.map(id => 
-        (supabase as any)
+        supabase
           .from('bids')
           .update({ status })
           .eq('id', parseInt(id, 10))
@@ -490,10 +479,10 @@ export const bidService = {
   
   addNotesToBid: async (id: string, notes: string): Promise<Bid | null> => {
     try {
-      // First try to update bid in Supabase with type assertion
+      // First try to update bid in Supabase
       const updateData: Record<string, any> = { notes };
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('bids')
         .update(updateData)
         .eq('id', parseInt(id, 10))
@@ -558,8 +547,8 @@ export const bidService = {
   // New method to withdraw a bid
   withdrawBid: async (id: string): Promise<boolean> => {
     try {
-      // First try to delete bid in Supabase with type assertion
-      const { error } = await (supabase as any)
+      // First try to delete bid in Supabase
+      const { error } = await supabase
         .from('bids')
         .delete()
         .eq('id', parseInt(id, 10));

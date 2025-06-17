@@ -1,3 +1,4 @@
+
 import { Shift } from '../models/types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -136,24 +137,24 @@ const mapDbShiftToShiftDetails = (dbShift: any): ShiftDetails => {
 };
 
 // Placeholder functions to get department and subdepartment names
-function getDepartmentName(departmentId: number): string {
-  const departments: Record<number, string> = {
-    1: 'Convention Centre',
-    2: 'Exhibition Centre',
-    3: 'Theatre',
-    4: 'IT',
-    5: 'Darling Harbor Theatre'
+function getDepartmentName(departmentId: string): string {
+  const departments: Record<string, string> = {
+    '1': 'Convention Centre',
+    '2': 'Exhibition Centre',
+    '3': 'Theatre',
+    '4': 'IT',
+    '5': 'Darling Harbor Theatre'
   };
   return departments[departmentId] || 'Unknown Department';
 }
 
-function getSubDepartmentName(subDepartmentId: number): string {
-  const subDepartments: Record<number, string> = {
-    1: 'AM Base',
-    2: 'AM Assist',
-    3: 'AM Floaters',
-    4: 'Bump-In',
-    5: 'Tech Support'
+function getSubDepartmentName(subDepartmentId: string): string {
+  const subDepartments: Record<string, string> = {
+    '1': 'AM Base',
+    '2': 'AM Assist',
+    '3': 'AM Floaters',
+    '4': 'Bump-In',
+    '5': 'Tech Support'
   };
   return subDepartments[subDepartmentId] || 'Unknown Sub-Department';
 }
@@ -191,7 +192,7 @@ export const shiftService = {
       const { data, error } = await supabase
         .from('shifts')
         .select('*, employees(name)')
-        .eq('id', parseInt(id, 10)) // Convert string to number)
+        .eq('id', id) // Use string ID directly since shifts table uses UUID
         .single();
         
       if (error) {
@@ -299,7 +300,7 @@ export const shiftService = {
       const { data, error } = await supabase
         .from('shifts')
         .update(updateData)
-        .eq('id', parseInt(id, 10)) // Convert string to number
+        .eq('id', id) // Use string ID directly since shifts table uses UUID
         .select('*, employees(name)')
         .single();
         
@@ -371,14 +372,14 @@ function calculateEndTime(startTime: string, hours: string | number): string {
 }
 
 // Helper function to get department ID by name (for queries)
-function getDepartmentIdByName(departmentName: string): number {
-  const departmentMap: Record<string, number> = {
-    'Convention Centre': 1,
-    'Exhibition Centre': 2,
-    'Theatre': 3,
-    'IT': 4,
-    'Darling Harbor Theatre': 5
+function getDepartmentIdByName(departmentName: string): string {
+  const departmentMap: Record<string, string> = {
+    'Convention Centre': '1',
+    'Exhibition Centre': '2',
+    'Theatre': '3',
+    'IT': '4',
+    'Darling Harbor Theatre': '5'
   };
   
-  return departmentMap[departmentName] || 0;
+  return departmentMap[departmentName] || '1';
 }

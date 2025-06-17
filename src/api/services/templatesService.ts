@@ -1,10 +1,9 @@
-
 import { Group, SubGroup, Template, DBTemplate, Shift, DepartmentName, DepartmentColor } from '../models/types';
 import { templates as mockTemplates } from '../data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 
 // Convert DB template to app template
-const dbToAppTemplate = (dbTemplate: DBTemplate): Template => {
+const dbToAppTemplate = (dbTemplate: any): Template => {
   // Parse groups if it's a string
   let parsedGroups = dbTemplate.groups;
   if (typeof parsedGroups === 'string') {
@@ -16,17 +15,17 @@ const dbToAppTemplate = (dbTemplate: DBTemplate): Template => {
   }
 
   return {
-    id: dbTemplate.template_id,
+    id: parseInt(dbTemplate.id, 10), // Convert UUID to number for compatibility
     name: dbTemplate.name,
-    description: dbTemplate.description,
+    description: dbTemplate.description || '',
     groups: parsedGroups as Group[] || [],
     createdAt: dbTemplate.created_at,
     updatedAt: dbTemplate.updated_at,
-    department_id: dbTemplate.department_id,
-    sub_department_id: dbTemplate.sub_department_id,
+    department_id: parseInt(dbTemplate.department_id, 10),
+    sub_department_id: parseInt(dbTemplate.sub_department_id, 10),
     start_date: dbTemplate.start_date,
     end_date: dbTemplate.end_date,
-    status: (dbTemplate.status === 'published' ? 'published' : 'draft') as 'draft' | 'published'
+    status: (dbTemplate.is_draft ? 'draft' : 'published') as 'draft' | 'published'
   };
 };
 
@@ -36,7 +35,8 @@ let templates = [...mockTemplates];
 export const templatesService = {
   getAllTemplates: async (): Promise<Template[]> => {
     try {
-      const { data, error } = await supabase.from('templates').select('*');
+      // Use shift_templates table instead of templates
+      const { data, error } = await supabase.from('shift_templates').select('*');
       
       if (error) {
         console.error('Error fetching templates:', error);
@@ -58,9 +58,9 @@ export const templatesService = {
   getTemplateById: async (id: number): Promise<Template> => {
     try {
       const { data, error } = await supabase
-        .from('templates')
+        .from('shift_templates')
         .select('*')
-        .eq('template_id', id)
+        .eq('id', id.toString()) // Convert to string for UUID comparison
         .single();
       
       if (error) {
@@ -70,7 +70,7 @@ export const templatesService = {
       }
       
       if (data) {
-        return dbToAppTemplate(data as DBTemplate);
+        return dbToAppTemplate(data);
       }
       
       const template = templates.find(t => t.id === id);
@@ -87,17 +87,15 @@ export const templatesService = {
       // Create DB template data
       const dbTemplate = {
         name: template.name,
-        description: template.description,
-        department_id: template.department_id || 1,
-        sub_department_id: template.sub_department_id || 1,
+        department_id: template.department_id?.toString() || '1',
+        sub_department_id: template.sub_department_id?.toString() || '1',
         start_date: template.start_date || new Date().toISOString().split('T')[0],
         end_date: template.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        groups: JSON.stringify(template.groups),
-        status: template.status || 'draft'
+        is_draft: template.status === 'draft'
       };
       
       const { data, error } = await supabase
-        .from('templates')
+        .from('shift_templates')
         .insert(dbTemplate)
         .select('*')
         .single();
@@ -117,7 +115,7 @@ export const templatesService = {
       }
       
       if (data) {
-        return dbToAppTemplate(data as DBTemplate);
+        return dbToAppTemplate(data);
       }
       
       // Mock create in local storage
@@ -151,18 +149,16 @@ export const templatesService = {
       const dbUpdates: any = {};
       
       if (updates.name) dbUpdates.name = updates.name;
-      if (updates.description) dbUpdates.description = updates.description;
-      if (updates.department_id) dbUpdates.department_id = updates.department_id;
-      if (updates.sub_department_id) dbUpdates.sub_department_id = updates.sub_department_id;
+      if (updates.department_id) dbUpdates.department_id = updates.department_id.toString();
+      if (updates.sub_department_id) dbUpdates.sub_department_id = updates.sub_department_id.toString();
       if (updates.start_date) dbUpdates.start_date = updates.start_date;
       if (updates.end_date) dbUpdates.end_date = updates.end_date;
-      if (updates.status) dbUpdates.status = updates.status;
-      if (updates.groups) dbUpdates.groups = JSON.stringify(updates.groups);
+      if (updates.status) dbUpdates.is_draft = updates.status === 'draft';
       
       const { data, error } = await supabase
-        .from('templates')
+        .from('shift_templates')
         .update(dbUpdates)
-        .eq('template_id', id)
+        .eq('id', id.toString())
         .select('*')
         .single();
       
@@ -184,7 +180,7 @@ export const templatesService = {
       }
       
       if (data) {
-        return dbToAppTemplate(data as DBTemplate);
+        return dbToAppTemplate(data);
       }
       
       // Mock update in local storage
@@ -220,9 +216,9 @@ export const templatesService = {
   deleteTemplate: async (id: number): Promise<boolean> => {
     try {
       const { error } = await supabase
-        .from('templates')
+        .from('shift_templates')
         .delete()
-        .eq('template_id', id);
+        .eq('id', id.toString());
       
       if (error) {
         console.error(`Error deleting template with ID ${id}:`, error);
