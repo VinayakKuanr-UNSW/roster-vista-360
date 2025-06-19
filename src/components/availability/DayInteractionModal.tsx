@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Plus, Minus, Clock, Trash2 } from 'lucide-react';
+import { Plus, Minus, Clock, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -82,7 +82,7 @@ export function DayInteractionModal({
   useEffect(() => {
     if (isOpen && selectedDate) {
       if (existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0) {
-        // Load existing time slots
+        // Load existing time slots ONLY if they exist
         const formattedSlots: TimeSlotForm[] = existingAvailability.timeSlots.map(slot => ({
           id: slot.id || generateId(),
           startTime: slot.startTime,
@@ -92,13 +92,8 @@ export function DayInteractionModal({
         setTimeSlots(formattedSlots);
         setNotes(existingAvailability.notes || '');
       } else {
-        // Start with one empty time slot
-        setTimeSlots([{
-          id: generateId(),
-          startTime: '09:00',
-          endTime: '17:00',
-          status: 'Available'
-        }]);
+        // Start with EMPTY time slots - no pre-filling
+        setTimeSlots([]);
         setNotes('');
       }
     }
@@ -122,6 +117,34 @@ export function DayInteractionModal({
     setTimeSlots(prev => prev.map(slot => 
       slot.id === id ? { ...slot, [field]: value } : slot
     ));
+  };
+
+  // Quick action: Mark fully available
+  const markFullyAvailable = () => {
+    const fullDaySlot: TimeSlotForm = {
+      id: generateId(),
+      startTime: '00:00',
+      endTime: '23:59',
+      status: 'Available'
+    };
+    setTimeSlots([fullDaySlot]);
+  };
+
+  // Quick action: Mark fully unavailable
+  const markFullyUnavailable = () => {
+    const fullDaySlot: TimeSlotForm = {
+      id: generateId(),
+      startTime: '00:00',
+      endTime: '23:59',
+      status: 'Unavailable'
+    };
+    setTimeSlots([fullDaySlot]);
+  };
+
+  // Quick action: Clear all
+  const clearAllTimeSlots = () => {
+    setTimeSlots([]);
+    setNotes('');
   };
 
   const validateTimeSlots = (): string[] => {
@@ -151,7 +174,30 @@ export function DayInteractionModal({
   };
 
   const handleSave = async () => {
-    if (!selectedDate || timeSlots.length === 0) return;
+    if (!selectedDate) return;
+
+    // If no time slots, we're clearing the availability
+    if (timeSlots.length === 0) {
+      // If there was existing availability, delete it completely
+      if (existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0) {
+        setIsDeleting(true);
+        try {
+          const success = await onDelete(selectedDate);
+          if (success) {
+            onClose();
+          }
+        } catch (error) {
+          console.error('Error clearing availability:', error);
+        } finally {
+          setIsDeleting(false);
+        }
+        return;
+      } else {
+        // No existing data and no new data, just close
+        onClose();
+        return;
+      }
+    }
 
     const errors = validateTimeSlots();
     if (errors.length > 0) {
@@ -202,11 +248,6 @@ export function DayInteractionModal({
     }
   };
 
-  const handleDeleteAll = () => {
-    setTimeSlots([]);
-    setNotes('');
-  };
-
   if (!selectedDate) return null;
 
   const hasExistingData = existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0;
@@ -222,28 +263,51 @@ export function DayInteractionModal({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Quick Action Buttons */}
+          <div className="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <Button
+              onClick={markFullyAvailable}
+              variant="outline"
+              size="sm"
+              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+              disabled={isLocked}
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Mark Fully Available
+            </Button>
+            <Button
+              onClick={markFullyUnavailable}
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              disabled={isLocked}
+            >
+              <XCircle className="h-4 w-4 mr-1" />
+              Mark Fully Unavailable
+            </Button>
+            <Button
+              onClick={clearAllTimeSlots}
+              variant="outline"
+              size="sm"
+              className="text-gray-600 hover:text-gray-700"
+              disabled={isLocked}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Clear All
+            </Button>
+          </div>
+
           {/* Time Slots Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-base font-medium">Time Slots</Label>
-              {timeSlots.length > 0 && (
-                <Button
-                  onClick={handleDeleteAll}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700"
-                  disabled={isLocked}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Clear All
-                </Button>
-              )}
             </div>
 
             {timeSlots.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No time slots set</p>
+                <p className="text-sm">Use quick actions above or add a custom time slot below</p>
                 <Button 
                   onClick={addTimeSlot}
                   variant="outline" 
@@ -274,7 +338,7 @@ export function DayInteractionModal({
                         onChange={(e) => updateTimeSlot(slot.id, 'startTime', e.target.value)}
                         className="mt-1"
                         disabled={isLocked}
-                        step="60" // 1 minute precision
+                        step="60"
                       />
                     </div>
 
@@ -287,7 +351,7 @@ export function DayInteractionModal({
                         onChange={(e) => updateTimeSlot(slot.id, 'endTime', e.target.value)}
                         className="mt-1"
                         disabled={isLocked}
-                        step="60" // 1 minute precision
+                        step="60"
                       />
                     </div>
 
@@ -372,9 +436,9 @@ export function DayInteractionModal({
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={isSaving || isLocked || timeSlots.length === 0}
+                disabled={isSaving || isLocked || isDeleting}
               >
-                {isSaving ? 'Saving...' : 'Save Availability'}
+                {isSaving || isDeleting ? 'Saving...' : 'Save Availability'}
               </Button>
             </div>
           </div>

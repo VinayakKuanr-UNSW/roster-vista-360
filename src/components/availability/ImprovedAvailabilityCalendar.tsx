@@ -20,7 +20,7 @@ const timeToMinutes = (timeStr: string): number => {
 
 // Helper function to determine overall day status based on time slots
 const determineDayStatus = (timeSlots: Array<{ startTime: string; endTime: string; status?: string }>) => {
-  // If no time slots, it's "Not set"
+  // If no time slots or empty array, it's "Not set"
   if (!timeSlots || timeSlots.length === 0) {
     return 'Not set';
   }
@@ -73,7 +73,13 @@ export function ImprovedAvailabilityCalendar({
 
   const getDayColor = (date: Date) => {
     const availability = getDayAvailability(date);
-    const status = determineDayStatus(availability?.timeSlots || []);
+    
+    // Check if there are any time slots at all
+    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) {
+      return 'bg-gray-50 border-gray-200 dark:bg-gray-800/30 dark:border-gray-700';
+    }
+
+    const status = determineDayStatus(availability.timeSlots);
     
     switch (status) {
       case 'Available':
@@ -90,7 +96,13 @@ export function ImprovedAvailabilityCalendar({
 
   const getDayStatus = (date: Date) => {
     const availability = getDayAvailability(date);
-    return determineDayStatus(availability?.timeSlots || []);
+    
+    // If no availability record or no time slots, return "Not set"
+    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) {
+      return 'Not set';
+    }
+
+    return determineDayStatus(availability.timeSlots);
   };
 
   const getStatusDotColor = (status: string) => {
@@ -130,6 +142,9 @@ export function ImprovedAvailabilityCalendar({
           const isDateLockedDay = isDateLocked(date);
           const isClickDisabled = isLocked || isDateLockedDay;
           
+          // Only show time slots if they actually exist and have content
+          const hasTimeSlots = availability?.timeSlots && availability.timeSlots.length > 0;
+          
           return (
             <div
               key={date.toISOString()}
@@ -158,8 +173,8 @@ export function ImprovedAvailabilityCalendar({
                 {format(date, 'd')}
               </div>
               
-              {/* Time Slots Preview with Colored Dots */}
-              {availability?.timeSlots && availability.timeSlots.length > 0 ? (
+              {/* Time Slots Preview with Colored Dots - only show if slots exist */}
+              {hasTimeSlots ? (
                 <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate flex-grow overflow-y-auto pr-1">
                   {availability.timeSlots.slice(0, 2).map((slot, i) => (
                     <div key={i} className="flex items-center gap-1 truncate mb-1">
