@@ -49,20 +49,31 @@ export function AvailabilityModals({
   const { toast } = useToast();
 
   const handleDayModalSave = async (data: {
+    startDate: Date;
+    endDate: Date;
     timeSlots: Array<{
       startTime: string;
       endTime: string;
-      status: AvailabilityStatus;
+      status?: string;
     }>;
     notes?: string;
-  }) => {
-    if (!selectedDate) return;
+  }): Promise<boolean> => {
+    if (!selectedDate) return false;
+    
+    // Convert timeSlots to match the expected type
+    const convertedTimeSlots = data.timeSlots.map(slot => ({
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      status: (slot.status || 'Available') as AvailabilityStatus
+    }));
+    
     const success = await setAvailability({
       startDate: selectedDate,
       endDate: selectedDate,
-      timeSlots: data.timeSlots,
+      timeSlots: convertedTimeSlots,
       notes: data.notes
     });
+    
     if (success) {
       toast({
         title: 'Availability Saved',
@@ -71,19 +82,21 @@ export function AvailabilityModals({
       setIsDayModalOpen(false);
       setSelectedDate(null);
     }
+    
+    return success;
   };
 
-  const handleDayModalDelete = async () => {
-    if (!selectedDate) return;
-    const success = await deleteAvailability(selectedDate);
+  const handleDayModalDelete = async (date: Date): Promise<boolean> => {
+    const success = await deleteAvailability(date);
     if (success) {
       toast({
         title: 'Availability Deleted',
-        description: `Availability for ${format(selectedDate, 'dd MMM yyyy')} has been deleted.`
+        description: `Availability for ${format(date, 'dd MMM yyyy')} has been deleted.`
       });
       setIsDayModalOpen(false);
       setSelectedDate(null);
     }
+    return success;
   };
 
   const handleBatchApply = async (data: {
@@ -123,7 +136,7 @@ export function AvailabilityModals({
     <>
       {/* DAY INTERACTION MODAL */}
       <DayInteractionModal 
-        open={isDayModalOpen} 
+        isOpen={isDayModalOpen} 
         onClose={() => {
           setIsDayModalOpen(false);
           setSelectedDate(null);
