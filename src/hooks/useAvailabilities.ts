@@ -124,14 +124,14 @@ export function useAvailabilities() {
   const startOfSelectedMonth = useMemo(() => startOfMonth(selectedMonth), [selectedMonth]);
   const endOfSelectedMonth = useMemo(() => endOfMonth(selectedMonth), [selectedMonth]);
   
-  // Fetch availabilities for the selected month with real-time updates
+  // Fetch availabilities for the selected month with proper error handling
   const fetchAvailabilities = useCallback(async () => {
     try {
       setIsLoading(true);
       const year = selectedMonth.getFullYear();
       const month = selectedMonth.getMonth() + 1;
       
-      console.log(`Fetching availabilities for ${year}-${month}`);
+      console.log(`Fetching availabilities for ${year}-${month.toString().padStart(2, '0')}`);
       
       // Use the availabilityService to get the month's data
       const data = await availabilityService.getMonthlyAvailabilities('current-user', year, month);
@@ -148,10 +148,12 @@ export function useAvailabilities() {
         }))
       }));
       
-      console.log(`Loaded ${typeSafeData.length} availabilities for ${year}-${month}`);
+      console.log(`Successfully loaded ${typeSafeData.length} availabilities for ${year}-${month.toString().padStart(2, '0')}`);
       setMonthlyAvailabilities(typeSafeData);
     } catch (error) {
       console.error('Error fetching availabilities:', error);
+      // Reset to empty array on error to prevent stale data
+      setMonthlyAvailabilities([]);
       toast({
         title: 'Error',
         description: 'Failed to load availability data',
@@ -187,7 +189,9 @@ export function useAvailabilities() {
   // Get availability for a specific date
   const getDayAvailability = useCallback((date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return monthlyAvailabilities.find(a => a.date === dateStr);
+    const availability = monthlyAvailabilities.find(a => a.date === dateStr);
+    console.log(`Getting availability for ${dateStr}:`, availability ? 'found' : 'not found');
+    return availability;
   }, [monthlyAvailabilities]);
   
   // Get color based on availability status
@@ -223,7 +227,7 @@ export function useAvailabilities() {
     });
   }, []);
 
-  // Set or update availability with real-time UI updates
+  // Set or update availability with immediate local state updates
   const setAvailability = async (data: {
     startDate: Date;
     endDate: Date;
@@ -251,6 +255,13 @@ export function useAvailabilities() {
       // Default to Available status if not provided
       const status = data.status || 'Available';
       
+      console.log('Setting availability:', {
+        startDate: format(data.startDate, 'yyyy-MM-dd'),
+        endDate: format(data.endDate, 'yyyy-MM-dd'),
+        timeSlots: data.timeSlots,
+        status
+      });
+      
       // Make API call to set availability
       const response = await availabilityService.setAvailabilityRange(
         'current-user',
@@ -277,17 +288,13 @@ export function useAvailabilities() {
       // Update local state immediately for real-time updates
       setMonthlyAvailabilities(prev => {
         // Create a new array without the dates that were just updated
-        const filtered = prev.filter(item => {
-          const itemDate = parse(item.date, 'yyyy-MM-dd', new Date());
-          // Keep items that aren't in the date range we just updated
-          return !(
-            itemDate >= data.startDate && 
-            itemDate <= data.endDate
-          );
-        });
+        const updatedDates = convertedResponse.map(item => item.date);
+        const filtered = prev.filter(item => !updatedDates.includes(item.date));
         
         // Add the newly created/updated availabilities
-        return [...filtered, ...convertedResponse];
+        const newState = [...filtered, ...convertedResponse];
+        console.log('Updated local state with new availabilities:', newState.length);
+        return newState;
       });
       
       toast({
@@ -309,7 +316,7 @@ export function useAvailabilities() {
     }
   };
 
-  // Delete availability with real-time UI updates
+  // Delete availability with immediate local state updates
   const deleteAvailability = async (date: Date) => {
     try {
       // Check if date is locked
@@ -324,10 +331,13 @@ export function useAvailabilities() {
 
       const dateStr = format(date, 'yyyy-MM-dd');
       
+      console.log('Deleting availability for:', dateStr);
+      
       // Find availability to delete
       const availabilityToDelete = monthlyAvailabilities.find(a => a.date === dateStr);
       
       if (!availabilityToDelete) {
+        console.log('No availability found to delete for:', dateStr);
         toast({
           title: "Nothing to Delete",
           description: "No availability found for this date.",
@@ -341,7 +351,11 @@ export function useAvailabilities() {
       
       if (success) {
         // Update local state immediately for real-time updates
-        setMonthlyAvailabilities(prev => prev.filter(item => item.date !== dateStr));
+        setMonthlyAvailabilities(prev => {
+          const newState = prev.filter(item => item.date !== dateStr);
+          console.log('Removed availability from local state. New count:', newState.length);
+          return newState;
+        });
         
         toast({
           title: "Availability Deleted",
@@ -404,6 +418,8 @@ export function useAvailabilities() {
         throw new Error('Preset not found');
       }
       
+      console.log('Applying preset:', preset.name, 'from', format(data.startDate, 'yyyy-MM-dd'), 'to', format(data.endDate, 'yyyy-MM-dd'));
+      
       // Apply the preset using the availabilityService
       const response = await availabilityService.applyPreset(
         'current-user',
@@ -425,13 +441,13 @@ export function useAvailabilities() {
       // Update local state with the new availabilities
       setMonthlyAvailabilities(prev => {
         // Remove existing availabilities in the date range
-        const filtered = prev.filter(item => {
-          const itemDate = parse(item.date, 'yyyy-MM-dd', new Date());
-          return !(itemDate >= data.startDate && itemDate <= data.endDate);
-        });
+        const updatedDates = convertedResponse.map(item => item.date);
+        const filtered = prev.filter(item => !updatedDates.includes(item.date));
         
         // Add the new availabilities
-        return [...filtered, ...convertedResponse];
+        const newState = [...filtered, ...convertedResponse];
+        console.log('Applied preset and updated local state. New count:', newState.length);
+        return newState;
       });
       
       toast({

@@ -74,7 +74,7 @@ export function ImprovedAvailabilityCalendar({
   const getDayColor = (date: Date) => {
     const availability = getDayAvailability(date);
     
-    // Check if there are any time slots at all
+    // Check if there are any time slots at all - if not, return grey (not set)
     if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) {
       return 'bg-gray-50 border-gray-200 dark:bg-gray-800/30 dark:border-gray-700';
     }

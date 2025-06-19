@@ -81,6 +81,9 @@ export function DayInteractionModal({
   // Initialize form data when modal opens or existing availability changes
   useEffect(() => {
     if (isOpen && selectedDate) {
+      console.log('Modal opened for date:', format(selectedDate, 'yyyy-MM-dd'));
+      console.log('Existing availability:', existingAvailability);
+      
       if (existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0) {
         // Load existing time slots ONLY if they exist
         const formattedSlots: TimeSlotForm[] = existingAvailability.timeSlots.map(slot => ({
@@ -89,10 +92,12 @@ export function DayInteractionModal({
           endTime: slot.endTime,
           status: (slot.status as 'Available' | 'Unavailable') || 'Available'
         }));
+        console.log('Loading existing time slots:', formattedSlots);
         setTimeSlots(formattedSlots);
         setNotes(existingAvailability.notes || '');
       } else {
         // Start with EMPTY time slots - no pre-filling
+        console.log('No existing time slots, starting empty');
         setTimeSlots([]);
         setNotes('');
       }
@@ -106,14 +111,17 @@ export function DayInteractionModal({
       endTime: '17:00',
       status: 'Available'
     };
+    console.log('Adding new time slot:', newSlot);
     setTimeSlots(prev => [...prev, newSlot]);
   };
 
   const removeTimeSlot = (id: string) => {
+    console.log('Removing time slot:', id);
     setTimeSlots(prev => prev.filter(slot => slot.id !== id));
   };
 
   const updateTimeSlot = (id: string, field: keyof TimeSlotForm, value: string) => {
+    console.log('Updating time slot:', id, field, value);
     setTimeSlots(prev => prev.map(slot => 
       slot.id === id ? { ...slot, [field]: value } : slot
     ));
@@ -127,6 +135,7 @@ export function DayInteractionModal({
       endTime: '23:59',
       status: 'Available'
     };
+    console.log('Marking fully available:', fullDaySlot);
     setTimeSlots([fullDaySlot]);
   };
 
@@ -138,11 +147,13 @@ export function DayInteractionModal({
       endTime: '23:59',
       status: 'Unavailable'
     };
+    console.log('Marking fully unavailable:', fullDaySlot);
     setTimeSlots([fullDaySlot]);
   };
 
   // Quick action: Clear all
   const clearAllTimeSlots = () => {
+    console.log('Clearing all time slots');
     setTimeSlots([]);
     setNotes('');
   };
@@ -176,14 +187,18 @@ export function DayInteractionModal({
   const handleSave = async () => {
     if (!selectedDate) return;
 
+    console.log('Saving availability with time slots:', timeSlots);
+
     // If no time slots, we're clearing the availability
     if (timeSlots.length === 0) {
+      console.log('No time slots, clearing availability');
       // If there was existing availability, delete it completely
       if (existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0) {
         setIsDeleting(true);
         try {
           const success = await onDelete(selectedDate);
           if (success) {
+            console.log('Successfully cleared availability');
             onClose();
           }
         } catch (error) {
@@ -194,6 +209,7 @@ export function DayInteractionModal({
         return;
       } else {
         // No existing data and no new data, just close
+        console.log('No existing data, just closing');
         onClose();
         return;
       }
@@ -223,6 +239,7 @@ export function DayInteractionModal({
       });
 
       if (success) {
+        console.log('Successfully saved availability');
         onClose();
       }
     } catch (error) {
@@ -235,10 +252,12 @@ export function DayInteractionModal({
   const handleDelete = async () => {
     if (!selectedDate) return;
 
+    console.log('Deleting availability for:', format(selectedDate, 'yyyy-MM-dd'));
     setIsDeleting(true);
     try {
       const success = await onDelete(selectedDate);
       if (success) {
+        console.log('Successfully deleted availability');
         onClose();
       }
     } catch (error) {
