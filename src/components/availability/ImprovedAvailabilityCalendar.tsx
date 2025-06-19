@@ -18,59 +18,39 @@ const timeToMinutes = (timeStr: string): number => {
   return hours * 60 + minutes;
 };
 
-// Helper function to segment a full day based on time slots - fixed type signature
-const segmentDay = (timeSlots: Array<{ startTime: string; endTime: string; status?: string }>) => {
-  const segments: Array<{ start: number; end: number; status: 'Available' | 'Unavailable' | 'Unset' }> = [];
-  const dayStart = 0; // 00:00
-  const dayEnd = 1439; // 23:59 (1439 minutes)
+// Helper function to determine overall day status based on time slots
+const determineDayStatus = (timeSlots: Array<{ startTime: string; endTime: string; status?: string }>) => {
+  // If no time slots, it's "Not set"
+  if (!timeSlots || timeSlots.length === 0) {
+    return 'Not set';
+  }
+
+  // Filter out slots without valid status
+  const validSlots = timeSlots.filter(slot => slot.status);
   
-  // Filter out slots without valid status and ensure proper type
-  const validSlots = timeSlots
-    .filter(slot => slot.status)
-    .map(slot => ({
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      status: slot.status || 'Available'
-    }));
+  if (validSlots.length === 0) {
+    return 'Not set';
+  }
+
+  const hasAvailable = validSlots.some(slot => slot.status === 'Available');
+  const hasUnavailable = validSlots.some(slot => slot.status === 'Unavailable');
   
-  // Sort time slots by start time
-  const sortedSlots = [...validSlots].sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-  
-  let currentTime = dayStart;
-  
-  for (const slot of sortedSlots) {
-    const slotStart = timeToMinutes(slot.startTime);
-    const slotEnd = timeToMinutes(slot.endTime);
-    
-    // Add unset segment before this slot if there's a gap
-    if (currentTime < slotStart) {
-      segments.push({
-        start: currentTime,
-        end: slotStart - 1,
-        status: 'Unset'
-      });
-    }
-    
-    // Add the actual slot segment
-    segments.push({
-      start: slotStart,
-      end: slotEnd,
-      status: slot.status === 'Available' ? 'Available' : 'Unavailable'
-    });
-    
-    currentTime = Math.max(currentTime, slotEnd + 1);
+  // Mixed availability
+  if (hasAvailable && hasUnavailable) {
+    return 'Mixed';
   }
   
-  // Add remaining unset time at the end of day
-  if (currentTime <= dayEnd) {
-    segments.push({
-      start: currentTime,
-      end: dayEnd,
-      status: 'Unset'
-    });
+  // All available
+  if (hasAvailable && !hasUnavailable) {
+    return 'Available';
   }
   
-  return segments;
+  // All unavailable
+  if (hasUnavailable && !hasAvailable) {
+    return 'Unavailable';
+  }
+  
+  return 'Not set';
 };
 
 export function ImprovedAvailabilityCalendar({ 
@@ -93,54 +73,24 @@ export function ImprovedAvailabilityCalendar({
 
   const getDayColor = (date: Date) => {
     const availability = getDayAvailability(date);
+    const status = determineDayStatus(availability?.timeSlots || []);
     
-    // No availability set - transparent background
-    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) {
-      return 'bg-transparent border-gray-200 dark:border-gray-700';
+    switch (status) {
+      case 'Available':
+        return 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700';
+      case 'Unavailable':
+        return 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700';
+      case 'Mixed':
+        return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700';
+      case 'Not set':
+      default:
+        return 'bg-gray-50 border-gray-200 dark:bg-gray-800/30 dark:border-gray-700';
     }
-    
-    // Segment the day based on time slots - now with proper type handling
-    const segments = segmentDay(availability.timeSlots);
-    
-    const hasAvailable = segments.some(seg => seg.status === 'Available');
-    const hasUnavailable = segments.some(seg => seg.status === 'Unavailable');
-    
-    // Apply the new logic:
-    // Green: Contains available segments (may also have unset)
-    // Red: Contains unavailable segments but no available segments (may also have unset)
-    // Yellow: Contains both available and unavailable segments
-    
-    if (hasAvailable && hasUnavailable) {
-      // Mixed - yellow
-      return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700';
-    }
-    
-    if (hasAvailable) {
-      // Contains available segments - green
-      return 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700';
-    }
-    
-    if (hasUnavailable) {
-      // Contains unavailable segments but no available - red
-      return 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-700';
-    }
-    
-    // Fallback (shouldn't happen with proper segmentation)
-    return 'bg-transparent border-gray-200 dark:border-gray-700';
   };
 
   const getDayStatus = (date: Date) => {
     const availability = getDayAvailability(date);
-    if (!availability || !availability.timeSlots || availability.timeSlots.length === 0) return 'Not set';
-    
-    const segments = segmentDay(availability.timeSlots);
-    const hasAvailable = segments.some(seg => seg.status === 'Available');
-    const hasUnavailable = segments.some(seg => seg.status === 'Unavailable');
-    
-    if (hasAvailable && hasUnavailable) return 'Mixed';
-    if (hasAvailable) return 'Available';
-    if (hasUnavailable) return 'Unavailable';
-    return 'Not set';
+    return determineDayStatus(availability?.timeSlots || []);
   };
 
   const getStatusDotColor = (status: string) => {
@@ -149,7 +99,7 @@ export function ImprovedAvailabilityCalendar({
         return 'bg-green-500';
       case 'Unavailable':
         return 'bg-red-500';
-      case 'Partial':
+      case 'Mixed':
         return 'bg-yellow-500';
       default:
         return 'bg-gray-400';
@@ -253,31 +203,19 @@ export function ImprovedAvailabilityCalendar({
       <div className="mt-6 flex items-center justify-center gap-4 text-sm flex-shrink-0 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-          <span>Has Available</span>
+          <span>Available</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
-          <span>Has Unavailable</span>
+          <span>Unavailable</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
           <span>Mixed</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-transparent border border-gray-300 rounded"></div>
+          <div className="w-4 h-4 bg-gray-50 border border-gray-200 rounded"></div>
           <span>Not set</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          <span>Available slot</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-          <span>Unavailable slot</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-          <span>Unset segment</span>
         </div>
       </div>
     </div>

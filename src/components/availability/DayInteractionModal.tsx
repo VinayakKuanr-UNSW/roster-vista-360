@@ -1,43 +1,70 @@
 
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { Plus, Minus, Clock, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Clock } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DayAvailability, AvailabilityStatus } from '@/api/models/types';
-import { cn } from '@/lib/utils';
-
-interface TimeSlot {
-  id: string;
-  startTime: string;
-  endTime: string;
-  status: AvailabilityStatus;
-}
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { DayAvailability, TimeSlot } from '@/api/models/types';
 
 interface DayInteractionModalProps {
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
   selectedDate: Date | null;
   existingAvailability?: DayAvailability;
   onSave: (data: {
+    startDate: Date;
+    endDate: Date;
     timeSlots: Array<{
       startTime: string;
       endTime: string;
-      status: AvailabilityStatus;
+      status?: string;
     }>;
     notes?: string;
-  }) => void;
-  onDelete?: () => void;
+  }) => Promise<boolean>;
+  onDelete: (date: Date) => Promise<boolean>;
   isLocked?: boolean;
 }
 
+interface TimeSlotForm {
+  id: string;
+  startTime: string;
+  endTime: string;
+  status: 'Available' | 'Unavailable';
+}
+
+// Helper function to generate a unique ID
+const generateId = () => Math.random().toString(36).substring(2, 11);
+
+// Helper function to validate time format (HH:MM)
+const isValidTime = (time: string): boolean => {
+  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  return timeRegex.test(time);
+};
+
+// Helper function to convert time string to minutes for comparison
+const timeToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
 export function DayInteractionModal({
-  open,
+  isOpen,
   onClose,
   selectedDate,
   existingAvailability,
@@ -45,295 +72,313 @@ export function DayInteractionModal({
   onDelete,
   isLocked = false
 }: DayInteractionModalProps) {
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlotForm[]>([]);
   const [notes, setNotes] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
-  // Generate 15-minute interval options for 24-hour format
-  const generateTimeOptions = () => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        options.push(timeString);
+  // Initialize form data when modal opens or existing availability changes
+  useEffect(() => {
+    if (isOpen && selectedDate) {
+      if (existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0) {
+        // Load existing time slots
+        const formattedSlots: TimeSlotForm[] = existingAvailability.timeSlots.map(slot => ({
+          id: slot.id || generateId(),
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          status: (slot.status as 'Available' | 'Unavailable') || 'Available'
+        }));
+        setTimeSlots(formattedSlots);
+        setNotes(existingAvailability.notes || '');
+      } else {
+        // Start with one empty time slot
+        setTimeSlots([{
+          id: generateId(),
+          startTime: '09:00',
+          endTime: '17:00',
+          status: 'Available'
+        }]);
+        setNotes('');
       }
     }
-    return options;
-  };
-
-  const timeOptions = generateTimeOptions();
-
-  useEffect(() => {
-    if (existingAvailability) {
-      setTimeSlots(existingAvailability.timeSlots.map(slot => ({
-        ...slot,
-        id: slot.id || Math.random().toString(36).substring(2, 11)
-      })));
-      setNotes(existingAvailability.notes || '');
-    } else {
-      setTimeSlots([]);
-      setNotes('');
-    }
-  }, [existingAvailability, open]);
+  }, [isOpen, selectedDate, existingAvailability]);
 
   const addTimeSlot = () => {
-    const newSlot: TimeSlot = {
-      id: Math.random().toString(36).substring(2, 11),
+    const newSlot: TimeSlotForm = {
+      id: generateId(),
       startTime: '09:00',
       endTime: '17:00',
       status: 'Available'
     };
-    setTimeSlots([...timeSlots, newSlot]);
-  };
-
-  const updateTimeSlot = (id: string, field: keyof TimeSlot, value: string) => {
-    setTimeSlots(timeSlots.map(slot => slot.id === id ? {
-      ...slot,
-      [field]: value
-    } : slot));
+    setTimeSlots(prev => [...prev, newSlot]);
   };
 
   const removeTimeSlot = (id: string) => {
-    setTimeSlots(timeSlots.filter(slot => slot.id !== id));
+    setTimeSlots(prev => prev.filter(slot => slot.id !== id));
   };
 
-  const handleQuickAction = (action: 'available' | 'unavailable') => {
-    if (isLocked) return;
-    const newTimeSlots = action === 'available' ? [{
-      startTime: '00:00',
-      endTime: '23:59',
-      status: 'Available' as AvailabilityStatus
-    }] : [{
-      startTime: '00:00',
-      endTime: '23:59',
-      status: 'Unavailable' as AvailabilityStatus
-    }];
-    onSave({
-      timeSlots: newTimeSlots,
-      notes: undefined
+  const updateTimeSlot = (id: string, field: keyof TimeSlotForm, value: string) => {
+    setTimeSlots(prev => prev.map(slot => 
+      slot.id === id ? { ...slot, [field]: value } : slot
+    ));
+  };
+
+  const validateTimeSlots = (): string[] => {
+    const errors: string[] = [];
+    
+    timeSlots.forEach((slot, index) => {
+      // Validate time format
+      if (!isValidTime(slot.startTime)) {
+        errors.push(`Time slot ${index + 1}: Invalid start time format (use HH:MM)`);
+      }
+      if (!isValidTime(slot.endTime)) {
+        errors.push(`Time slot ${index + 1}: Invalid end time format (use HH:MM)`);
+      }
+      
+      // Validate start time is before end time
+      if (isValidTime(slot.startTime) && isValidTime(slot.endTime)) {
+        const startMinutes = timeToMinutes(slot.startTime);
+        const endMinutes = timeToMinutes(slot.endTime);
+        
+        if (startMinutes >= endMinutes) {
+          errors.push(`Time slot ${index + 1}: Start time must be before end time`);
+        }
+      }
     });
+
+    return errors;
   };
 
-  const handleSave = () => {
-    onSave({
-      timeSlots: timeSlots.map(({
-        id,
-        ...slot
-      }) => slot),
-      notes: notes.trim() || undefined
-    });
+  const handleSave = async () => {
+    if (!selectedDate || timeSlots.length === 0) return;
+
+    const errors = validateTimeSlots();
+    if (errors.length > 0) {
+      toast({
+        title: 'Validation Error',
+        description: errors.join(', '),
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const success = await onSave({
+        startDate: selectedDate,
+        endDate: selectedDate,
+        timeSlots: timeSlots.map(slot => ({
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          status: slot.status
+        })),
+        notes: notes.trim() || undefined
+      });
+
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error saving availability:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const hasExistingData = existingAvailability && existingAvailability.timeSlots.length > 0;
+  const handleDelete = async () => {
+    if (!selectedDate) return;
+
+    setIsDeleting(true);
+    try {
+      const success = await onDelete(selectedDate);
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error deleting availability:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteAll = () => {
+    setTimeSlots([]);
+    setNotes('');
+  };
+
+  if (!selectedDate) return null;
+
+  const hasExistingData = existingAvailability?.timeSlots && existingAvailability.timeSlots.length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="flex items-center gap-3 text-xl font-semibold text-foreground">
-            <Clock className="h-6 w-6 text-primary" />
-            Availability for {selectedDate && format(selectedDate, 'EEEE, MMMM d, yyyy')}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Availability for {format(selectedDate, 'EEEE, MMMM d, yyyy')}
           </DialogTitle>
-          <DialogDescription className="text-base text-muted-foreground">
-            Set your availability for this day using quick actions or custom time slots.
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-8 pt-4">
-          {isLocked && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-yellow-800">
-                🔒 This date is locked. Changes cannot be made.
-              </p>
-            </div>
-          )}
-
-          {/* Quick Actions */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold text-foreground">Quick Actions</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Button 
-                type="button" 
-                variant='outline' 
-                onClick={() => handleQuickAction('available')} 
-                disabled={isLocked} 
-                className="justify-start h-12 text-base border-green-200 hover:bg-green-50"
-              >
-                <div className="w-4 h-4 bg-green-500 rounded-full mr-3 border-2 border-green-300" />
-                Fully Available
-              </Button>
-              <Button 
-                type="button" 
-                variant='outline' 
-                onClick={() => handleQuickAction('unavailable')} 
-                disabled={isLocked} 
-                className="justify-start h-12 text-base border-red-200 hover:bg-red-50"
-              >
-                <div className="w-4 h-4 bg-red-500 rounded-full mr-3 border-2 border-red-300" />
-                Fully Unavailable
-              </Button>
-            </div>
-          </div>
-
-          {/* Custom Time Slots */}
+        <div className="space-y-6">
+          {/* Time Slots Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold text-foreground">Custom Time Slots</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="default" 
-                onClick={addTimeSlot} 
-                disabled={isLocked}
-                className="h-10"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Slot
-              </Button>
+              <Label className="text-base font-medium">Time Slots</Label>
+              {timeSlots.length > 0 && (
+                <Button
+                  onClick={handleDeleteAll}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700"
+                  disabled={isLocked}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
             </div>
 
-            <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-              {timeSlots.map(slot => (
-                <div key={slot.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-4">
-                    {/* Start Time */}
-                    <div className="lg:col-span-3">
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">Start Time</Label>
-                      <Select
+            {timeSlots.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No time slots set</p>
+                <Button 
+                  onClick={addTimeSlot}
+                  variant="outline" 
+                  className="mt-2"
+                  disabled={isLocked}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Time Slot
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {timeSlots.map((slot, index) => (
+                  <div 
+                    key={slot.id} 
+                    className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800"
+                  >
+                    <Badge variant="outline" className="min-w-[60px] justify-center">
+                      #{index + 1}
+                    </Badge>
+                    
+                    {/* Start Time Input */}
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground">Start</Label>
+                      <Input
+                        type="time"
                         value={slot.startTime}
-                        onValueChange={(value) => updateTimeSlot(slot.id, 'startTime', value)}
+                        onChange={(e) => updateTimeSlot(slot.id, 'startTime', e.target.value)}
+                        className="mt-1"
                         disabled={isLocked}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {timeOptions.map(time => (
-                            <SelectItem key={time} value={time}>{time}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        step="60" // 1 minute precision
+                      />
                     </div>
 
-                    {/* End Time */}
-                    <div className="lg:col-span-3">
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">End Time</Label>
-                      <Select
+                    {/* End Time Input */}
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground">End</Label>
+                      <Input
+                        type="time"
                         value={slot.endTime}
-                        onValueChange={(value) => updateTimeSlot(slot.id, 'endTime', value)}
+                        onChange={(e) => updateTimeSlot(slot.id, 'endTime', e.target.value)}
+                        className="mt-1"
                         disabled={isLocked}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {timeOptions.map(time => (
-                            <SelectItem key={time} value={time}>{time}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        step="60" // 1 minute precision
+                      />
                     </div>
 
-                    {/* Status */}
-                    <div className="lg:col-span-4">
-                      <Label className="text-sm font-medium text-gray-700 mb-2 block">Status</Label>
+                    {/* Status Select */}
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground">Status</Label>
                       <Select
                         value={slot.status}
-                        onValueChange={(value) => updateTimeSlot(slot.id, 'status', value)}
+                        onValueChange={(value: 'Available' | 'Unavailable') => 
+                          updateTimeSlot(slot.id, 'status', value)
+                        }
                         disabled={isLocked}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="mt-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Available">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-green-500 rounded-full" />
-                              Available
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="Unavailable">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-red-500 rounded-full" />
-                              Unavailable
-                            </div>
-                          </SelectItem>
+                          <SelectItem value="Available">Available</SelectItem>
+                          <SelectItem value="Unavailable">Unavailable</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* Delete Button */}
-                    <div className="lg:col-span-2 flex justify-end">
-                      <Button 
-                        type="button" 
-                        variant="destructive" 
-                        size="icon" 
-                        onClick={() => removeTimeSlot(slot.id)} 
-                        disabled={isLocked}
-                        className="h-10 w-10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {/* Remove Button */}
+                    <Button
+                      onClick={() => removeTimeSlot(slot.id)}
+                      variant="outline"
+                      size="icon"
+                      className="text-red-600 hover:text-red-700 mt-5"
+                      disabled={isLocked}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
                   </div>
-                </div>
-              ))}
-              
-              {timeSlots.length === 0 && (
-                <div className="text-center text-base text-muted-foreground py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                  No custom time slots added. Use Quick Actions or Add a Slot.
-                </div>
-              )}
-            </div>
-          </div>
+                ))}
 
-          {/* Notes */}
-          <div className="space-y-3">
-            <Label htmlFor="notes" className="text-base font-semibold text-foreground">Notes (Optional)</Label>
-            <Textarea 
-              id="notes" 
-              placeholder="e.g., May be late, Only available after 4 PM" 
-              value={notes} 
-              onChange={e => setNotes(e.target.value)} 
-              disabled={isLocked} 
-              rows={3}
-              className="text-base resize-none"
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="flex-col-reverse gap-3 pt-6 sm:flex-row sm:justify-between">
-          <div>
-            {hasExistingData && onDelete && (
-              <Button 
-                type="button" 
-                variant="destructive" 
-                onClick={onDelete} 
-                disabled={isLocked}
-                className="h-11"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Availability
-              </Button>
+                {/* Add Time Slot Button */}
+                <Button
+                  onClick={addTimeSlot}
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLocked}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Another Time Slot
+                </Button>
+              </div>
             )}
           </div>
-          <div className="flex gap-3">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-              className="h-11 px-6"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSave} 
-              disabled={isLocked || timeSlots.length === 0}
-              className="h-11 px-6"
-            >
-              Save Changes
-            </Button>
+
+          {/* Notes Section */}
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes (Optional)</Label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional notes about your availability..."
+              className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              rows={3}
+              disabled={isLocked}
+            />
           </div>
-        </DialogFooter>
+
+          {/* Action Buttons */}
+          <div className="flex justify-between pt-4">
+            <div className="flex gap-2">
+              {hasExistingData && (
+                <Button
+                  onClick={handleDelete}
+                  variant="destructive"
+                  disabled={isDeleting || isLocked}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Availability'}
+                </Button>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={onClose} variant="outline">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving || isLocked || timeSlots.length === 0}
+              >
+                {isSaving ? 'Saving...' : 'Save Availability'}
+              </Button>
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

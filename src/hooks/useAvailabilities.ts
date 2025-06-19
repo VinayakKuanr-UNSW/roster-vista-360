@@ -124,47 +124,48 @@ export function useAvailabilities() {
   const startOfSelectedMonth = useMemo(() => startOfMonth(selectedMonth), [selectedMonth]);
   const endOfSelectedMonth = useMemo(() => endOfMonth(selectedMonth), [selectedMonth]);
   
-  // Fetch availabilities for the selected month
-  useEffect(() => {
-    const fetchAvailabilities = async () => {
-      try {
-        setIsLoading(true);
-        const year = selectedMonth.getFullYear();
-        const month = selectedMonth.getMonth() + 1;
-        
-        console.log(`Fetching availabilities for ${year}-${month}`);
-        
-        // Use the availabilityService to get the month's data
-        const data = await availabilityService.getMonthlyAvailabilities('current-user', year, month);
-        
-        // Convert DayAvailability[] to Availability[] by ensuring 'status' is always set
-        const typeSafeData: Availability[] = data.map(item => ({
-          ...item,
-          // Ensure status is set (use 'Not Specified' as a fallback)
-          status: item.status || 'Not Specified',
-          // Ensure each time slot has a status
-          timeSlots: item.timeSlots.map(slot => ({
-            ...slot,
-            status: slot.status || item.status || 'Not Specified'
-          }))
-        }));
-        
-        console.log(`Loaded ${typeSafeData.length} availabilities for ${year}-${month}`);
-        setMonthlyAvailabilities(typeSafeData);
-      } catch (error) {
-        console.error('Error fetching availabilities:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load availability data',
-          variant: 'destructive'
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchAvailabilities();
+  // Fetch availabilities for the selected month with real-time updates
+  const fetchAvailabilities = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const year = selectedMonth.getFullYear();
+      const month = selectedMonth.getMonth() + 1;
+      
+      console.log(`Fetching availabilities for ${year}-${month}`);
+      
+      // Use the availabilityService to get the month's data
+      const data = await availabilityService.getMonthlyAvailabilities('current-user', year, month);
+      
+      // Convert DayAvailability[] to Availability[] by ensuring 'status' is always set
+      const typeSafeData: Availability[] = data.map(item => ({
+        ...item,
+        // Ensure status is set (use 'Not Specified' as a fallback)
+        status: item.status || 'Not Specified',
+        // Ensure each time slot has a status
+        timeSlots: item.timeSlots.map(slot => ({
+          ...slot,
+          status: slot.status || item.status || 'Not Specified'
+        }))
+      }));
+      
+      console.log(`Loaded ${typeSafeData.length} availabilities for ${year}-${month}`);
+      setMonthlyAvailabilities(typeSafeData);
+    } catch (error) {
+      console.error('Error fetching availabilities:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load availability data',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [selectedMonth, toast]);
+
+  // Fetch availabilities when month changes
+  useEffect(() => {
+    fetchAvailabilities();
+  }, [fetchAvailabilities]);
   
   // Navigation functions that properly update the selected month
   const goToPreviousMonth = useCallback(() => {
@@ -222,7 +223,7 @@ export function useAvailabilities() {
     });
   }, []);
 
-  // Set or update availability
+  // Set or update availability with real-time UI updates
   const setAvailability = async (data: {
     startDate: Date;
     endDate: Date;
@@ -273,7 +274,7 @@ export function useAvailabilities() {
         }))
       }));
       
-      // Update local state with new availability data
+      // Update local state immediately for real-time updates
       setMonthlyAvailabilities(prev => {
         // Create a new array without the dates that were just updated
         const filtered = prev.filter(item => {
@@ -308,7 +309,7 @@ export function useAvailabilities() {
     }
   };
 
-  // Delete availability
+  // Delete availability with real-time UI updates
   const deleteAvailability = async (date: Date) => {
     try {
       // Check if date is locked
@@ -330,7 +331,7 @@ export function useAvailabilities() {
         toast({
           title: "Nothing to Delete",
           description: "No availability found for this date.",
-          variant: "default" // Changed from "warning" to "default"
+          variant: "default"
         });
         return false;
       }
@@ -339,7 +340,7 @@ export function useAvailabilities() {
       const success = await availabilityService.deleteAvailability('current-user', date);
       
       if (success) {
-        // Update local state by removing the deleted availability
+        // Update local state immediately for real-time updates
         setMonthlyAvailabilities(prev => prev.filter(item => item.date !== dateStr));
         
         toast({
@@ -473,6 +474,8 @@ export function useAvailabilities() {
     setCutoff,
     isDateLocked,
     // For compatibility with existing components
-    presets: availabilityPresets
+    presets: availabilityPresets,
+    // Force refresh function for when user wants to reload data
+    refreshData: fetchAvailabilities
   };
 }
