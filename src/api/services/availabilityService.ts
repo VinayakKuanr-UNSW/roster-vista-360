@@ -4,7 +4,7 @@ import { DayAvailability, TimeSlot, AvailabilityPreset } from '../models/types';
 import { format, eachDayOfInterval } from 'date-fns';
 
 // Helper function to determine overall day status based on time slots
-const determineDayStatus = (timeSlots: TimeSlot[]): 'Available' | 'Unavailable' | 'Partial' => {
+const determineDayStatus = (timeSlots: Omit<TimeSlot, 'id'>[]): 'Available' | 'Unavailable' | 'Partial' => {
   if (!timeSlots || timeSlots.length === 0) return 'Available';
   
   const hasAvailable = timeSlots.some(slot => slot.status === 'Available');
@@ -13,6 +13,27 @@ const determineDayStatus = (timeSlots: TimeSlot[]): 'Available' | 'Unavailable' 
   if (hasAvailable && hasUnavailable) return 'Partial';
   if (hasAvailable) return 'Available';
   return 'Unavailable';
+};
+
+// Helper function to normalize status values for database
+const normalizeStatus = (status: string): 'Available' | 'Unavailable' | 'Partial' | 'Limited' | 'Tentative' | 'On Leave' | 'Not Specified' => {
+  switch (status.toLowerCase()) {
+    case 'available':
+      return 'Available';
+    case 'unavailable':
+      return 'Unavailable';
+    case 'partial':
+      return 'Partial';
+    case 'limited':
+      return 'Limited';
+    case 'tentative':
+      return 'Tentative';
+    case 'on leave':
+    case 'on-leave':
+      return 'On Leave';
+    default:
+      return 'Not Specified';
+  }
 };
 
 export const availabilityService = {
@@ -187,7 +208,7 @@ export const availabilityService = {
             availability_id: availability.id,
             start_time: slot.startTime,
             end_time: slot.endTime,
-            status: slot.status || status
+            status: normalizeStatus(slot.status || status)
           }));
           
           const { data: createdSlots, error: slotsError } = await supabase
@@ -364,7 +385,7 @@ export const availabilityService = {
         id: preset.id,
         name: preset.name,
         type: preset.type,
-        pattern: preset.pattern || {},
+        pattern: {}, // Simplified pattern handling
         timeSlots: (preset.preset_time_slots || []).map((slot: any) => ({
           id: slot.id,
           startTime: slot.start_time,
@@ -387,7 +408,7 @@ export const availabilityService = {
         .insert({
           name: preset.name,
           type: preset.type,
-          pattern: preset.pattern
+          pattern: JSON.stringify(preset.pattern) // Convert to JSON string
         })
         .select()
         .single();
@@ -403,7 +424,7 @@ export const availabilityService = {
           preset_id: newPreset.id,
           start_time: slot.startTime,
           end_time: slot.endTime,
-          status: slot.status,
+          status: normalizeStatus(slot.status),
           days_of_week: slot.daysOfWeek
         }));
         
@@ -421,7 +442,7 @@ export const availabilityService = {
           id: newPreset.id,
           name: newPreset.name,
           type: newPreset.type,
-          pattern: newPreset.pattern,
+          pattern: {}, // Simplified pattern handling
           timeSlots: (createdSlots || []).map(slot => ({
             id: slot.id,
             startTime: slot.start_time,
@@ -436,7 +457,7 @@ export const availabilityService = {
         id: newPreset.id,
         name: newPreset.name,
         type: newPreset.type,
-        pattern: newPreset.pattern,
+        pattern: {},
         timeSlots: []
       };
     } catch (error) {
