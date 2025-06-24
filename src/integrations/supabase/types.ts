@@ -9,6 +9,141 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      availabilities: {
+        Row: {
+          created_at: string | null
+          date: string
+          employee_id: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["availability_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["availability_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["availability_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availabilities_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_cutoffs: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          cutoff_date: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          cutoff_date: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          cutoff_date?: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_cutoffs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_presets: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          pattern: Json | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          pattern?: Json | null
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          pattern?: Json | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      availability_time_slots: {
+        Row: {
+          availability_id: string
+          created_at: string | null
+          end_time: string
+          id: string
+          start_time: string
+          status: Database["public"]["Enums"]["availability_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          availability_id: string
+          created_at?: string | null
+          end_time: string
+          id?: string
+          start_time: string
+          status?: Database["public"]["Enums"]["availability_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          availability_id?: string
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["availability_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_time_slots_availability_id_fkey"
+            columns: ["availability_id"]
+            isOneToOne: false
+            referencedRelation: "availabilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bids: {
         Row: {
           created_at: string
@@ -340,6 +475,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      preset_time_slots: {
+        Row: {
+          created_at: string | null
+          days_of_week: number[] | null
+          end_time: string
+          id: string
+          preset_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["availability_status"]
+        }
+        Insert: {
+          created_at?: string | null
+          days_of_week?: number[] | null
+          end_time: string
+          id?: string
+          preset_id: string
+          start_time: string
+          status?: Database["public"]["Enums"]["availability_status"]
+        }
+        Update: {
+          created_at?: string | null
+          days_of_week?: number[] | null
+          end_time?: string
+          id?: string
+          preset_id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["availability_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preset_time_slots_preset_id_fkey"
+            columns: ["preset_id"]
+            isOneToOne: false
+            referencedRelation: "availability_presets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       remuneration_levels: {
         Row: {
@@ -1095,7 +1268,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      availability_status:
+        | "Available"
+        | "Unavailable"
+        | "Partial"
+        | "Limited"
+        | "Tentative"
+        | "On Leave"
+        | "Not Specified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1210,6 +1390,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      availability_status: [
+        "Available",
+        "Unavailable",
+        "Partial",
+        "Limited",
+        "Tentative",
+        "On Leave",
+        "Not Specified",
+      ],
+    },
   },
 } as const

@@ -6,14 +6,11 @@ import {
   addMonths, 
   subMonths,
   format,
-  parse,
-  parseISO,
-  isEqual,
   isBefore
 } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { availabilityService } from '@/api/services/availabilityService';
-import { AvailabilityStatus, TimeSlot, DayAvailability } from '@/api/models/types';
+import { AvailabilityStatus, DayAvailability } from '@/api/models/types';
 
 // Define the local Availability interface to ensure status is always required
 interface Availability {
@@ -67,62 +64,46 @@ const getStatusColor = (status: AvailabilityStatus): string => {
   }
 };
 
-// Make sure these presets match what's expected server-side
-const availabilityPresets: AvailabilityPreset[] = [
-  {
-    id: '1',
-    name: 'Standard (9-5)',
-    timeSlots: [
-      { startTime: '09:00', endTime: '17:00' }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Morning Shift',
-    timeSlots: [
-      { startTime: '07:00', endTime: '15:00' }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Evening Shift',
-    timeSlots: [
-      { startTime: '15:00', endTime: '23:00' }
-    ]
-  },
-  {
-    id: '4',
-    name: 'Full Day',
-    timeSlots: [
-      { startTime: '08:00', endTime: '20:00' }
-    ]
-  },
-  {
-    id: '5',
-    name: 'Weekdays Only',
-    timeSlots: [
-      { startTime: '09:00', endTime: '17:00' }
-    ]
-  },
-  {
-    id: '6',
-    name: 'Weekends Only',
-    timeSlots: [
-      { startTime: '10:00', endTime: '18:00' }
-    ]
-  }
-];
-
 export function useAvailabilities() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [monthlyAvailabilities, setMonthlyAvailabilities] = useState<Availability[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [cutoffDate, setCutoffDate] = useState<Date | null>(null);
+  const [availabilityPresets, setAvailabilityPresets] = useState<AvailabilityPreset[]>([]);
   const { toast } = useToast();
 
   // Derived values from selectedMonth
   const startOfSelectedMonth = useMemo(() => startOfMonth(selectedMonth), [selectedMonth]);
   const endOfSelectedMonth = useMemo(() => endOfMonth(selectedMonth), [selectedMonth]);
+  
+  // Fetch cutoff date
+  const fetchCutoffDate = useCallback(async () => {
+    try {
+      const cutoff = await availabilityService.getCutoffDate();
+      setCutoffDate(cutoff);
+    } catch (error) {
+      console.error('Error fetching cutoff date:', error);
+    }
+  }, []);
+
+  // Fetch presets
+  const fetchPresets = useCallback(async () => {
+    try {
+      const presets = await availabilityService.getPresets();
+      // Transform to match the expected interface
+      const transformedPresets: AvailabilityPreset[] = presets.map(preset => ({
+        id: preset.id,
+        name: preset.name,
+        timeSlots: preset.timeSlots.map(slot => ({
+          startTime: slot.startTime,
+          endTime: slot.endTime
+        }))
+      }));
+      setAvailabilityPresets(transformedPresets);
+    } catch (error) {
+      console.error('Error fetching presets:', error);
+    }
+  }, []);
   
   // Fetch availabilities for the selected month with proper error handling
   const fetchAvailabilities = useCallback(async () => {
@@ -138,12 +119,14 @@ export function useAvailabilities() {
       
       // Convert DayAvailability[] to Availability[] by ensuring 'status' is always set
       const typeSafeData: Availability[] = data.map(item => ({
-        ...item,
-        // Ensure status is set (use 'Not Specified' as a fallback)
+        id: item.id,
+        date: item.date,
         status: item.status || 'Not Specified',
-        // Ensure each time slot has a status
+        notes: item.notes,
         timeSlots: item.timeSlots.map(slot => ({
-          ...slot,
+          id: slot.id,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
           status: slot.status || item.status || 'Not Specified'
         }))
       }));
@@ -164,10 +147,12 @@ export function useAvailabilities() {
     }
   }, [selectedMonth, toast]);
 
-  // Fetch availabilities when month changes
+  // Fetch initial data
   useEffect(() => {
     fetchAvailabilities();
-  }, [fetchAvailabilities]);
+    fetchCutoffDate();
+    fetchPresets();
+  }, [fetchAvailabilities, fetchCutoffDate, fetchPresets]);
   
   // Navigation functions that properly update the selected month
   const goToPreviousMonth = useCallback(() => {
@@ -228,7 +213,7 @@ export function useAvailabilities() {
   }, []);
 
   // Set or update availability with immediate local state updates
-  const setAvailability = async (data: {
+  const setAvailability = useCallback(async (data: {
     startDate: Date;
     endDate: Date;
     timeSlots: Array<{
@@ -277,10 +262,14 @@ export function useAvailabilities() {
       
       // Convert the response to ensure it matches our Availability type
       const convertedResponse: Availability[] = response.map(item => ({
-        ...item,
+        id: item.id,
+        date: item.date,
         status: item.status || 'Not Specified',
+        notes: item.notes,
         timeSlots: item.timeSlots.map(slot => ({
-          ...slot,
+          id: slot.id,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
           status: slot.status || item.status || 'Not Specified'
         }))
       }));
@@ -314,10 +303,10 @@ export function useAvailabilities() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isDateLocked, toast]);
 
   // Delete availability with immediate local state updates
-  const deleteAvailability = async (date: Date) => {
+  const deleteAvailability = useCallback(async (date: Date) => {
     try {
       // Check if date is locked
       if (isDateLocked(date)) {
@@ -373,29 +362,37 @@ export function useAvailabilities() {
       });
       return false;
     }
-  };
+  }, [isDateLocked, monthlyAvailabilities, toast]);
   
   // Set cutoff date (manager functionality)
-  const setCutoff = (date: Date | null) => {
-    setCutoffDate(date);
-    if (date) {
-      toast({
-        title: "Cutoff Date Set",
-        description: `Availabilities before ${format(date, 'MMMM dd, yyyy')} are now locked.`,
-      });
+  const setCutoff = useCallback(async (date: Date | null) => {
+    try {
+      await availabilityService.setCutoffDate(date);
+      setCutoffDate(date);
       
-      // In a real app, this would save the cutoff date to the database
-      availabilityService.setCutoffDate(date);
-    } else {
+      if (date) {
+        toast({
+          title: "Cutoff Date Set",
+          description: `Availabilities before ${format(date, 'MMMM dd, yyyy')} are now locked.`,
+        });
+      } else {
+        toast({
+          title: "Cutoff Date Removed",
+          description: "All dates can now be modified.",
+        });
+      }
+    } catch (error) {
+      console.error('Error setting cutoff date:', error);
       toast({
-        title: "Cutoff Date Removed",
-        description: "All dates can now be modified.",
+        title: 'Error',
+        description: 'Failed to update cutoff date',
+        variant: 'destructive'
       });
     }
-  };
+  }, [toast]);
   
   // Apply a preset availability pattern
-  const applyPreset = async (data: {
+  const applyPreset = useCallback(async (data: {
     presetId: string;
     startDate: Date;
     endDate: Date;
@@ -430,10 +427,14 @@ export function useAvailabilities() {
       
       // Convert the response to ensure it matches our Availability type
       const convertedResponse: Availability[] = response.map(item => ({
-        ...item,
+        id: item.id,
+        date: item.date,
         status: item.status || 'Not Specified',
+        notes: item.notes,
         timeSlots: item.timeSlots.map(slot => ({
-          ...slot,
+          id: slot.id,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
           status: slot.status || item.status || 'Not Specified'
         }))
       }));
@@ -467,7 +468,7 @@ export function useAvailabilities() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isDateLocked, availabilityPresets, toast]);
 
   return {
     selectedMonth,
